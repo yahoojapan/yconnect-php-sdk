@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,17 +23,19 @@
  * THE SOFTWARE.
  */
 
-/** \file YConnectLogger.php
+/** \file Logger.php
  *
- * \brief YConnectLoggerクラスです.
+ * \brief Loggerクラスです.
  */
 
+namespace YConnect\Util;
+
 /**
- * \class YConnectLoggerクラス
+ * \class Loggerクラス
  *
  * \brief ログ機能を実装したクラスです.
  */
-class YConnectLogger
+class Logger
 {
     /**
      * \brief ログレベル定数 debug
@@ -63,7 +65,7 @@ class YConnectLogger
     /**
      * \private \brief ログ出力方法
      */
-    private static $log_type = self::LOG_TYPE; 
+    private static $log_type = self::LOG_TYPE;
     /**
      * \private \brief ログレベル
      */
@@ -79,7 +81,7 @@ class YConnectLogger
      *
      * @param	$log_type ログ出力方法定数(CONSOLE_TYPE or LOG_TYPE)
      */
-    public static function setLogType( $log_type )
+    public static function setLogType($log_type)
     {
         if( $log_type == self::CONSOLE_TYPE ) {
             self::$log_type = self::CONSOLE_TYPE;
@@ -92,10 +94,10 @@ class YConnectLogger
 
     /**
      * \brief ログレベル設定メソッド
-     * 
+     *
      * @param	$log_level	ログレベル定数(DEBUG or INFO or ERROR)
      */
-    public static function setLogLevel( $log_level )
+    public static function setLogLevel($log_level)
     {
         if( $log_level == self::DEBUG ) {
             self::$log_level = $log_level;
@@ -113,7 +115,7 @@ class YConnectLogger
      *
      * @param	$log_path	ログ出力先パス
      */
-    public static function setLogPath( $log_path )
+    public static function setLogPath($log_path)
     {
         self::$log_path = $log_path;
     }
@@ -124,7 +126,7 @@ class YConnectLogger
      * @param	$message	ログメッセージ
      * @param	$object	対象オブジェクト
      */
-    public static function debug( $message, $object = null )
+    public static function debug($message, $object = null)
     {
         if( self::$log_level <= self::DEBUG )
             self::outputLog( "[YConnect] [DEBUG] " . $message, $object );
@@ -136,7 +138,7 @@ class YConnectLogger
      * @param	$message	ログメッセージ
      * @param	$object	対象オブジェクト
      */
-    public static function info( $message, $object = null )
+    public static function info($message, $object = null)
     {
         if( self::$log_level <= self::INFO )
             self::outputLog( "[YConnect] [INFO] " . $message, $object );
@@ -148,7 +150,7 @@ class YConnectLogger
      * @param	$message ログメッセージ
      * @param	$object	対象オブジェクト
      */
-    public static function error( $message, $object = null )
+    public static function error($message, $object = null)
     {
         if( self::$log_level <= self::ERROR )
             self::outputLog( "[YConnect] [ERROR] " . $message, $object );
@@ -160,7 +162,7 @@ class YConnectLogger
      * @param	$message ログメッセージ
      * @param	$object	対象オブジェクト
      */
-    private static function outputLog( $message, $object = null )
+    private static function outputLog($message, $object = null)
     {
         if( self::$log_type == self::CONSOLE_TYPE ) {
             echo $message;
@@ -173,12 +175,10 @@ class YConnectLogger
                     error_log( print_r( $object, true ) );
             } else {
                 error_log( $message, 3, self::$log_path );
-                if( $object != null ) 
+                if( $object != null )
                     error_log( print_r( $object, true ), 3, self::$log_path ) ;
             }
-        } 
+        }
 
     }
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

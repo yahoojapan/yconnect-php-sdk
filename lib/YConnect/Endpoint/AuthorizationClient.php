@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,17 +23,22 @@
  * THE SOFTWARE.
  */
 
-/** \file OAuth2AuthorizationClient.php
+/** \file AuthorizationClient.php
  *
  * \brief OAuth2 Authorization処理クラスです.
  */
 
+namespace YConnect\Endpoint;
+
+use YConnect\Constant\ResponseType;
+use YConnect\Util\Logger;
+
 /**
- * \class OAuth2AuthorizationClientクラス
+ * \class AuthorizationClientクラス
  *
  * \brief Authorizationの機能を実装したクラスです.
  */
-class OAuth2AuthorizationClient
+class AuthorizationClient
 {
     /**
      * \private \brief 認可サーバエンドポイントURL
@@ -48,7 +53,7 @@ class OAuth2AuthorizationClient
     /**
      * \private \brief レスポンスタイプ
      */
-    private $response_type = OAuth2ResponseType::CODE;
+    private $response_type = ResponseType::CODE;
 
     /**
      * \private \brief パラメータ
@@ -56,13 +61,13 @@ class OAuth2AuthorizationClient
     private $params = array();
 
     /**
-     * \brief OAuth2AuthorizationClientのインスタンス生成
+     * \brief AuthorizationClientのインスタンス生成
      *
      * @param	$endpoint_url	エンドポイントURL
      * @param	$client_credential	クライアントクレデンシャル
      * @param	$response_type	response_type
      */
-    public function __construct( $endpoint_url, $client_credential, $response_type=null )
+    public function __construct($endpoint_url, $client_credential, $response_type=null)
     {
         $this->url  = $endpoint_url;
         $this->cred = $client_credential;
@@ -80,7 +85,7 @@ class OAuth2AuthorizationClient
      * @param	$redirect_uri	リダイレクトURI
      * @param	$state	state
      */
-    public function requestAuthorizationGrant( $redirect_uri=null, $state=null )
+    public function requestAuthorizationGrant($redirect_uri=null, $state=null)
     {
         self::setParam( "response_type", $this->response_type );
         self::setParam( "client_id", $this->cred->id );
@@ -99,7 +104,7 @@ class OAuth2AuthorizationClient
         $query = http_build_query( $this->params );
         $request_uri = $this->url . "?" .  $query;
 
-        YConnectLogger::info( "authorization request(" . get_class() . "::" . __FUNCTION__ . ")", $request_uri );
+        Logger::info( "authorization request(" . get_class() . "::" . __FUNCTION__ . ")", $request_uri );
 
         header( "Location: " . $request_uri );
         exit();
@@ -109,7 +114,7 @@ class OAuth2AuthorizationClient
      * \brief scope設定メソッド
      * @param	$scope_array	scope名の配列
      */
-    public function setScopes( $scope_array )
+    public function setScopes($scope_array)
     {
         $this->params[ "scope" ] = implode( " ", $scope_array );
     }
@@ -118,7 +123,7 @@ class OAuth2AuthorizationClient
      * \brief レスポンスタイプ設定メソッド
      * @param	$response_type	response_type
      */
-    public function setResponseType( $response_type )
+    public function setResponseType($response_type)
     {
         $this->response_type = $response_type;
     }
@@ -131,7 +136,7 @@ class OAuth2AuthorizationClient
      * @param	$key	パラメータ名
      * @param	$val	値
      */
-    public function setParam( $key, $val )
+    public function setParam($key, $val)
     {
         $this->params[ $key ] = $val;
     }
@@ -143,7 +148,7 @@ class OAuth2AuthorizationClient
      *
      * @param	$keyval_array	パラメータ名と値の連想配列
      */
-    public function setParams( $keyval_array )
+    public function setParams($keyval_array)
     {
         $this->params = array_merge( $this->params, $keyval_array );
     }
@@ -152,11 +157,9 @@ class OAuth2AuthorizationClient
      * \brief 認可サーバエンドポイントURL設定メソッド
      * @param	$endpoint_url	エンドポイントURL
      */
-    protected function _setEndpointUrl( $endpoint_url )
+    protected function _setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
     }
 
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

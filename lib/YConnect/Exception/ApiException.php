@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,19 +23,21 @@
  * THE SOFTWARE.
  */
 
-/** \file IdTokenException.php
+/** \file ApiException.php
  *
- * \brief IDトークン例外処理クラスを定義しています.
+ * \brief Web API例外処理クラスを定義しています.
  */
 
+namespace YConnect\Exception;
+
 /**
- * \class IdTokenExceptionクラス
+ * \class ApiExceptionクラス
  *
- * \brief IDトークン例外処理クラスです.
+ * \brief Web API例外処理クラスです.
  *
- * IDトークン例外処理クラスです.
+ * Web API例外処理クラスです.
  */
-class IdTokenException extends Exception
+class ApiException extends Exception
 {
     /**
      * \brief エラー概要
@@ -55,13 +57,41 @@ class IdTokenException extends Exception
      * @param	$code
      */
     // $previous 5.3以降追加
-    // public function __construct( $message, $code = 0, Exception $previous = null ) {
-    public function __construct( $error, $error_desc = "", $code = 0 )
+    // public function __construct($message, $code = 0, Exception $previous = null) {
+    public function __construct($error, $error_desc = "", $code = 0)
     {
         parent::__construct( $error, $code );
 
         $this->error      = $error;
         $this->error_desc = $error_desc;
+    }
+
+    /**
+     * \brief 無効なアクセストークンエラー確認メソッド
+     *
+     * @return	true or false
+     */
+    public function invalidToken()
+    {
+        if( preg_match( "/invalid_token/", $this->error ) ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * \brief パラメータ関連エラー確認メソッド
+     *
+     * @return	true or false
+     */
+    public function invalidRequest()
+    {
+        if( preg_match( "/invalid_request/", $this->error ) ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function __toString()
@@ -72,5 +102,3 @@ class IdTokenException extends Exception
         return $str;
     }
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

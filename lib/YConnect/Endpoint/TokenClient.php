@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,17 +23,21 @@
  * THE SOFTWARE.
  */
 
-/** \file OAuth2TokenClient.php
+/** \file TokenClient.php
  *
  * \brief OAuth2 Token処理クラスです.
  */
 
+namespace YConnect\Endpoint;
+
+use YConnect\Util\HttpClient;
+
 /**
- * \class OAuth2TokenClientクラス
+ * \class TokenClientクラス
  *
  * \brief Tokenリクエストの機能を実装したクラスです.
  */
-class OAuth2TokenClient
+class TokenClient
 {
     /**
      * \private \brief エンドポイントURL
@@ -56,9 +60,9 @@ class OAuth2TokenClient
     protected $cred = null;
 
     /**
-     * \brief OAuth2TokenClientのインスタンス生成
+     * \brief TokenClientのインスタンス生成
      */
-    public function __construct( $endpoint_url, $client_credential )
+    public function __construct($endpoint_url, $client_credential)
     {
         $this->url  = $endpoint_url;
         $this->cred = $client_credential;
@@ -98,7 +102,7 @@ class OAuth2TokenClient
      *
      * @param	$keyval_array	パラメータ名と値の連想配列
      */
-    public function setParams( $keyval_array )
+    public function setParams($keyval_array)
     {
         $this->params = array_merge( $this->params, $keyval_array );
     }
@@ -111,7 +115,7 @@ class OAuth2TokenClient
      * @param	$key	パラメータ名
      * @param	$val	値
      */
-    public function setParam( $key, $val )
+    public function setParam($key, $val)
     {
         $this->params[ $key ] = $val;
     }
@@ -120,9 +124,7 @@ class OAuth2TokenClient
      * \brief エンドポイントURL設定メソッド
      * @param	$endpoint_url	エンドポイントURL
      */
-    protected function _setEndpointUrl( $endpoint_url )
+    protected function _setEndpointUrl($endpoint_url)
     {
     }
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

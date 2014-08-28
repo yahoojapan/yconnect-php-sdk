@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,8 +23,14 @@
  * THE SOFTWARE.
  */
 
-// YConnectライブラリ読み込み
-require("YConnect.inc");
+require("autoload.php");
+
+use YConnect\Constant\OIDConnectDisplay;
+use YConnect\Constant\OIDConnectPrompt;
+use YConnect\Constant\OIDConnectScope;
+use YConnect\Constant\ResponseType;
+use YConnect\Credential\ClientCredential;
+use YConnect\YConnectClient;
 
 // アプリケーションID, シークレッvト
 $client_id     = "YOUR_APPLICATION_ID";
@@ -38,7 +44,7 @@ $state = "44Oq44Ki5YWF44Gr5L+644Gv44Gq44KL77yB";
 // リプレイアタック対策のランダムな文字列を指定してください
 $nonce = "5YOV44Go5aWR57SE44GX44GmSUTljqjjgavjgarjgaPjgabjgog=";
 
-$response_type = OAuth2ResponseType::CODE_IDTOKEN;
+$response_type = ResponseType::CODE_IDTOKEN;
 $scope = array(
     OIDConnectScope::OPENID,
     OIDConnectScope::PROFILE,
@@ -66,7 +72,7 @@ try {
     if( !$code_result ) {
 
         /*****************************
-             Authorization Request    
+             Authorization Request
         *****************************/
 
         // Authorizationエンドポイントにリクエスト
@@ -83,7 +89,7 @@ try {
     } else {
 
         /****************************
-             Access Token Request    
+             Access Token Request
         ****************************/
 
         // Tokenエンドポイントにリクエスト
@@ -120,7 +126,7 @@ try {
 
     }
 
-} catch ( OAuth2ApiException $ae ) {
+} catch ( ApiException $ae ) {
 
     // アクセストークンが有効期限切れであるかチェック
     if( $ae->invalidToken() ) {
@@ -140,7 +146,7 @@ try {
             echo "ACCESS TOKEN : " . $client->getAccessToken() . "<br/><br/>";
             echo "EXPIRATION   : " . $client->getAccessTokenExpiration();
 
-        } catch ( OAuth2TokenException $te ) {
+        } catch ( TokenException $te ) {
 
             // リフレッシュトークンが有効期限切れであるかチェック
             if( $te->invalidGrant() ) {
@@ -165,5 +171,3 @@ try {
 } catch ( Exception $e ) {
     echo "<pre>" . print_r( $e, true ) . "</pre>";
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */
