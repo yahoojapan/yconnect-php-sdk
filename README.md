@@ -19,6 +19,9 @@ libディレクトリをinclude_pathに設定してrequireあるいはincludeし
 本ライブラリおよびサンプルコード等は MIT License にて提供しています。  
 詳しくは LICENSE をご覧ください。
 
+### Version
+2.0.0
+
 ### Pull request に関して
 現在 Contributor License Agreement（CLA）を準備しています。  
 CLA に同意していただくまでは Pull request しても必ず受け付けられるわけではありません。   
