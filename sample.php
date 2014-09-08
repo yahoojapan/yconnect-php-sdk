@@ -156,7 +156,7 @@ try {
 
             echo "<pre>" . print_r( $te, true ) . "</pre>";
 
-        } catch ( Exception $e ) {
+        } catch ( \Exception $e ) {
             echo "<pre>" . print_r( $e, true ) . "</pre>";
         }
 
@@ -168,6 +168,6 @@ try {
         echo "<pre>" . print_r( $ae, true ) . "</pre>";
     }
 
-} catch ( Exception $e ) {
+} catch ( \Exception $e ) {
     echo "<pre>" . print_r( $e, true ) . "</pre>";
 }

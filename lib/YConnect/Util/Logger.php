@@ -165,7 +165,7 @@ class Logger
     private static function outputLog($message, $object = null)
     {
         if( self::$log_type == self::CONSOLE_TYPE ) {
-            echo $message;
+            echo $message."\n";
             if( $object != null )
                 echo print_r( $object, true );
         } else if( self::$log_type == self::LOG_TYPE ) {
@@ -174,7 +174,7 @@ class Logger
                 if( $object != null )
                     error_log( print_r( $object, true ) );
             } else {
-                error_log( $message, 3, self::$log_path );
+                error_log( $message."\n", 3, self::$log_path );
                 if( $object != null )
                     error_log( print_r( $object, true ), 3, self::$log_path ) ;
             }

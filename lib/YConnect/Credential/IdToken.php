@@ -27,6 +27,7 @@ namespace YConnect\Credential;
 
 use YConnect\Util\JWT;
 use YConnect\Exception\IdTokenException;
+use YConnect\Util\Logger;
 
 /**
  * IdToken Data Object
@@ -50,7 +51,7 @@ class IdToken
      */
     public function __construct($data, $key)
     {
-        if ( $data instanceof stdClass ) {
+        if ( $data instanceof \stdClass ) {
             $this->_checkFormat($data);
             $this->json = $data;
             $this->jwt = JWT::getEncodedToken($data, $key);
@@ -59,7 +60,7 @@ class IdToken
             $this->_checkFormat($this->json);
             $this->jwt = $data;
         } else {
-            throw new UnexpectedValueException('IdToken requires stdClass json object or JWT String');
+            throw new \UnexpectedValueException('IdToken requires stdClass json object or JWT String');
         }
     }
 
@@ -153,7 +154,7 @@ class IdToken
     {
         foreach ( $this->required_keys as $rkey ) {
             if ( ! property_exists($obj, $rkey) )
-                throw new UnexpectedValueException('Not a valid IdToken format');
+                throw new \UnexpectedValueException('Not a valid IdToken format');
         }
     }
 

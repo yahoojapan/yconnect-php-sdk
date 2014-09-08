@@ -42,7 +42,7 @@ class JWT
     {
         $part = explode('.', $jwt);
         if(!is_array($part) || empty($part) || count($part) !== 3 ){
-            throw new UnexpectedValueException('invalid jwt format');
+            throw new \UnexpectedValueException('invalid jwt format');
         }
         list($b64header, $b64payload, $b64sig) = $part;
         $payload   = self::jsonDecode(self::urlDecode($b64payload));
@@ -50,7 +50,7 @@ class JWT
 
         // verify sig
         if ($signature != hash_hmac('sha256', "$b64header.$b64payload", $key, true)) {
-            throw new UnexpectedValueException('invalid jwt signature');
+            throw new \UnexpectedValueException('invalid jwt signature');
         }
         return $payload;
     }
@@ -110,9 +110,9 @@ class JWT
     {
         $obj = json_decode($data);
         if (function_exists('json_last_error') && $errno = json_last_error()) {
-            throw new UnexpectedValueException("JSON decode error: $errno");
+            throw new \UnexpectedValueException("JSON decode error: $errno");
         } elseif ($obj === 'null') {
-            throw new UnexpectedValueException('Failed to json_decode');
+            throw new \UnexpectedValueException('Failed to json_decode');
         }
         return $obj;
     }
@@ -126,9 +126,9 @@ class JWT
     {
         $json = json_encode($data);
         if (function_exists('json_last_error') && $errno = json_last_error()) {
-            throw new UnexpectedValueException("JSON encode error: $errno");
+            throw new \UnexpectedValueException("JSON encode error: $errno");
         } elseif ($json === 'null') {
-            throw new UnexpectedValueException('Failed to json_encode');
+            throw new \UnexpectedValueException('Failed to json_encode');
         }
         return $json;
     }

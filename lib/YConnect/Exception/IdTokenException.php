@@ -37,40 +37,30 @@ namespace YConnect\Exception;
  *
  * IDトークン例外処理クラスです.
  */
-class IdTokenException extends Exception
+class IdTokenException extends \Exception
 {
-    /**
-     * \brief エラー概要
-     */
-    public $error = null;
-
     /**
      * \brief エラー詳細
      */
-    public $error_desc = null;
+    public $error_detail = null;
 
     /**
      * \brief インスタンス生成
      *
-     * @param	$error	エラー概要
-     * @param	$error_desc	エラー詳細
+     * @param	$error	        エラー概要
+     * @param	$error_detail	エラー詳細
      * @param	$code
+	 * @param   $previous
      */
-    // $previous 5.3以降追加
-    // public function __construct($message, $code = 0, Exception $previous = null) {
-    public function __construct($error, $error_desc = "", $code = 0)
+    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
     {
-        parent::__construct( $error, $code );
-
-        $this->error      = $error;
-        $this->error_desc = $error_desc;
+		parent::__construct($error, $code, $previous);
+        $this->error_detail = $error_detail;
     }
 
     public function __toString()
     {
-        $str = __CLASS__ . " (" . $this->code . ") : " . $this->message . ", ";
-        $str .= "error: " . $this->error . ", error_desc: " .$this->error_desc;
-
+        $str = __CLASS__ . ": " . $this->message . "( $this->error_detail )";
         return $str;
     }
 }

@@ -65,7 +65,7 @@ class RefreshToken
     /**
      * \brief Authorization Header形式トークン取得メソッド
      */
-    public function toAutorizationHeader()
+    public function toAuthorizationHeader()
     {
         return $this->token;
     }

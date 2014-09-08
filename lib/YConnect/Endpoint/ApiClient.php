@@ -87,7 +87,7 @@ class ApiClient
     protected function setParams($parameters = array())
     {
         if ( !is_array($parameters) )
-            throw new UnexpectedValueException('array is required');
+            throw new \UnexpectedValueException('array is required');
 
         foreach ( $parameters as $key => $val )
             $this->setParam($key, $val);
@@ -132,7 +132,7 @@ class ApiClient
             $httpClient->requestDelete($url, $this->params);
             break;
         default:
-            throw new UnexpectedValueException('unsupported http method');
+            throw new \UnexpectedValueException('unsupported http method');
         }
 
 
@@ -161,7 +161,7 @@ class ApiClient
     private function _checkTokenType($token)
     {
         if ( ! $token instanceof BearerToken )
-            throw new UnexpectedValueException('unsupported Access Token format');
+            throw new \UnexpectedValueException('unsupported Access Token format');
     }
 
     /**

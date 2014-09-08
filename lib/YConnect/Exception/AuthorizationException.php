@@ -37,17 +37,12 @@ namespace YConnect\Exception;
  *
  * 認可サーバ例外処理例外処理クラスです.
  */
-class AuthorizationException extends Exception
+class AuthorizationException extends \Exception
 {
-    /**
-     * \brief \public エラー概要
-     */
-    public $error = null;
-
     /**
      * \brief \public エラー詳細
      */
-    public $error_desc = null;
+    public $error_detail = null;
 
     /**
      * \brief インスタンス生成
@@ -56,15 +51,12 @@ class AuthorizationException extends Exception
      * @param	$error_desc	エラー詳細
      * @param	$code
      */
-    // $previous 5.3以降追加
-    // public function __construct($message, $code = 0, Exception $previous = null) {
-    public function __construct($error, $error_desc = "", $code = 0)
+    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
     {
-        parent::__construct( $error, $code );
-
-        $this->error      = $error;
-        $this->error_desc = $error_desc;
+		parent::__construct($error, $code, $previous);
+        $this->error_detail = $error_detail;
     }
+
 
     /**
      * \brief リクエストエラー確認メソッド
@@ -73,7 +65,7 @@ class AuthorizationException extends Exception
      */
     public function invalidRequest()
     {
-        if( preg_match( "/invalid_request/", $this->error ) ) {
+        if( preg_match( "/invalid_request/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -87,7 +79,7 @@ class AuthorizationException extends Exception
      */
     public function invalidScope()
     {
-        if( preg_match( "/invalid_scope/", $this->error ) ) {
+        if( preg_match( "/invalid_scope/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -101,7 +93,7 @@ class AuthorizationException extends Exception
      */
     public function loginRequired()
     {
-        if( preg_match( "/login_required/", $this->error ) ) {
+        if( preg_match( "/login_required/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -115,7 +107,7 @@ class AuthorizationException extends Exception
      */
     public function consentRequired()
     {
-        if( preg_match( "/consent_required/", $this->error ) ) {
+        if( preg_match( "/consent_required/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -129,7 +121,7 @@ class AuthorizationException extends Exception
      */
     public function unsupportedResponseType()
     {
-        if( preg_match( "/unsupported_response_type/", $this->error ) ) {
+        if( preg_match( "/unsupported_response_type/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -143,7 +135,7 @@ class AuthorizationException extends Exception
      */
     public function unauthorizedClient()
     {
-        if( preg_match( "/unauthorized_client/", $this->error ) ) {
+        if( preg_match( "/unauthorized_client/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -157,7 +149,7 @@ class AuthorizationException extends Exception
      */
     public function accessDenied()
     {
-        if( preg_match( "/access_denied/", $this->error ) ) {
+        if( preg_match( "/access_denied/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -171,7 +163,7 @@ class AuthorizationException extends Exception
      */
     public function serverError()
     {
-        if( preg_match( "/server_error/", $this->error ) ) {
+        if( preg_match( "/server_error/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -180,9 +172,7 @@ class AuthorizationException extends Exception
 
     public function __toString()
     {
-        $str = __CLASS__ . " (" . $this->code . ") : " . $this->message . ", ";
-        $str .= "error: " . $this->error . ", error_desc: " .$this->error_desc;
-
+        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
         return $str;
     }
 

@@ -37,33 +37,24 @@ namespace YConnect\Exception;
  *
  * Web API例外処理クラスです.
  */
-class ApiException extends Exception
+class ApiException extends \Exception
 {
-    /**
-     * \brief エラー概要
-     */
-    public $error = null;
-
     /**
      * \brief エラー詳細
      */
-    public $error_desc = null;
+    public $error_detail = null;
 
     /**
      * \brief インスタンス生成
      *
      * @param	$error	エラー概要
-     * @param	$error_desc	エラー詳細
+     * @param	$error_detail	エラー詳細
      * @param	$code
      */
-    // $previous 5.3以降追加
-    // public function __construct($message, $code = 0, Exception $previous = null) {
-    public function __construct($error, $error_desc = "", $code = 0)
+    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
     {
-        parent::__construct( $error, $code );
-
-        $this->error      = $error;
-        $this->error_desc = $error_desc;
+		parent::__construct($error, $code, $previous);
+        $this->error_detail = $error_detail;
     }
 
     /**
@@ -73,7 +64,7 @@ class ApiException extends Exception
      */
     public function invalidToken()
     {
-        if( preg_match( "/invalid_token/", $this->error ) ) {
+        if( preg_match( "/invalid_token/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -87,7 +78,7 @@ class ApiException extends Exception
      */
     public function invalidRequest()
     {
-        if( preg_match( "/invalid_request/", $this->error ) ) {
+        if( preg_match( "/invalid_request/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -96,9 +87,7 @@ class ApiException extends Exception
 
     public function __toString()
     {
-        $str = __CLASS__ . " (" . $this->code . ") : " . $this->message . ", ";
-        $str .= "error: " . $this->error . ", error_desc: " .$this->error_desc;
-
+        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
         return $str;
     }
 }

@@ -265,7 +265,7 @@ class YConnectClient
      */
     public function getRefreshToken()
     {
-        return $this->refresh_token->toAutorizationHeader();
+        return $this->refresh_token->toAuthorizationHeader();
     }
 
     /**
