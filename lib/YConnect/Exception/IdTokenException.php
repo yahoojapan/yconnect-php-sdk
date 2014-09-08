@@ -50,11 +50,11 @@ class IdTokenException extends \Exception
      * @param	$error	        エラー概要
      * @param	$error_detail	エラー詳細
      * @param	$code
-	 * @param   $previous
+     * @param   $previous
      */
     public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
     {
-		parent::__construct($error, $code, $previous);
+        parent::__construct($error, $code, $previous);
         $this->error_detail = $error_detail;
     }
 

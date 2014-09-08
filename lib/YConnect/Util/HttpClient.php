@@ -116,12 +116,12 @@ class HttpClient
     {
         curl_setopt( $this->ch, CURLOPT_URL, $url );
         curl_setopt( $this->ch, CURLOPT_POST, 1 );
-		// supported safe data RFC3986
-		if (is_array($data)) {
-			foreach ($data as $key => $value) {
-				$data[$key] = rawurlencode(rawurldecode($value));
-			}
-		}
+        // supported safe data RFC3986
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = rawurlencode(rawurldecode($value));
+            }
+        }
         curl_setopt( $this->ch, CURLOPT_POSTFIELDS, $data );
         Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
 

@@ -53,7 +53,7 @@ class TokenException extends \Exception
      */
     public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
     {
-		parent::__construct($error, $code, $previous);
+        parent::__construct($error, $code, $previous);
         $this->error_detail = $error_detail;
     }
 
