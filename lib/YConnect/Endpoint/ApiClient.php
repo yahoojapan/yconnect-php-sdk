@@ -124,6 +124,12 @@ class ApiClient
             break;
         case 'POST':
             $httpClient->requestPost($url, $this->params);
+            // supported safe data RFC3986
+            if (is_array($this->params)) {
+                foreach ($this->params as $key => $value) {
+                    $this->params[$key] = rawurlencode(rawurldecode($value));
+                }
+            }
             break;
         case 'PUT':
             $httpClient->requestPut($url, $this->params);
