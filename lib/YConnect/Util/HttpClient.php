@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,8 @@
  * \brief HTTP通信の機能を提供するクラスを定義しています.
  */
 
+namespace YConnect\Util;
+
 /**
  * \class HttpClientクラス
  *
@@ -38,12 +40,12 @@
 class HttpClient
 {
     /**
-     * \private \brief curlインスタンス 
+     * \private \brief curlインスタンス
      */
     private $ch = null;
 
     /**
-     * \private \brief SSLチェックフラグ 
+     * \private \brief SSLチェックフラグ
      */
     private static $sslCheckFlag = true;
 
@@ -67,7 +69,7 @@ class HttpClient
         //curl_setopt( $this->ch, CURLOPT_FAILONERROR, 1 );	// 400以上でなにもしない
         curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt( $this->ch, CURLOPT_HEADER, true );
-        YConnectLogger::debug( "curl_init(" . get_class() . "::" . __FUNCTION__ . ")" );
+        Logger::debug( "curl_init(" . get_class() . "::" . __FUNCTION__ . ")" );
     }
 
     /**
@@ -78,7 +80,7 @@ class HttpClient
         if( $this->ch != null ) {
             curl_close( $this->ch );
             $this->ch = null;
-            YConnectLogger::debug( "curl_closed(" . get_class() . "::" . __FUNCTION__ . ")" );
+            Logger::debug( "curl_closed(" . get_class() . "::" . __FUNCTION__ . ")" );
         }
     }
 
@@ -89,20 +91,20 @@ class HttpClient
     {
         self::$sslCheckFlag = false;
 
-        YConnectLogger::debug( "disable SSL check(" . get_class() . "::" . __FUNCTION__ . ")" );
+        Logger::debug( "disable SSL check(" . get_class() . "::" . __FUNCTION__ . ")" );
     }
 
     /**
      * \brief ヘッダ設定メソッド
      * @param	$headers	ヘッダの配列
      */
-    public function setHeader( $headers = null )
+    public function setHeader($headers = null)
     {
         if( $headers != null ) {
             curl_setopt( $this->ch, CURLOPT_HTTPHEADER, $headers );
         }
 
-        YConnectLogger::debug( "added headers(" . get_class() . "::" . __FUNCTION__ . ")", $headers );
+        Logger::debug( "added headers(" . get_class() . "::" . __FUNCTION__ . ")", $headers );
     }
 
     /**
@@ -110,12 +112,12 @@ class HttpClient
      * @param	$url	エンドポイントURL
      * @param	$data	パラメータ配列
      */
-    public function requestPost( $url, $data=null )
+    public function requestPost($url, $data=null)
     {
         curl_setopt( $this->ch, CURLOPT_URL, $url );
         curl_setopt( $this->ch, CURLOPT_POST, 1 );
         curl_setopt( $this->ch, CURLOPT_POSTFIELDS, $data );
-        YConnectLogger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
+        Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
 
         if( !self::$sslCheckFlag ) {
             curl_setopt( $this->ch, CURLOPT_SSL_VERIFYPEER, false );
@@ -126,15 +128,15 @@ class HttpClient
         $info   = curl_getinfo( $this->ch );
 
         if( !$result ) {
-            YConnectLogger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
-            YConnectLogger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new Exception( "failed curl_exec." );
-        }	
+            Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
+            Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
+            throw new \Exception( "failed curl_exec." );
+        }
 
         $this->extractResponse( $result, $info );
 
-        YConnectLogger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
-        YConnectLogger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
+        Logger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
+        Logger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
     }
 
     /**
@@ -142,7 +144,7 @@ class HttpClient
      * @param	$url	エンドポイントURL
      * @param	$data	パラメータ配列
      */
-    public function requestGet( $url, $data=null )
+    public function requestGet($url, $data=null)
     {
         if( $data != null ) {
             $query = http_build_query( $data );
@@ -155,7 +157,7 @@ class HttpClient
         }
 
         curl_setopt( $this->ch, CURLOPT_URL, $url );
-        YConnectLogger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
+        Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
 
         if( !self::$sslCheckFlag ) {
             curl_setopt( $this->ch, CURLOPT_SSL_VERIFYPEER, false );
@@ -166,15 +168,15 @@ class HttpClient
         $info   = curl_getinfo( $this->ch );
 
         if( !$result ) {
-            YConnectLogger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
-            YConnectLogger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new Exception( "failed curl_exec." );
+            Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
+            Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
+            throw new \Exception( "failed curl_exec." );
         }
 
         $this->extractResponse( $result, $info );
 
-        YConnectLogger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
-        YConnectLogger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
+        Logger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
+        Logger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
     }
 
     /**
@@ -182,13 +184,13 @@ class HttpClient
      * @param	$url	エンドポイントURL
      * @param	$data	パラメータ配列
      */
-    public function requestPut( $url, $data=null )
+    public function requestPut($url, $data=null)
     {
         curl_setopt( $this->ch, CURLOPT_URL, $url );
         curl_setopt( $this->ch, CURLOPT_CUSTOMREQUEST, "PUT" );
         curl_setopt( $this->ch, CURLOPT_POSTFIELDS, $data );
 
-        YConnectLogger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
+        Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
 
         if( !self::$sslCheckFlag ) {
             curl_setopt( $this->ch, CURLOPT_SSL_VERIFYPEER, false );
@@ -199,15 +201,15 @@ class HttpClient
         $info   = curl_getinfo( $this->ch );
 
         if( !$result ) {
-            YConnectLogger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
-            YConnectLogger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new Exception( "failed curl_exec." );
+            Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
+            Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
+            throw new \Exception( "failed curl_exec." );
         }
 
         $this->extractResponse( $result, $info );
 
-        YConnectLogger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
-        YConnectLogger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
+        Logger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
+        Logger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
     }
 
     /**
@@ -215,12 +217,12 @@ class HttpClient
      * @param	$url	エンドポイントURL
      * @param	$data	パラメータ配列
      */
-    public function requestDelete( $url, $data=null )
+    public function requestDelete($url, $data=null)
     {
         curl_setopt( $this->ch, CURLOPT_URL, $url );
         curl_setopt( $this->ch, CURLOPT_CUSTOMREQUEST, "DELETE" );
         curl_setopt( $this->ch, CURLOPT_POSTFIELDS, $data );
-        YConnectLogger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
+        Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
 
         if( !self::$sslCheckFlag ) {
             curl_setopt( $this->ch, CURLOPT_SSL_VERIFYPEER, false );
@@ -231,15 +233,15 @@ class HttpClient
         $info   = curl_getinfo( $this->ch );
 
         if( !$result ) {
-            YConnectLogger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
-            YConnectLogger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new Exception( "failed curl_exec." );
+            Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
+            Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
+            throw new \Exception( "failed curl_exec." );
         }
 
         $this->extractResponse( $result, $info );
 
-        YConnectLogger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
-        YConnectLogger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
+        Logger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
+        Logger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
     }
 
     /**
@@ -258,7 +260,7 @@ class HttpClient
      * \brief レスポンスヘッダ取得メソッド
      * @param	$header_name	ヘッダフィールド
      */
-    public function getResponseHeader( $header_name )
+    public function getResponseHeader($header_name)
     {
         if( array_key_exists( $header_name, $this->headers ) ) {
             return $this->headers[$header_name];
@@ -286,7 +288,7 @@ class HttpClient
      *
      * @param	$raw_response	レスポンス文字列
      */
-    private function extractResponse( $raw_response, $info )
+    private function extractResponse($raw_response, $info)
     {
         // ヘッダとボディを分割
         $headers_raw = substr( $raw_response, 0, $info['header_size'] );
@@ -299,7 +301,7 @@ class HttpClient
 
         foreach( $headers_raw_array as $header_raw ) {
 
-            if( preg_match( "/HTTP/", $header_raw ) ) {	
+            if( preg_match( "/HTTP/", $header_raw ) ) {
                 $headers_asoc_array[0] = $header_raw;
             } else {
                 $tmp = preg_split( "/: /", $header_raw );
@@ -313,9 +315,7 @@ class HttpClient
         $this->headers = $headers_asoc_array;
         $this->body    = $body_raw;
 
-        YConnectLogger::debug( "extracted headers(" . get_class() . "::" . __FUNCTION__ . ")", $this->headers );
-        YConnectLogger::debug( "extracted body(" . get_class() . "::" . __FUNCTION__ . ")", $this->body );
+        Logger::debug( "extracted headers(" . get_class() . "::" . __FUNCTION__ . ")", $this->headers );
+        Logger::debug( "extracted body(" . get_class() . "::" . __FUNCTION__ . ")", $this->body );
     }
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

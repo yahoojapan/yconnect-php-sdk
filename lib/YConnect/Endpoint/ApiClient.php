@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,19 +23,25 @@
  * THE SOFTWARE.
  */
 
-/** \file OAuth2ApiClient.php
+/** \file ApiClient.php
  *
  * \brief Web APIアクセスの機能を提供するクラスを定義しています.
  */
 
+namespace YConnect\Endpoint;
+
+use YConnect\Util\HttpClient;
+use YConnect\Exception\TokenException;
+use YConnect\Credential\BearerToken;
+
 /**
- * \class OAuth2ApiClientクラス
+ * \class ApiClientクラス
  *
  * \brief Web APIアクセスの機能を提供するクラスです.
  *
- * Web APIアクセスに必要な機能を提供しています. 
+ * Web APIアクセスに必要な機能を提供しています.
  */
-class OAuth2ApiClient
+class ApiClient
 {
     /**
      * \private \brief Access Token
@@ -63,7 +69,7 @@ class OAuth2ApiClient
     private $res_error = '';
 
     /**
-     * \brief OAuth2AuthorizationClientのインスタンス生成
+     * \brief AuthorizationClientのインスタンス生成
      */
     public function __construct($access_token)
     {
@@ -81,7 +87,7 @@ class OAuth2ApiClient
     protected function setParams($parameters = array())
     {
         if ( !is_array($parameters) )
-            throw new UnexpectedValueException('array is required');
+            throw new \UnexpectedValueException('array is required');
 
         foreach ( $parameters as $key => $val )
             $this->setParam($key, $val);
@@ -98,7 +104,7 @@ class OAuth2ApiClient
     protected function setParam($key, $val)
     {
         if ( !is_numeric($key) && is_string($key) && is_scalar($val) )
-            $this->params[$key] = $val;        
+            $this->params[$key] = $val;
     }
 
     /**
@@ -118,6 +124,12 @@ class OAuth2ApiClient
             break;
         case 'POST':
             $httpClient->requestPost($url, $this->params);
+            // supported safe data RFC3986
+            if (is_array($this->params)) {
+                foreach ($this->params as $key => $value) {
+                    $this->params[$key] = rawurlencode(rawurldecode($value));
+                }
+            }
             break;
         case 'PUT':
             $httpClient->requestPut($url, $this->params);
@@ -126,7 +138,7 @@ class OAuth2ApiClient
             $httpClient->requestDelete($url, $this->params);
             break;
         default:
-            throw new UnexpectedValueException('unsupported http method');
+            throw new \UnexpectedValueException('unsupported http method');
         }
 
 
@@ -150,26 +162,24 @@ class OAuth2ApiClient
      * Only Bearer Token is supported as of now
      *
      * @param   $token    Access Token
-     * @throws  UnexpectedValueException   
+     * @throws  UnexpectedValueException
      */
     private function _checkTokenType($token)
     {
-        if ( ! $token instanceof OAuth2BearerToken )
-            throw new UnexpectedValueException('unsupported Access Token format');
+        if ( ! $token instanceof BearerToken )
+            throw new \UnexpectedValueException('unsupported Access Token format');
     }
 
     /**
      * check WebAPI Authorication error
      *
-     * @param   $header                 WWW-Authenticate header string
-     * @throws  OAuth2TokenException    if WWW-Authenticate is not NULL
-     * @see     OAuth2TokenException
+     * @param   $header           WWW-Authenticate header string
+     * @throws  TokenException    if WWW-Authenticate is not NULL
+     * @see     TokenException
      */
     private function _checkAuthorizationError($header)
     {
         if ( $header !== NULL )
-            throw new OAuth2TokenException( $header );
+            throw new TokenException( $header );
     }
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

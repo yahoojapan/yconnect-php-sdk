@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,18 @@
  *
  * \brief Yahoo! JAPAN Connect クライアントライブラリ
  */
+
+namespace YConnect;
+
+use YConnect\Constant\GrantType;
+use YConnect\Credential\IdToken;
+use YConnect\Endpoint\AuthorizationClient;
+use YConnect\Endpoint\AuthorizationCodeClient;
+use YConnect\Endpoint\RefreshTokenClient;
+use YConnect\Exception\TokenException;
+use YConnect\Util\HttpClient;
+use YConnect\Util\Logger;
+use YConnect\WebAPI\UserInfoClient;
 
 /**
  * \class YConnectClientクラス
@@ -57,22 +69,22 @@ class YConnectClient
     private $clientCred = null;
 
     /**
-     * \private \brief OAuth2AuthorizationClientインスタンス
+     * \private \brief AuthorizationClientインスタンス
      */
     private $auth_client = null;
 
     /**
-     * \private \brief OAuth2AuthorizationCodeClientインスタンス
+     * \private \brief AuthorizationCodeClientインスタンス
      */
     private $auth_code_client = null;
 
     /**
-     * \private \brief OAuth2RefreshTokenインスタンス
+     * \private \brief RefreshTokenインスタンス
      */
     private $refresh_token_client = null;
 
     /**
-     * \private \brief OAuth2ClientCredentialsClientインスタンス
+     * \private \brief ClientCredentialsClientインスタンス
      */
     private $client_credentials_client = null;
 
@@ -106,7 +118,7 @@ class YConnectClient
      *
      * @param	$clientCred	クライアントクレデンシャル
      */
-    public function __construct( $clientCred )
+    public function __construct($clientCred)
     {
         $this->clientCred = $clientCred;
     }
@@ -116,10 +128,10 @@ class YConnectClient
      *
      * @param $display	true:コンソール出力 false:ログファイル出力
      */
-    public function enableDebugMode( $display = false )
+    public function enableDebugMode($display = false)
     {
-        if( $display == true ) YConnectLogger::setLogType( YConnectLogger::CONSOLE_TYPE );
-        YConnectLogger::setLogLevel( YConnectLogger::DEBUG );
+        if( $display == true ) Logger::setLogType( Logger::CONSOLE_TYPE );
+        Logger::setLogLevel( Logger::DEBUG );
     }
 
     /**
@@ -143,9 +155,9 @@ class YConnectClient
      * @param	$display	display(認証画面タイプ)
      * @param	$prompt	prompt(ログイン、同意画面選択)
      */
-    public function requestAuth( $redirect_uri, $state, $nonce, $response_type, $scope = null, $display = null, $prompt = null )
+    public function requestAuth($redirect_uri, $state, $nonce, $response_type, $scope = null, $display = null, $prompt = null)
     {
-        $auth_client = new OAuth2AuthorizationClient(
+        $auth_client = new AuthorizationClient(
             self::AUTHORIZATION_URL,
             $this->clientCred,
             $response_type
@@ -166,14 +178,14 @@ class YConnectClient
      *
      * @param	$state	state
      * @param	$scope	scope
-     * @throws  OAuth2TokenException
+     * @throws  TokenException
      */
-    private function _checkResponse( $state, $scope = null )
+    private function _checkResponse($state, $scope = null)
     {
         if( !isset( $_GET["state"] ) ) return false;
 
         if( $state != $_GET["state"] )
-            throw new OAuth2TokenException( "not_matched_state", "the state did not match" );
+            throw new TokenException( "not_matched_state", "the state did not match" );
 
         return true;
     }
@@ -186,14 +198,14 @@ class YConnectClient
      *
      * @param	$state	state
      */
-    public function getAuthorizationCode( $state )
+    public function getAuthorizationCode($state)
     {
         if( self::_checkResponse( $state ) ) {
 
             $error      = array_key_exists( "error", $_GET ) ? $_GET["error"] : null;
             $error_desc = array_key_exists( "error_description", $_GET ) ? $_GET["error_description"] : null;
             if( !empty( $error ) ) {
-                throw new OAuth2TokenException( $error, $error_desc );
+                throw new TokenException( $error, $error_desc );
             }
 
             if( !isset( $_GET["code"] ) ) return false;
@@ -212,16 +224,16 @@ class YConnectClient
      * @param	$code code
      * @param	$nonce nonce
      */
-    public function requestAccessToken( $redirect_uri, $code )
+    public function requestAccessToken($redirect_uri, $code)
     {
-        $this->auth_code_client = new OAuth2AuthorizationCodeClient(
+        $this->auth_code_client = new AuthorizationCodeClient(
             self::TOKEN_URL,
             $this->clientCred,
             $code,
             $redirect_uri
         );
         $token_req_params = array(
-            "grant_type" => OAuth2GrantType::AUTHORIZATION_CODE,
+            "grant_type" => GrantType::AUTHORIZATION_CODE,
             "code"       => $code
         );
         $this->auth_code_client->setParams( $token_req_params );
@@ -253,7 +265,7 @@ class YConnectClient
      */
     public function getRefreshToken()
     {
-        return $this->refresh_token->toAutorizationHeader();
+        return $this->refresh_token->toAuthorizationHeader();
     }
 
     /**
@@ -275,11 +287,9 @@ class YConnectClient
      *
      * @return boolean
      */
-    public function verifyIdToken( $nonce )
+    public function verifyIdToken($nonce)
     {
-        $id_token_util = new IdTokenUtil( $this->id_token, $nonce, $this->clientCred->id );
-    
-        return $id_token_util->verify();
+        return IdToken::verify( $this->id_token, $nonce, $this->clientCred->id );
     }
 
     /**
@@ -301,9 +311,9 @@ class YConnectClient
      *
      * @param	$refresh_token	リフレッシュトークン
      */
-    public function refreshAccessToken( $refresh_token )
+    public function refreshAccessToken($refresh_token)
     {
-        $this->refresh_token_client = new OAuth2RefreshTokenClient(
+        $this->refresh_token_client = new RefreshTokenClient(
             self::TOKEN_URL,
             $this->clientCred,
             $refresh_token
@@ -320,7 +330,7 @@ class YConnectClient
      *
      * @param	$access_token	アクセストークン
      */
-    public function requestUserInfo( $access_token, $schema=null )
+    public function requestUserInfo($access_token, $schema=null)
     {
         $this->user_info_client = new UserInfoClient( self::USERINFO_URL, $access_token, $schema );
         $this->user_info_client->fetchUserInfo();
@@ -338,5 +348,3 @@ class YConnectClient
         return $this->user_info;
     }
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

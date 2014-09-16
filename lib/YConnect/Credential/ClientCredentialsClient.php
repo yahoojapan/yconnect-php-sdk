@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,17 +23,21 @@
  * THE SOFTWARE.
  */
 
-/** \file OAuth2ClientCredentialsClient.php
+/** \file ClientCredentialsClient.php
  *
  * \brief Authorization Code フローの機能を実装しています.
  */
 
+namespace YConnect\Credential;
+
+use YConnect\Endpoint\TokenClient;
+
 /**
- * \class OAuth2ClientCredentialsClientクラス
+ * \class ClientCredentialsClientクラス
  *
  * \brief Authorization Code フローの機能を実装したクラスです.
  */
-class OAuth2ClientCredentialsClient extends OAuth2TokenClient
+class ClientCredentialsClient extends TokenClient
 {
     /**
      * \private \brief scopes
@@ -46,9 +50,9 @@ class OAuth2ClientCredentialsClient extends OAuth2TokenClient
     private $access_token = null;
 
     /**
-     * \brief OAuth2ClientCredentialsClientのインスタンス生成
+     * \brief ClientCredentialsClientのインスタンス生成
      */
-    public function __construct( $endpoint_url, $client_credential, $scopes )
+    public function __construct($endpoint_url, $client_credential, $scopes)
     {
         parent::__construct( $endpoint_url, $client_credential );
         $this->scopes = $scopes;
@@ -58,7 +62,7 @@ class OAuth2ClientCredentialsClient extends OAuth2TokenClient
      * \brief scopes設定メソッド
      * @param	$scopes	scope
      */
-    public function setScopes( $scopes )
+    public function setScopes($scopes)
     {
         $this->scopes = $scopes;
     }
@@ -80,10 +84,8 @@ class OAuth2ClientCredentialsClient extends OAuth2TokenClient
      * \brief エンドポイントURL設定メソッド
      * @param	$endpoint_url	エンドポイントURL
      */
-    protected function _setEndpointUrl( $endpoint_url )
+    protected function _setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
     }
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

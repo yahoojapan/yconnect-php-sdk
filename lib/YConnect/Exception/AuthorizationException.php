@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,29 +23,26 @@
  * THE SOFTWARE.
  */
 
-/** \file OAuth2TokenException.php
+/** \file AuthorizationException.php
  *
- * \brief Token サーバ例外処理クラスを定義しています.
+ * \brief 認可サーバ例外処理クラスを定義しています.
  */
+
+namespace YConnect\Exception;
 
 /**
- * \class OAuth2TokenExceptionクラス
+ * \class AuthorizationExceptionクラス
  *
- * \brief Token サーバ例外処理クラスです.
+ * \brief 認可サーバ例外処理クラスです.
  *
- * Token サーバ例外処理クラスです.
+ * 認可サーバ例外処理例外処理クラスです.
  */
-class OAuth2TokenException extends Exception
+class AuthorizationException extends \Exception
 {
     /**
-     * \brief エラー概要
+     * \brief \public エラー詳細
      */
-    public $error = null;
-
-    /**
-     * \brief エラー詳細
-     */
-    public $error_desc = null;
+    public $error_detail = null;
 
     /**
      * \brief インスタンス生成
@@ -54,36 +51,21 @@ class OAuth2TokenException extends Exception
      * @param	$error_desc	エラー詳細
      * @param	$code
      */
-    public function __construct( $error, $error_desc = "", $code = 0 )
+    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
     {
-        parent::__construct( $error, $code );
-
-        $this->error      = $error;
-        $this->error_desc = $error_desc;
+        parent::__construct($error, $code, $previous);
+        $this->error_detail = $error_detail;
     }
 
+
     /**
-     * \brief リダイレクトURIエラー確認メソッド
+     * \brief リクエストエラー確認メソッド
      *
      * @return	true or false
      */
-    public function invalidRedirectUri()
+    public function invalidRequest()
     {
-        if( preg_match( "/invalid_redirect_uri/", $this->error ) ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * \brief クライアント認証URIエラー確認メソッド
-     *
-     * @return	true or false
-     */
-    public function invalidClient()
-    {
-        if( preg_match( "/invalid_client/", $this->error ) ) {
+        if( preg_match( "/invalid_request/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -97,7 +79,7 @@ class OAuth2TokenException extends Exception
      */
     public function invalidScope()
     {
-        if( preg_match( "/invalid_scope/", $this->error ) ) {
+        if( preg_match( "/invalid_scope/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -105,13 +87,13 @@ class OAuth2TokenException extends Exception
     }
 
     /**
-     * \brief Refresh Token有効期限切れ確認メソッド
+     * \brief ログイン画面表示要求エラー確認メソッド
      *
      * @return	true or false
      */
-    public function invalidGrant()
+    public function loginRequired()
     {
-        if( preg_match( "/invalid_grant/", $this->error ) ) {
+        if( preg_match( "/login_required/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -119,13 +101,13 @@ class OAuth2TokenException extends Exception
     }
 
     /**
-     * \brief Access Token有効期限切れ確認メソッド
+     * \brief 同意画面表示要求エラー確認メソッド
      *
      * @return	true or false
      */
-    public function tokenExpired()
+    public function consentRequired()
     {
-        if( preg_match( "/invalid_token/", $this->error ) ) {
+        if( preg_match( "/consent_required/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -133,13 +115,13 @@ class OAuth2TokenException extends Exception
     }
 
     /**
-     * \brief 無効なToken確認メソッド
+     * \brief レスポンスタイプエラー確認メソッド
      *
      * @return	true or false
      */
-    public function invalidToken()
+    public function unsupportedResponseType()
     {
-        if( preg_match( "/invalid_token/", $this->error ) ) {
+        if( preg_match( "/unsupported_response_type/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -147,27 +129,13 @@ class OAuth2TokenException extends Exception
     }
 
     /**
-     * \brief パラメータ関連エラー確認メソッド
+     * \brief クライアント認証エラー確認メソッド
      *
      * @return	true or false
      */
-    public function invalidRequest()
+    public function unauthorizedClient()
     {
-        if( preg_match( "/invalid_request/", $this->error ) ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * \brief 認可タイプエラー確認メソッド
-     *
-     * @return	true or false
-     */
-    public function unsupportedGrantType()
-    {
-        if( preg_match( "/unsupported_grant_type/", $this->error ) ) {
+        if( preg_match( "/unauthorized_client/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -181,7 +149,7 @@ class OAuth2TokenException extends Exception
      */
     public function accessDenied()
     {
-        if( preg_match( "/access_denied/", $this->error ) ) {
+        if( preg_match( "/access_denied/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -195,7 +163,7 @@ class OAuth2TokenException extends Exception
      */
     public function serverError()
     {
-        if( preg_match( "/server_error/", $this->error ) ) {
+        if( preg_match( "/server_error/", $this->message ) ) {
             return true;
         } else {
             return false;
@@ -204,11 +172,8 @@ class OAuth2TokenException extends Exception
 
     public function __toString()
     {
-        $str = __CLASS__ . " (" . $this->code . ") : " . $this->message . ", ";
-        $str .= "error: " . $this->error . ", error_desc: " .$this->error_desc;
-    
+        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
         return $str;
     }
-}
 
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */
+}

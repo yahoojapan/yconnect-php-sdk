@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,64 +23,72 @@
  * THE SOFTWARE.
  */
 
-/** \file OAuth2RefreshToken.php
+/** \file ClientCredential.php
  *
- * \brief Refresh Tokenを保持するクラスを定義しています.
+ * \brief クレデンシャルを保持するクラスを定義しています.
  */
+
+namespace YConnect\Credential;
 
 /**
- * \class OAuth2RefreshTokenクラス
+ * \class ClientCredentialクラス
  *
- * \brief Refresh Tokenを保持するクラスです.
+ * \brief クレデンシャルを保持するクラスです.
  *
- * Access Tokenの更新で用いられるRefresh Tokenのクラスです.
+ * 認可サーバ、Tokenサーバのリクエストで用いられるクレデンシャルのクラスです.
  */
-class OAuth2RefreshToken
+class ClientCredential
 {
     /**
-     * \private \brief refresh_token
+     * \private \brief client_id
      */
-    public $token = null;
+    public $id = null;
 
     /**
-     * \brief OAuth2RefreshTokenのインスタンス生成
-     *
-     * @param	$refresh_token	Refresh Token
+     * \private \brief client_secret
      */
-    public function __construct( $refresh_token )
+    public $secret = null;
+
+    /**
+     * \brief ClientCredentialのインスタンス生成
+     *
+     * @param	$client_id	Client ID
+     * @param	$client_secret	Client Secret
+     */
+    public function __construct($client_id, $client_secret)
     {
-        $this->token = $refresh_token;
+        $this->id = $client_id;
+        $this->secret = $client_secret;
     }
 
     /**
      * \brief toString
      */
-    function __toString()
+    public function __toString()
     {
-        return "Authorization: Bearer " . $this->token;
+        return "client_id: " . $this->id . ", client_secret: " . $this->secret;
     }
 
     /**
-     * \brief Authorization Header形式トークン取得メソッド
+     * \brief Authorization Header形式クレデンシャル取得メソッド
      */
-    public function toAutorizationHeader()
+    public function toAuthorizationHeader()
     {
-        return $this->token;
+        return base64_encode( $this->id . ":" . $this->secret );
     }
 
     /**
-     * \brief クエリ形式トークン取得メソッド
+     * \brief クエリ形式取得メソッド
      */
     public function toQueryString()
     {
         $query = http_build_query(
             array(
-                "refresh_token" => $this->token
+                "client_id"     => $this->id,
+                "client_secret" => $this->secret
             )
         );
-    
+
         return $query;
     }
 }
-
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */

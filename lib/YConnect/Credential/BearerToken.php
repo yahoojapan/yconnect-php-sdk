@@ -1,19 +1,19 @@
 <?php
 /**
  * The MIT License (MIT)
- * 
- * Copyright (C) 2013 Yahoo Japan Corporation. All Rights Reserved. 
- * 
+ *
+ * Copyright (C) 2014 Yahoo Japan Corporation. All Rights Reserved.
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,72 +23,79 @@
  * THE SOFTWARE.
  */
 
-/** \file ClientCredential.php
+/** \file BearerToken.php
  *
- * \brief クレデンシャルを保持するクラスを定義しています.
+ * \brief Bearer Tokenを保持するクラスを定義しています.
  */
+
+namespace YConnect\Credential;
 
 /**
- * \class ClientCredentialクラス
+ * \class BearerTokenクラス
  *
- * \brief クレデンシャルを保持するクラスです.
+ * \brief Bearer Tokenを保持するクラスです.
  *
- * 認可サーバ、Tokenサーバのリクエストで用いられるクレデンシャルのクラスです.
+ * APIアクセスで用いられるBearer Tokenのクラスです.
  */
-class ClientCredential
+class BearerToken
 {
     /**
-     * \private \brief client_id
+     * \private \brief access_token
      */
-    public $id = null;
+    public $token = null;
 
     /**
-     * \private \brief client_secret
+     * \private \brief expiration
      */
-    public $secret = null;
+    public $exp = null;
 
     /**
-     * \brief ClientCredentialのインスタンス生成
+     * \brief BearerTokenインスタンス生成
      *
-     * @param	$client_id	Client ID
-     * @param	$client_secret	Client Secret
+     * @param	$access_token	Access Token
+     * @param	$expiration	expiration
      */
-    public function __construct( $client_id, $client_secret )
+    public function __construct($access_token, $expiration)
     {
-        $this->id = $client_id;
-        $this->secret = $client_secret;
+        $this->token      = $access_token;
+        $this->exp        = $expiration;
     }
 
     /**
      * \brief toString
      */
-    function __toString()
+    public function __toString()
     {
-        return "client_id: " . $this->id . ", client_secret: " . $this->secret;
+        return "Authorization: Bearer " . $this->token;
     }
 
     /**
-     * \brief Authorization Header形式クレデンシャル取得メソッド
+     * \brief Authorization Header形式トークン取得メソッド
      */
     public function toAuthorizationHeader()
     {
-        return base64_encode( $this->id . ":" . $this->secret );
+        return $this->token;
     }
 
     /**
-     * \brief クエリ形式取得メソッド
+     * \brief クエリ形式トークン取得メソッド
      */
     public function toQueryString()
     {
         $query = http_build_query(
             array(
-                "client_id"     => $this->id,
-                "client_secret" => $this->secret
+                "access_token" => $this->token
             )
         );
 
         return $query;
     }
-}
 
-/* vim:ts=4:sw=4:sts=0:tw=0:ft=php:set et: */
+    /**
+     * \brief Access Token有効期限取得メソッド
+     */
+    public function getExpiration()
+    {
+        return $this->exp;
+    }
+}
