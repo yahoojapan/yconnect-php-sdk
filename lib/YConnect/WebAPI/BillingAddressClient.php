@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-/** \file UserInfoClient.php
+/** \file BillingAddressClient.php
  *
  * \brief OAuth2 Authorization処理クラスです.
  */
@@ -36,56 +36,48 @@ use YConnect\Util\Logger;
 use YConnect\Exception\ApiException;
 
 /**
- * \class UserInfoClientクラス
+ * \class BillingAddressClientクラス
  *
  * \brief Authorizationの機能を実装したクラスです.
  */
-class UserInfoClient extends ApiClient
+class BillingAddressClient extends ApiClient
 {
     /**
-     * \private \brief UserInfoエンドポイントURL
+     * \brief BillingAddress Endpoint
+     */
+    const BILLINGADDRESS_URL = "https://fastpay.yahooapis.jp/v1/address";
+
+    /**
+     * \private \brief BillingAddressエンドポイントURL
      */
     private $url = null;
 
     /**
-     * \private \brief レスポンスタイプ
+     * \private \brief BillingAddress配列
      */
-    private $schema = "openid";
+    private $billing_address = array();
 
     /**
-     * \private \brief UserInfo配列
-     */
-    private $user_info = array();
-
-    /**
-     * \brief UserInfoClientのインスタンス生成
+     * \brief BillingAddressClientのインスタンス生成
      *
      * @param	$endpoint_url	エンドポイントURL
-     * @param	$schema	schema
      */
-    public function __construct($endpoint_url, $access_token, $schema=null)
+    public function __construct( $access_token )
     {
         if( is_string($access_token) )
             $access_token = new BearerToken( $access_token, null );
 
         parent::__construct( $access_token );
 
-        $this->url  = $endpoint_url;
-        $this->access_token = $access_token;
-
-        if( $schema != null ) {
-            $this->schema = $schema;
-        }
+        $this->url  = self::BILLINGADDRESS_URL;
     }
 
     /**
-     * \brief UserInfoエンドポイントリソース取得メソッド
+     * \brief BillingAddressエンドポイントリソース取得メソッド
      *
      */
-    public function fetchUserInfo()
+    public function fetchBillingAddress()
     {
-        parent::setParam( "schema", $this->schema );
-
         parent::fetchResource( $this->url, "GET" );
 
         $res_body = parent::getLastResponse();
@@ -94,10 +86,10 @@ class UserInfoClient extends ApiClient
         Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
         if( $json_response != null ) {
             if( empty( $json_response["error"] ) ) {
-                $this->user_info = $json_response;
+                $this->billing_address = $json_response;
             } else {
-                $error      = $json_response["error"];
-                $error_desc = $json_response["error_description"];
+                $error      = $json_response["error"]["code"];
+                $error_desc = $json_response["error"]["message"];
                 Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
                 throw new ApiException( $error, $error_desc );
             }
@@ -108,15 +100,15 @@ class UserInfoClient extends ApiClient
     }
 
     /**
-     * \brief UserInfo配列取得メソッド
+     * \brief BillingAddress配列取得メソッド
      *
      */
-    public function getUserInfo()
+    public function getBillingAddress()
     {
-        if( $this->user_info != null ) {
-            return $this->user_info;
+        if( $this->billing_address != null ) {
+            return $this->billing_address;
         } else {
-            return false;
+            return array();
         }
     }
 }
