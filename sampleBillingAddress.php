@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-require("autoload.php");
+require_once("vendor/autoload.php");
 
 use YConnect\Constant\OIDConnectDisplay;
 use YConnect\Constant\OIDConnectPrompt;

@@ -1,0 +1,28 @@
+{
+    "name": "yahoojapan/yconnect-php-sdk",
+    "description": "YConnect PHP SDK",
+    "keywords": [
+        "Yahoo! JAPAN",
+        "PHP",
+        "YConnect",
+        "OpenID Connect",
+        "UserInfo",
+        "FastPay",
+        "BillingAddress"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/yahoojapan/yconnect-php-sdk",
+    "authors": [
+      {
+        "name": "Yahoo Japan Corporation",
+        "email": "none"
+      }
+    ],
+    "autoload": {
+      "psr-0": {
+        "YConnect": "lib/"
+      }
+    }
+}
+
