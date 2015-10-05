@@ -15,8 +15,7 @@
     "homepage": "https://github.com/yahoojapan/yconnect-php-sdk",
     "authors": [
       {
-        "name": "Yahoo Japan Corporation",
-        "email": "none"
+        "name": "Yahoo Japan Corporation"
       }
     ],
     "autoload": {
