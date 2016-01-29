@@ -37,9 +37,14 @@ namespace YConnect\Constant;
 class OIDConnectDisplay
 {
     /**
-     * \public \brief page: デフォルトテンプレート
+     * \public \brief empty string: ユーザーエージェント判定によるテンプレート出し分け
      */
-    const DEFAULT_DISPLAY = "page";
+    const DEFAULT_DISPLAY = "";
+
+    /**
+     * \public \brief page: PC版テンプレート
+     */
+    const PC = "page";
 
     /**
      * \public \brief touch: スマートフォン版テンプレート

@@ -23,6 +23,11 @@
  * THE SOFTWARE.
  */
 
+/** \file IdToken.php
+ *
+ * \brief ID Tokenを保持するクラスを定義しています.
+ */
+
 namespace YConnect\Credential;
 
 use YConnect\Util\JWT;
@@ -30,8 +35,9 @@ use YConnect\Exception\IdTokenException;
 use YConnect\Util\Logger;
 
 /**
- * IdToken Data Object
- * requires JWT library ( https://github.com/luciferous/jwt )
+ * \class IdTokenクラス
+ *
+ * \brief ID Tokenを保持するクラスです.
  */
 class IdToken
 {
