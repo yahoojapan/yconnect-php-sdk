@@ -116,7 +116,10 @@ class ApiClient
     protected function fetchResource($url, $method)
     {
         $httpClient = new HttpClient();
-        $httpClient->setHeader(array($this->token->__toString()));
+        $httpClient->setHeader(array(
+            "Expect:", // POST HTTP 100-continue 無効
+            (string)$this->token
+        ));
 
         switch ( $method ) {
         case 'GET':

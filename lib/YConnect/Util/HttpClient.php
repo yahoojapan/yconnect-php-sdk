@@ -303,7 +303,7 @@ class HttpClient
 
             if( preg_match( "/HTTP/", $header_raw ) ) {
                 $headers_asoc_array[0] = $header_raw;
-            } else {
+            } elseif( !empty( $header_raw ) ) {
                 $tmp = preg_split( "/: /", $header_raw );
                 $field = $tmp[0];
                 $value = $tmp[1];
