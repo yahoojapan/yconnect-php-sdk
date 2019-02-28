@@ -64,11 +64,15 @@ class HttpClient
      */
     public function __construct()
     {
+        if ( !defined( 'CURL_SSLVERSION_TLSv1_2' ) ) {
+            define( 'CURL_SSLVERSION_TLSv1_2', 6);
+        }
         $this->ch = curl_init();
         //curl_setopt( $this->ch, CURLOPT_VERBOSE, 1 ); // 詳細情報出力
         //curl_setopt( $this->ch, CURLOPT_FAILONERROR, 1 );	// 400以上でなにもしない
         curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt( $this->ch, CURLOPT_HEADER, true );
+        curl_setopt( $this->ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2 );
         Logger::debug( "curl_init(" . get_class() . "::" . __FUNCTION__ . ")" );
     }
 
