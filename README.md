@@ -70,7 +70,7 @@ BillingAddress APIの利用には、Yahoo!ウォレット FastPay( https://fastp
 詳しくは LICENSE をご覧ください。
 
 ### Version
-2.2.1
+2.2.2
 
 ### Pull request に関して
 現在 Contributor License Agreement（CLA）を準備しています。  
