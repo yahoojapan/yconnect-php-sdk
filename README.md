@@ -12,7 +12,9 @@ Yahoo! ID連携（YConnect）のAuthorization Codeフローを実装するため
   * http://fastpay.yahooapis.jp/v1/address
 
 ### 構成環境
-PHP 5.3 （5.3.x）以降（curl、json関連のパッケージ必須）
+* PHP 5.3 （5.3.x）以降（curl、json関連のパッケージ必須）
+* curl 7.34.0以降
+* openssl 1.0.1以降
 
 ### 利用方法
 #### Composerを利用する場合
@@ -68,7 +70,7 @@ BillingAddress APIの利用には、Yahoo!ウォレット FastPay( https://fastp
 詳しくは LICENSE をご覧ください。
 
 ### Version
-2.2.1
+2.2.2
 
 ### Pull request に関して
 現在 Contributor License Agreement（CLA）を準備しています。  
