@@ -25,6 +25,8 @@
 
 namespace YConnect\Util;
 
+use YConnect\Credential\PublicKeys;
+
 /** \file YConnectJWT.php
  *
  * \brief JSON Web Token (JWT) for YConnect
@@ -34,44 +36,35 @@ class JWT
 {
     /**
      * @param string $jwt token
-     * @param string $key secret key
+     * @param PublicKeys $public_keys public keys
      *
      * @return object The JWT's payload
      */
-    public static function getDecodedToken($jwt, $key)
+    public static function getDecodedToken($jwt, $public_keys)
     {
         $part = explode('.', $jwt);
         if(!is_array($part) || empty($part) || count($part) !== 3 ){
             throw new \UnexpectedValueException('invalid jwt format');
         }
         list($b64header, $b64payload, $b64sig) = $part;
+        $header    = self::jsonDecode(self::urlDecode($b64header));
         $payload   = self::jsonDecode(self::urlDecode($b64payload));
         $signature = self::urlDecode($b64sig);
 
+        if(!$header->kid) {
+            throw new \UnexpectedValueException('header does not have kid parameter');
+        }
+        if(!$public_keys->getPublicKey($header->kid)) {
+            throw new \UnexpectedValueException('public key for kid not found');
+        }
+
         // verify sig
-        if ($signature != hash_hmac('sha256', "$b64header.$b64payload", $key, true)) {
+        $public_key = $public_keys->getPublicKey($header->kid);
+        if(!self::verifySignature($b64header, $b64payload, $signature, $public_key)) {
             throw new \UnexpectedValueException('invalid jwt signature');
         }
+
         return $payload;
-    }
-
-    /**
-     * @param object|array $payload
-     * @param string       $key     secret key
-     *
-     * @return string JWT
-     */
-    public static function getEncodedToken($payload, $key)
-    {
-        // support only JWT typ and HS256 algorithm
-        $header = array('typ' => 'JWT', 'alg' => 'HS256');
-
-        $token  = self::urlEncode(self::jsonEncode($header)).".";
-        $token .= self::urlEncode(self::jsonEncode($payload));
-        $signature = hash_hmac('sha256', $token, $key, true);
-        $token .= ".".self::urlEncode($signature);
-
-        return $token;
     }
 
     /**
@@ -92,16 +85,6 @@ class JWT
     }
 
     /**
-     * @param string
-     *
-     * @return string base64 encoded
-     */
-    public static function urlEncode($str)
-    {
-        return str_replace('=', '', strtr(base64_encode($str), '+/', '-_'));
-    }
-
-    /**
      * @param string $data JSON
      *
      * @return object Object representation of JSON string
@@ -118,18 +101,27 @@ class JWT
     }
 
     /**
-     * @param object|array $data
+     * @param string $b64header Header part of JWT
+     * @param string $b64payload Payload part of JWT
+     * @param string $signature Signature part of JWT
+     * @param string $publicKey
      *
-     * @return string JSON representation of the PHP object or array
+     * @return bool When valid signature, return true.
      */
-    public static function jsonEncode($data)
+    private static function verifySignature($b64header, $b64payload, $signature, $publicKey)
     {
-        $json = json_encode($data);
-        if (function_exists('json_last_error') && $errno = json_last_error()) {
-            throw new \UnexpectedValueException("JSON encode error: $errno");
-        } elseif ($json === 'null') {
-            throw new \UnexpectedValueException('Failed to json_encode');
+        $data = $b64header . '.' . $b64payload;
+        $publicKeyId = openssl_pkey_get_public($publicKey);
+        if (!$publicKeyId) {
+            // failed to get public key resource
+            return false;
         }
-        return $json;
+        $result = openssl_verify($data, $signature, $publicKeyId, 'RSA-SHA256');
+        openssl_free_key($publicKeyId);
+        if ($result !== 1) {
+            // invalid signature
+            return false;
+        }
+        return true;
     }
 }

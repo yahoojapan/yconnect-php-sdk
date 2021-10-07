@@ -39,7 +39,7 @@ class OIDConnectDisplay
     /**
      * \public \brief empty string: ユーザーエージェント判定によるテンプレート出し分け
      */
-    const DEFAULT_DISPLAY = "";
+    const DEFAULT_DISPLAY = "page";
 
     /**
      * \public \brief page: PC版テンプレート
@@ -50,4 +50,14 @@ class OIDConnectDisplay
      * \public \brief touch: スマートフォン版テンプレート
      */
     const SMART_PHONE = "touch";
+
+    /**
+     * \public \brief popup: ポップアップ版テンプレート
+     */
+    const POPUP = "popup";
+
+    /**
+     * \public \brief inapp: ネイティブアプリ版テンプレート
+     */
+    const NATIVE_APP = "inapp";
 }

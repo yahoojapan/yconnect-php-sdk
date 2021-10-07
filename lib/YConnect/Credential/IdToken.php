@@ -41,32 +41,28 @@ use YConnect\Util\Logger;
  */
 class IdToken
 {
-    private $required_keys = array('iss', 'aud', 'exp', 'user_id', 'nonce');
+    private $required_keys = array('iss', 'sub', 'aud', 'exp', 'iat', 'nonce');
 
     private $json = NULL;
     private $jwt = '';
 
     // for verify
-    private static $issuer = "https://auth.login.yahoo.co.jp";
+    private static $issuer = "https://auth.login.yahoo.co.jp/yconnect/v2";
 
     /**
      * Constructor
      *
-     * @param $data   JWT raw string or Object(stdClass)
-     * @param $key    id_token secret key
+     * @param string $data   JWT raw string
+     * @param PublicKeys $public_keys    Map of public key
      */
-    public function __construct($data, $key)
+    public function __construct($data, $public_keys)
     {
-        if ( $data instanceof \stdClass ) {
-            $this->_checkFormat($data);
-            $this->json = $data;
-            $this->jwt = JWT::getEncodedToken($data, $key);
-        } elseif ( is_string($data) ) {
-            $this->json = JWT::getDecodedToken($data, $key);
+        if ( is_string($data) ) {
+            $this->json = JWT::getDecodedToken($data, $public_keys);
             $this->_checkFormat($this->json);
             $this->jwt = $data;
         } else {
-            throw new \UnexpectedValueException('IdToken requires stdClass json object or JWT String');
+            throw new \UnexpectedValueException('IdToken requires JWT String');
         }
     }
 
@@ -91,9 +87,9 @@ class IdToken
     /**
      * @return user_id
      */
-    public function getUserId()
+    public function getSub()
     {
-        return $this->json->user_id;
+        return $this->json->sub;
     }
 
     /**
@@ -120,19 +116,25 @@ class IdToken
         return $this->json;
     }
 
-    public static function verify($object, $auth_nonce, $client_id, $acceptable_range = 600)
+    public static function verify($object, $auth_nonce, $client_id, $access_token, $acceptable_range = 600)
     {
         // Is iss equal to issuer ?
-        if ( self::$issuer != $object->iss )
+        if ( self::$issuer !== $object->iss )
             throw new IdTokenException( "Invalid issuer.", "The issuer did not match.({$object->iss})" );
 
         // Is nonce equal to this nonce (was issued at the request authorization) ?
-        if ( $auth_nonce != $object->nonce )
+        if ( $auth_nonce !== $object->nonce )
             throw new IdTokenException( "Not match nonce.", "The nonce did not match.({$auth_nonce}, {$object->nonce})" );
 
         // Is aud equal to the client_id (Application ID) ?  if ( $client_id != $object->aud )
-        if ( $client_id != $object->aud )
+        if ( !in_array($client_id, $object->aud) )
             throw new IdTokenException( "Invalid audience.", "The client id did not match.({$object->aud})" );
+
+        if ($object->at_hash) {
+            $hash = self::generateHash($access_token);
+            if ($hash !== $object->at_hash )
+                throw new IdTokenException( "Invalid at_hash.", "The at_hash did not match.({$object->at_hash})" );
+        }
 
         // Is corrent time less than exp ?
         if ( time() > $object->exp )
@@ -162,6 +164,20 @@ class IdToken
             if ( ! property_exists($obj, $rkey) )
                 throw new \UnexpectedValueException('Not a valid IdToken format');
         }
+    }
+
+    /**
+     * generate hash for at_hash
+     *
+     * @param $value
+     * @return mixed
+     */
+    private static function generateHash($value)
+    {
+        $hash = hash('sha256', $value, true);
+        $length = strlen($hash) / 2;
+        $halfOfHash = substr($hash, 0, $length);
+        return str_replace('=', '', strtr(base64_encode($halfOfHash), '+/', '-_'));
     }
 
 }

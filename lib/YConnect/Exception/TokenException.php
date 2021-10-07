@@ -45,16 +45,22 @@ class TokenException extends \Exception
     public $error_detail = null;
 
     /**
+     * \brief エラーコード
+     */
+    public $error_code;
+
+    /**
      * \brief インスタンス生成
      *
      * @param	$error	エラー概要
      * @param	$error_desc	エラー詳細
      * @param	$code
      */
-    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
+    public function __construct($error, $error_detail = "", $error_code = 0, $code = 0, \Exception $previous = null)
     {
         parent::__construct($error, $code, $previous);
         $this->error_detail = $error_detail;
+        $this->error_code = $error_code;
     }
 
     /**
@@ -199,7 +205,7 @@ class TokenException extends \Exception
 
     public function __toString()
     {
-        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
+        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )[ $this->error_code ]";
         return $str;
     }
 }

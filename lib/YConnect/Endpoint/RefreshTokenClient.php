@@ -106,8 +106,9 @@ class RefreshTokenClient extends TokenClient
             } else {
                 $error      = $json_response["error"];
                 $error_desc = $json_response["error_description"];
+                $error_code = $json_response["error_code"];
                 Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
-                throw new TokenException( $error, $error_desc );
+                throw new TokenException( $error, $error_desc, $error_code );
             }
         } else {
             Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
@@ -128,6 +129,6 @@ class RefreshTokenClient extends TokenClient
      */
     protected function _setEndpointUrl($endpoint_url)
     {
-        $this->url = $endpoint_url;
+        parent::_setEndpointUrl($endpoint_url);
     }
 }

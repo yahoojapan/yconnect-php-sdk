@@ -33,8 +33,10 @@ namespace YConnect;
 
 use YConnect\Constant\GrantType;
 use YConnect\Credential\IdToken;
+use YConnect\Credential\PublicKeys;
 use YConnect\Endpoint\AuthorizationClient;
 use YConnect\Endpoint\AuthorizationCodeClient;
+use YConnect\Endpoint\PublicKeysClient;
 use YConnect\Endpoint\RefreshTokenClient;
 use YConnect\Exception\TokenException;
 use YConnect\Util\HttpClient;
@@ -51,17 +53,22 @@ class YConnectClient
     /**
      * \brief Authorization Endpoint
      */
-    const AUTHORIZATION_URL = "https://auth.login.yahoo.co.jp/yconnect/v1/authorization";
+    const AUTHORIZATION_URL = "https://auth.login.yahoo.co.jp/yconnect/v2/authorization";
 
     /**
      * \brief Token Endpoint
      */
-    const TOKEN_URL = "https://auth.login.yahoo.co.jp/yconnect/v1/token";
+    const TOKEN_URL = "https://auth.login.yahoo.co.jp/yconnect/v2/token";
 
     /**
      * \brief UserInfo Endpoint
      */
-    const USERINFO_URL = "https://userinfo.yahooapis.jp/yconnect/v1/attribute";
+    const USERINFO_URL = "https://userinfo.yahooapis.jp/yconnect/v2/attribute";
+
+    /**
+     * \brief PublicKeys Endpoint
+     */
+    const PUBLIC_KEYS_ENDPOINT_URL = "https://auth.login.yahoo.co.jp/yconnect/v2/public-keys";
 
     /**
      * \private \brief ClientCredentialインスタンス
@@ -153,9 +160,12 @@ class YConnectClient
      * @param	$nonce	nonce(リプレイアタック対策のランダム値)
      * @param	$response_type   response_type
      * @param	$display	display(認証画面タイプ)
-     * @param	$prompt	prompt(ログイン、同意画面選択)
+     * @param   $prompt	prompt(ログイン、同意画面選択)
+     * @param   $max_age max_age(最大認証経過時間)
+     * @param   $code_challenge code_challenge(認可コード横取り攻撃対策（PKCE）のパラメーター)
      */
-    public function requestAuth($redirect_uri, $state, $nonce, $response_type, $scope = null, $display = null, $prompt = null)
+    public function requestAuth($redirect_uri, $state, $nonce, $response_type, $scope = null, $display = null,
+                                $prompt = null, $max_age = null, $plain_code_challenge = null)
     {
         $auth_client = new AuthorizationClient(
             self::AUTHORIZATION_URL,
@@ -169,6 +179,13 @@ class YConnectClient
         if( $display != null ) $auth_client->setParam( "display", $display );
         if( $prompt != null ) {
             $auth_client->setParam( "prompt", implode( " ", $prompt ) );
+        }
+        if( $max_age != null ) {
+            $auth_client->setParam( "max_age", $max_age);
+        }
+        if( $plain_code_challenge != null ) {
+            $auth_client->setParam( "code_challenge", $this->_generateCodeChallenge($plain_code_challenge) );
+            $auth_client->setParam( "code_challenge_method", "S256" );
         }
         $auth_client->requestAuthorizationGrant( $redirect_uri, $state );
     }
@@ -204,8 +221,9 @@ class YConnectClient
 
             $error      = array_key_exists( "error", $_GET ) ? $_GET["error"] : null;
             $error_desc = array_key_exists( "error_description", $_GET ) ? $_GET["error_description"] : null;
+            $error_code = array_key_exists( "error_code", $_GET ) ? $_GET["error_code"] : null;
             if( !empty( $error ) ) {
-                throw new TokenException( $error, $error_desc );
+                throw new TokenException( $error, $error_desc, $error_code );
             }
 
             if( !isset( $_GET["code"] ) ) return false;
@@ -220,23 +238,37 @@ class YConnectClient
      *
      * Tokenエンドポイントにリクエストします。
      *
-     * @param	$redirect_uri	クライアントリダイレクトURL
-     * @param	$code code
-     * @param	$nonce nonce
+     * @param    $redirect_uri    クライアントリダイレクトURL
+     * @param    $code code
+     * @param    $code_verifier code verifier
+     * @throws \Exception
      */
-    public function requestAccessToken($redirect_uri, $code)
+    public function requestAccessToken($redirect_uri, $code, $code_verifier = null)
     {
+        $public_keys_client = new PublicKeysClient(self::PUBLIC_KEYS_ENDPOINT_URL);
+        $public_keys_client->fetchPublicKeys();
+        $public_keys_json = $public_keys_client->getResponse();
+        if(!$public_keys_json) {
+            throw new \UnexpectedValueException('Failed to fetch public keys');
+        }
+
         $this->auth_code_client = new AuthorizationCodeClient(
             self::TOKEN_URL,
             $this->clientCred,
             $code,
-            $redirect_uri
+            $redirect_uri,
+            new PublicKeys($public_keys_json)
         );
         $token_req_params = array(
             "grant_type" => GrantType::AUTHORIZATION_CODE,
             "code"       => $code
         );
         $this->auth_code_client->setParams( $token_req_params );
+
+        if( $code_verifier != null ) {
+            $this->auth_code_client->setParam( "code_verifier", $code_verifier );
+        }
+
         $this->auth_code_client->fetchToken();
         $this->access_token  = $this->auth_code_client->getAccessToken();
         $this->refresh_token = $this->auth_code_client->getRefreshToken();
@@ -287,9 +319,9 @@ class YConnectClient
      *
      * @return boolean
      */
-    public function verifyIdToken($nonce)
+    public function verifyIdToken($nonce, $access_token)
     {
-        return IdToken::verify( $this->id_token, $nonce, $this->clientCred->id );
+        return IdToken::verify( $this->id_token, $nonce, $this->clientCred->id, $access_token);
     }
 
     /**
@@ -346,5 +378,17 @@ class YConnectClient
     public function getUserInfo()
     {
         return $this->user_info;
+    }
+
+    /**
+     * \brief ハッシュ化された code challenge を生成します
+     *
+     * @param string $plain_code_challenge ハッシュ化前の code challenge
+     * @return string SHA-256でハッシュ化された code challenge
+     */
+    private function _generateCodeChallenge($plain_code_challenge)
+    {
+        $hash = hash('sha256', $plain_code_challenge, true);
+        return str_replace('=', '', strtr(base64_encode($hash), '+/', '-_'));
     }
 }

@@ -42,6 +42,11 @@ class OIDConnectPrompt
     const LOGIN = "login";
 
     /**
+     * \public \brief select_account: ID切替
+     */
+    const SELECT_ACCOUNT = "select_account";
+
+    /**
      * \public \brief consent: ユーザの認可
      */
     const CONSENT = "consent";

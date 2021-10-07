@@ -43,8 +43,10 @@ $redirect_uri = "http://" . $_SERVER["SERVER_NAME"] . $_SERVER["PHP_SELF"];
 $state = "44Oq44Ki5YWF44Gr5L+644Gv44Gq44KL77yB";
 // リプレイアタック対策のランダムな文字列を指定してください
 $nonce = "5YOV44Go5aWR57SE44GX44GmSUTljqjjgavjgarjgaPjgabjgog=";
+// 認可コード横取り攻撃対策文字列を指定してください
+$plain_code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM._~";
 
-$response_type = ResponseType::CODE_IDTOKEN;
+$response_type = ResponseType::CODE;
 $scope = array(
     OIDConnectScope::OPENID,
     OIDConnectScope::PROFILE,
@@ -83,7 +85,9 @@ try {
             $response_type,
             $scope,
             $display,
-            $prompt
+            $prompt,
+            3600,
+            $plain_code_challenge
         );
 
     } else {
@@ -95,7 +99,8 @@ try {
         // Tokenエンドポイントにリクエスト
         $client->requestAccessToken(
             $redirect_uri,
-            $code_result
+            $code_result,
+            $plain_code_challenge
         );
 
         echo "<h1>Access Token Request</h1>";
@@ -109,7 +114,7 @@ try {
         *****************************/
 
         // IDトークンを検証
-        $client->verifyIdToken( $nonce );
+        $client->verifyIdToken( $nonce, $client->getAccessToken());
         echo "ID TOKEN: <br/>";
         echo "<pre>" . print_r( $client->getIdToken(), true ) . "</pre>";
 

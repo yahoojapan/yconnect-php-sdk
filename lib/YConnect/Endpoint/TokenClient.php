@@ -126,5 +126,6 @@ class TokenClient
      */
     protected function _setEndpointUrl($endpoint_url)
     {
+        $this->url = $endpoint_url;
     }
 }

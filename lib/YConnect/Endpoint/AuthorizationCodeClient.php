@@ -66,6 +66,11 @@ class AuthorizationCodeClient extends TokenClient
     private $refresh_token = null;
 
     /**
+     * \private \brief Public Keys
+     */
+    private $public_keys = null;
+
+    /**
      * \private \brief ID Token
      */
     private $id_token = null;
@@ -73,11 +78,12 @@ class AuthorizationCodeClient extends TokenClient
     /**
      * \brief AuthorizationCodeClientのインスタンス生成
      */
-    public function __construct($endpoint_url, $client_credential, $code, $redirect_uri)
+    public function __construct($endpoint_url, $client_credential, $code, $redirect_uri, $public_keys)
     {
         parent::__construct( $endpoint_url, $client_credential );
         $this->code = $code;
         $this->redirect_uri = $redirect_uri;
+        $this->public_keys = $public_keys;
     }
 
     /**
@@ -162,14 +168,15 @@ class AuthorizationCodeClient extends TokenClient
                 $this->refresh_token = new RefreshToken( $refresh_token );
                 if(array_key_exists("id_token", $json_response)) {
                     $id_token = $json_response["id_token"];
-                    $id_token_object = new IdToken( $id_token, $this->cred->secret );
+                    $id_token_object = new IdToken( $id_token, $this->public_keys );
                     $this->id_token = $id_token_object->getIdToken();
                 }
             } else {
                 $error      = $json_response["error"];
                 $error_desc = $json_response["error_description"];
+                $error_code = $json_response["error_code"];
                 Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
-                throw new TokenException( $error, $error_desc );
+                throw new TokenException( $error, $error_desc, $error_code );
             }
         } else {
             Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
@@ -191,6 +198,6 @@ class AuthorizationCodeClient extends TokenClient
      */
     protected function _setEndpointUrl($endpoint_url)
     {
-        $this->url = $endpoint_url;
+        parent::_setEndpointUrl($endpoint_url);
     }
 }
