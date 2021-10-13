@@ -22,5 +22,8 @@
       "psr-0": {
         "YConnect": "lib/"
       }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5"
     }
 }
