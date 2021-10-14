@@ -26,28 +26,30 @@
 namespace YConnect\Credential;
 
 
-class PublicKeys
+class RefreshTokenTest extends \PHPUnit_Framework_TestCase
 {
-    private $public_keys;
-
     /**
-     * PublicKeys constructor.
-     * @param string $json json string
+     * @test
      */
-    public function __construct($json) {
-        $this->public_keys = json_decode($json);
+    public function testToAuthorizationHeader()
+    {
+        $refresh_token = "sample_refresh_token";
+
+        $token = new RefreshToken($refresh_token);
+
+        $this->assertSame($refresh_token, $token->toAuthorizationHeader());
     }
 
     /**
-     * get public key by kid
-     *
-     * @param string $kid kid
-     * @return string|null public key
+     * @test
      */
-    public function getPublicKey($kid) {
-        if(!isset($this->public_keys->$kid)) {
-            return null;
-        }
-        return $this->public_keys->$kid;
+    public function testToQueryString()
+    {
+        $refresh_token = "sample~refresh~token";
+
+        $token = new RefreshToken($refresh_token);
+
+        $expect = "refresh_token=sample%7Erefresh%7Etoken";
+        $this->assertSame($expect, $token->toQueryString());
     }
 }

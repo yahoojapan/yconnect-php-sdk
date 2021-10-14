@@ -128,9 +128,9 @@ class IdToken
 
         // Is aud equal to the client_id (Application ID) ?  if ( $client_id != $object->aud )
         if ( !in_array($client_id, $object->aud) )
-            throw new IdTokenException( "Invalid audience.", "The client id did not match.({$object->aud})" );
+            throw new IdTokenException( "Invalid audience.", "No client id exists in aud.({$object->aud[0]})" );
 
-        if ($object->at_hash) {
+        if (isset($object->at_hash)) {
             $hash = self::generateHash($access_token);
             if ($hash !== $object->at_hash )
                 throw new IdTokenException( "Invalid at_hash.", "The at_hash did not match.({$object->at_hash})" );

@@ -86,6 +86,6 @@ class ClientCredentialsClient extends TokenClient
      */
     protected function _setEndpointUrl($endpoint_url)
     {
-        $this->url = $endpoint_url;
+        parent::_setEndpointUrl($endpoint_url);
     }
 }

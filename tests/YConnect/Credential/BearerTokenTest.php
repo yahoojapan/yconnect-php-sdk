@@ -26,28 +26,45 @@
 namespace YConnect\Credential;
 
 
-class PublicKeys
+class BearerTokenTest extends \PHPUnit_Framework_TestCase
 {
-    private $public_keys;
-
     /**
-     * PublicKeys constructor.
-     * @param string $json json string
+     * @test
      */
-    public function __construct($json) {
-        $this->public_keys = json_decode($json);
+    public function testToAuthorizationHeader()
+    {
+        $access_token = "sample_access_token";
+        $exp = 1635638400;
+
+        $token = new BearerToken($access_token, $exp);
+
+        $this->assertSame($access_token, $token->toAuthorizationHeader());
     }
 
     /**
-     * get public key by kid
-     *
-     * @param string $kid kid
-     * @return string|null public key
+     * @test
      */
-    public function getPublicKey($kid) {
-        if(!isset($this->public_keys->$kid)) {
-            return null;
-        }
-        return $this->public_keys->$kid;
+    public function testToQueryString()
+    {
+        $access_token = "sample~access~token";
+        $exp = 1635638400;
+
+        $token = new BearerToken($access_token, $exp);
+
+        $expect = "access_token=sample%7Eaccess%7Etoken";
+        $this->assertSame($expect, $token->toQueryString());
+    }
+
+    /**
+     * @test
+     */
+    public function testGetExpiration()
+    {
+        $access_token = "sample_access_token";
+        $exp = 1635638400;
+
+        $token = new BearerToken($access_token, $exp);
+
+        $this->assertSame($exp, $token->getExpiration());
     }
 }

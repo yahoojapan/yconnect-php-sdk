@@ -26,28 +26,33 @@
 namespace YConnect\Credential;
 
 
-class PublicKeys
+class ClientCredentialTest extends \PHPUnit_Framework_TestCase
 {
-    private $public_keys;
-
     /**
-     * PublicKeys constructor.
-     * @param string $json json string
+     * @test
      */
-    public function __construct($json) {
-        $this->public_keys = json_decode($json);
+    public function testToAuthorizationHeader()
+    {
+        $client_id = "sample_client_id";
+        $client_secret = "sample_client_secret";
+
+        $credential = new ClientCredential($client_id, $client_secret);
+
+        $expect = "c2FtcGxlX2NsaWVudF9pZDpzYW1wbGVfY2xpZW50X3NlY3JldA==";
+        $this->assertSame($expect, $credential->toAuthorizationHeader());
     }
 
     /**
-     * get public key by kid
-     *
-     * @param string $kid kid
-     * @return string|null public key
+     * @test
      */
-    public function getPublicKey($kid) {
-        if(!isset($this->public_keys->$kid)) {
-            return null;
-        }
-        return $this->public_keys->$kid;
+    public function testToQueryString()
+    {
+        $client_id = "sample~client~id";
+        $client_secret = "sample~client~secret";
+
+        $credential = new ClientCredential($client_id, $client_secret);
+
+        $expect = "client_id=sample%7Eclient%7Eid&client_secret=sample%7Eclient%7Esecret";
+        $this->assertSame($expect, $credential->toQueryString());
     }
 }

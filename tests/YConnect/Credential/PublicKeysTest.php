@@ -26,28 +26,39 @@
 namespace YConnect\Credential;
 
 
-class PublicKeys
+class PublicKeysTest extends \PHPUnit_Framework_TestCase
 {
-    private $public_keys;
 
     /**
-     * PublicKeys constructor.
-     * @param string $json json string
+     * @test
      */
-    public function __construct($json) {
-        $this->public_keys = json_decode($json);
+    public function testGetPublicKey() {
+        $kid = 'sample_kid';
+        $public_key = 'sample_public_key';
+
+        $json = json_encode(array(
+            $kid => $public_key
+        ));
+
+        $public_keys = new PublicKeys($json);
+
+        $this->assertSame($public_key, $public_keys->getPublicKey($kid));
     }
 
     /**
-     * get public key by kid
-     *
-     * @param string $kid kid
-     * @return string|null public key
+     * @test
      */
-    public function getPublicKey($kid) {
-        if(!isset($this->public_keys->$kid)) {
-            return null;
-        }
-        return $this->public_keys->$kid;
+    public function testGetPublicKeyReturnsNull() {
+        $kid = 'sample_kid';
+        $public_key = 'sample_public_key';
+
+        $json = json_encode(array(
+            $kid => $public_key
+        ));
+
+        $public_keys = new PublicKeys($json);
+
+        $this->assertNull($public_keys->getPublicKey('invalid_kid'));
     }
+
 }
