@@ -73,7 +73,7 @@ class TokenClient
      */
     public function fetchToken()
     {
-        $httpClient = new HttpClient();
+        $httpClient = $this->_getHttpClient();
         $httpClient->setHeader( array(
             "Expect:", // POST HTTP 100-continue 無効
             "Authorization: Basic " . $this->cred->toAuthorizationHeader()
@@ -127,5 +127,10 @@ class TokenClient
     protected function _setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
+    }
+
+    protected function _getHttpClient()
+    {
+        return new HttpClient();
     }
 }

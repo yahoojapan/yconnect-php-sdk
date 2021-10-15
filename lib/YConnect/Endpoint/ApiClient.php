@@ -115,7 +115,7 @@ class ApiClient
      */
     protected function fetchResource($url, $method)
     {
-        $httpClient = new HttpClient();
+        $httpClient = $this->getHttpClient();
         $httpClient->setHeader(array(
             "Expect:", // POST HTTP 100-continue 無効
             (string)$this->token
@@ -158,6 +158,11 @@ class ApiClient
     protected function getLastResponse()
     {
         return $this->res_body;
+    }
+
+    protected function getHttpClient()
+    {
+        return new HttpClient();
     }
 
     /**

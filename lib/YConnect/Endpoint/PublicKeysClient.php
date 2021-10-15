@@ -70,7 +70,7 @@ class PublicKeysClient
      */
     public function fetchPublicKeys()
     {
-        $httpClient = new HttpClient();
+        $httpClient = $this->_getHttpClient();
         $httpClient->requestGet($this->url);
 
         $this->res_body = $httpClient->getResponseBody();
@@ -87,5 +87,9 @@ class PublicKeysClient
         } else {
             return null;
         }
+    }
+
+    protected function _getHttpClient() {
+        return new HttpClient();
     }
 }

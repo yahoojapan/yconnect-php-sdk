@@ -85,20 +85,15 @@ class AuthorizationClient
      * @param	$redirect_uri	リダイレクトURI
      * @param	$state	state
      */
-    public function requestAuthorizationGrant($redirect_uri=null, $state=null)
+    public function requestAuthorizationGrant($redirect_uri, $state=null)
     {
         self::setParam( "response_type", $this->response_type );
         self::setParam( "client_id", $this->cred->id );
+        self::setParam( "redirect_uri", $redirect_uri );
 
         // RECOMMENEDED
         if( $state != null ) {
             self::setParam( "state", $state );
-        }
-
-        // OPTIONAL
-        if( $redirect_uri != null ) {
-            $encoded_redirect_uri = urlencode( $redirect_uri );
-            self::setParam( "redirect_uri", $redirect_uri );
         }
 
         $query = http_build_query( $this->params );
@@ -106,8 +101,7 @@ class AuthorizationClient
 
         Logger::info( "authorization request(" . get_class() . "::" . __FUNCTION__ . ")", $request_uri );
 
-        header( "Location: " . $request_uri );
-        exit();
+        $this->_redirect($request_uri);
     }
 
     /**
@@ -160,6 +154,16 @@ class AuthorizationClient
     protected function _setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
+    }
+
+    /**
+     * \brief リダイレクト実行
+     * @param string $request_uri リダイレクト先のURL
+     */
+    protected function _redirect($request_uri)
+    {
+        header( "Location: " . $request_uri );
+        exit();
     }
 
 }

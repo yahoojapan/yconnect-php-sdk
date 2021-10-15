@@ -95,8 +95,33 @@ class RefreshTokenClient extends TokenClient
 
         $res_body = parent::getResponse();
 
-        // JSONパラメータ抽出処理
-        $json_response = json_decode( $res_body, true );
+        $this->_parseJson($res_body);
+
+        Logger::debug( "refresh token response(" . get_class() . "::" . __FUNCTION__ . ")",
+            array(
+                $this->access_token,
+            )
+        );
+        Logger::info( "got access and refresh token(" . get_class() . "::" . __FUNCTION__ . ")" );
+    }
+
+    /**
+     * \brief エンドポイントURL設定メソッド
+     * @param	$endpoint_url	エンドポイントURL
+     */
+    protected function _setEndpointUrl($endpoint_url)
+    {
+        parent::_setEndpointUrl($endpoint_url);
+    }
+
+    /**
+     * JSONパラメータ抽出処理
+     * @param string $json パースするJSON
+     * @throws TokenException
+     */
+    private function _parseJson($json)
+    {
+        $json_response = json_decode( $json, true );
         Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
         if( $json_response != null ) {
             if( empty( $json_response["error"] ) ) {
@@ -114,21 +139,5 @@ class RefreshTokenClient extends TokenClient
             Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
             throw new TokenException( "no_response", "Failed to get the response body" );
         }
-
-        Logger::debug( "refresh token response(" . get_class() . "::" . __FUNCTION__ . ")",
-            array(
-                $this->access_token,
-            )
-        );
-        Logger::info( "got access and refresh token(" . get_class() . "::" . __FUNCTION__ . ")" );
-    }
-
-    /**
-     * \brief エンドポイントURL設定メソッド
-     * @param	$endpoint_url	エンドポイントURL
-     */
-    protected function _setEndpointUrl($endpoint_url)
-    {
-        parent::_setEndpointUrl($endpoint_url);
     }
 }

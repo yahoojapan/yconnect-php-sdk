@@ -156,32 +156,7 @@ class AuthorizationCodeClient extends TokenClient
 
         $res_body = parent::getResponse();
 
-        // JSONパラメータ抽出処理
-        $json_response = json_decode( $res_body, true );
-        Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
-        if( $json_response != null ) {
-            if( empty( $json_response["error"] ) ) {
-                $access_token  = $json_response["access_token"];
-                $exp           = $json_response["expires_in"];
-                $refresh_token = $json_response["refresh_token"];
-                $this->access_token  = new BearerToken( $access_token, $exp );
-                $this->refresh_token = new RefreshToken( $refresh_token );
-                if(array_key_exists("id_token", $json_response)) {
-                    $id_token = $json_response["id_token"];
-                    $id_token_object = new IdToken( $id_token, $this->public_keys );
-                    $this->id_token = $id_token_object->getIdToken();
-                }
-            } else {
-                $error      = $json_response["error"];
-                $error_desc = $json_response["error_description"];
-                $error_code = $json_response["error_code"];
-                Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
-                throw new TokenException( $error, $error_desc, $error_code );
-            }
-        } else {
-            Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
-            throw new TokenException( "no_response", "Failed to get the response body" );
-        }
+        $this->_parseJson($res_body);
 
         Logger::debug( "token endpoint response(" . get_class() . "::" . __FUNCTION__ . ")",
             array(
@@ -199,5 +174,44 @@ class AuthorizationCodeClient extends TokenClient
     protected function _setEndpointUrl($endpoint_url)
     {
         parent::_setEndpointUrl($endpoint_url);
+    }
+
+    /**
+     * \brief JSONパラメータ抽出処理
+     * @param string $json パース対象のJSON
+     * @throws TokenException
+     */
+    private function _parseJson($json)
+    {
+        $json_response = json_decode( $json, true );
+        Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
+        if( $json_response != null ) {
+            if( empty( $json_response["error"] ) ) {
+                $access_token  = $json_response["access_token"];
+                $exp           = $json_response["expires_in"];
+                $refresh_token = $json_response["refresh_token"];
+                $this->access_token  = new BearerToken( $access_token, $exp );
+                $this->refresh_token = new RefreshToken( $refresh_token );
+                if(array_key_exists("id_token", $json_response)) {
+                    $id_token = $json_response["id_token"];
+                    $id_token_object = $this->_getIdToken($id_token);
+                    $this->id_token = $id_token_object->getIdToken();
+                }
+            } else {
+                $error      = $json_response["error"];
+                $error_desc = $json_response["error_description"];
+                $error_code = $json_response["error_code"];
+                Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
+                throw new TokenException( $error, $error_desc, $error_code );
+            }
+        } else {
+            Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
+            throw new TokenException( "no_response", "Failed to get the response body" );
+        }
+    }
+
+    protected function _getIdToken($id_token)
+    {
+        return new IdToken( $id_token, $this->public_keys );
     }
 }
