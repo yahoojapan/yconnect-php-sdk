@@ -51,7 +51,7 @@ class JWT
         $payload   = self::jsonDecode(self::urlDecode($b64payload));
         $signature = self::urlDecode($b64sig);
 
-        if(!$header->kid) {
+        if(!isset($header->kid)) {
             throw new \UnexpectedValueException('header does not have kid parameter');
         }
         if(!$public_keys->getPublicKey($header->kid)) {
