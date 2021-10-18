@@ -167,11 +167,7 @@ class YConnectClient
     public function requestAuth($redirect_uri, $state, $nonce, $response_type, $scope = null, $display = null,
                                 $prompt = null, $max_age = null, $plain_code_challenge = null)
     {
-        $auth_client = new AuthorizationClient(
-            self::AUTHORIZATION_URL,
-            $this->clientCred,
-            $response_type
-        );
+        $auth_client = $this->_getAuthorizationClient(self::AUTHORIZATION_URL, $this->clientCred, $response_type);
         $auth_client->setParam( "nonce", $nonce );
         if( $scope != null ) {
             $auth_client->setParam( "scope", implode( " ", $scope ) );
@@ -194,10 +190,9 @@ class YConnectClient
      * \brief サポートしているレスポンス確認メソッド
      *
      * @param	$state	state
-     * @param	$scope	scope
      * @throws  TokenException
      */
-    private function _checkResponse($state, $scope = null)
+    private function _checkResponse($state)
     {
         if( !isset( $_GET["state"] ) ) return false;
 
@@ -245,19 +240,19 @@ class YConnectClient
      */
     public function requestAccessToken($redirect_uri, $code, $code_verifier = null)
     {
-        $public_keys_client = new PublicKeysClient(self::PUBLIC_KEYS_ENDPOINT_URL);
+        $public_keys_client = $this->_getPublicKeysClient(self::PUBLIC_KEYS_ENDPOINT_URL);
         $public_keys_client->fetchPublicKeys();
         $public_keys_json = $public_keys_client->getResponse();
         if(!$public_keys_json) {
             throw new \UnexpectedValueException('Failed to fetch public keys');
         }
 
-        $this->auth_code_client = new AuthorizationCodeClient(
+        $this->auth_code_client = $this->_getAuthorizationCodeClient(
             self::TOKEN_URL,
             $this->clientCred,
             $code,
             $redirect_uri,
-            new PublicKeys($public_keys_json)
+            $public_keys_json
         );
         $token_req_params = array(
             "grant_type" => GrantType::AUTHORIZATION_CODE,
@@ -345,11 +340,8 @@ class YConnectClient
      */
     public function refreshAccessToken($refresh_token)
     {
-        $this->refresh_token_client = new RefreshTokenClient(
-            self::TOKEN_URL,
-            $this->clientCred,
-            $refresh_token
-        );
+        $this->refresh_token_client = $this->_getRefreshTokenClient(self::TOKEN_URL, $this->clientCred,
+            $refresh_token);
         $this->refresh_token_client->fetchToken();
         $this->access_token  = $this->refresh_token_client->getAccessToken();
         $this->expiration    = $this->access_token->getExpiration();
@@ -364,7 +356,7 @@ class YConnectClient
      */
     public function requestUserInfo($access_token)
     {
-        $this->user_info_client = new UserInfoClient( self::USERINFO_URL, $access_token );
+        $this->user_info_client = $this->_getUserInfoClient( self::USERINFO_URL, $access_token );
         $this->user_info_client->fetchUserInfo();
         $this->user_info = $this->user_info_client->getUserInfo();
     }
@@ -390,5 +382,44 @@ class YConnectClient
     {
         $hash = hash('sha256', $plain_code_challenge, true);
         return str_replace('=', '', strtr(base64_encode($hash), '+/', '-_'));
+    }
+
+    protected function _getAuthorizationClient($endpoint, $client_cred, $response_type)
+    {
+        return new AuthorizationClient(
+            $endpoint,
+            $client_cred,
+            $response_type
+        );
+    }
+
+    protected function _getPublicKeysClient($endpoint)
+    {
+        return new PublicKeysClient($endpoint);
+    }
+
+    protected function _getAuthorizationCodeClient($endpoint, $client_cred, $code, $redirect_uri, $public_keys_json)
+    {
+        return new AuthorizationCodeClient(
+            $endpoint,
+            $client_cred,
+            $code,
+            $redirect_uri,
+            new PublicKeys($public_keys_json)
+        );
+    }
+
+    protected function _getRefreshTokenClient($endpoint, $client_cred, $refresh_token)
+    {
+        return new RefreshTokenClient(
+            $endpoint,
+            $client_cred,
+            $refresh_token
+        );
+    }
+
+    protected function _getUserInfoClient($endpoint, $access_token)
+    {
+        return new UserInfoClient($endpoint, $access_token);
     }
 }
