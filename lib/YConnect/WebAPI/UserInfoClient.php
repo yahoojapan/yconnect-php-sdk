@@ -32,6 +32,7 @@ namespace YConnect\WebAPI;
 
 use YConnect\Endpoint\ApiClient;
 use YConnect\Credential\BearerToken;
+use YConnect\Exception\TokenException;
 use YConnect\Util\Logger;
 use YConnect\Exception\ApiException;
 
@@ -90,7 +91,30 @@ class UserInfoClient extends ApiClient
 
         $res_body = parent::getLastResponse();
 
-        $json_response = json_decode( $res_body, true );
+        $this->_parseJson($res_body);
+    }
+
+    /**
+     * \brief UserInfo配列取得メソッド
+     *
+     */
+    public function getUserInfo()
+    {
+        if( $this->user_info != null ) {
+            return $this->user_info;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * JSONパラメータ抽出処理
+     * @param string $json パースするJSON
+     * @throws ApiException
+     */
+    private function _parseJson($json)
+    {
+        $json_response = json_decode( $json, true );
         Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
         if( $json_response != null ) {
             if( empty( $json_response["error"] ) ) {
@@ -104,19 +128,6 @@ class UserInfoClient extends ApiClient
         } else {
             Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
             throw new ApiException( "no_response", "Failed to get the response body" );
-        }
-    }
-
-    /**
-     * \brief UserInfo配列取得メソッド
-     *
-     */
-    public function getUserInfo()
-    {
-        if( $this->user_info != null ) {
-            return $this->user_info;
-        } else {
-            return false;
         }
     }
 }
