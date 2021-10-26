@@ -6,9 +6,7 @@
         "PHP",
         "YConnect",
         "OpenID Connect",
-        "UserInfo",
-        "FastPay",
-        "BillingAddress"
+        "UserInfo"
     ],
     "type": "library",
     "license": "MIT",
