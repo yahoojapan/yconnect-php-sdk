@@ -10,9 +10,9 @@ Yahoo! ID連携（YConnect）のAuthorization Codeフローを実装するため
   * http://developer.yahoo.co.jp/yconnect/userinfo.html
 
 ### 構成環境
-* PHP 5.3 （5.3.x）以降（curl、json関連のパッケージ必須）
-* curl 7.34.0以降
-* openssl 1.0.1以降
+* PHP 5.6 （5.6.x）以降（curl、json関連のパッケージ必須）
+* curl 7.52.1以降
+* openssl 1.1.0以降
 
 ### 利用方法
 #### Composerを利用する場合
@@ -58,12 +58,37 @@ Composerについては以下の外部サイトを参照してください。
 #### ダウンロードする場合
 libディレクトリをinclude_pathに設定してrequireあるいはincludeしてご利用ください。
 
+#### Yahoo! ID連携 v1を利用する場合
+**Yahoo! ID連携 v1は 2022年4月27日にクローズ予定です。
+詳しくは [こちらのお知らせ](https://developer.yahoo.co.jp/changelog/2021-08-03-yconnect1.html)
+をご確認ください。**
+
+以下のようにcomposer.jsonを作成してください。
+
+```
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/yahoojapan/yconnect-php-sdk"
+        }
+    ],
+    "require": {
+        "yahoojapan/yconnect-php-sdk": "dev-master2.2"
+    }
+}
+```
+
+### 詳細
+本ライブラリの詳細に関しては以下のサイトを参照してください。  
+https://developer.yahoo.co.jp/yconnect/v2/php_sdk/
+
 ### License
 本ライブラリおよびサンプルコード等は MIT License にて提供しています。  
 詳しくは LICENSE をご覧ください。
 
 ### Version
-2.2.2
+3.0.0
 
 ### Pull request に関して
 現在 Contributor License Agreement（CLA）を準備しています。  
