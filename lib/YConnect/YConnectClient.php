@@ -362,9 +362,9 @@ class YConnectClient
      *
      * @param	$access_token	アクセストークン
      */
-    public function requestUserInfo($access_token, $schema=null)
+    public function requestUserInfo($access_token)
     {
-        $this->user_info_client = new UserInfoClient( self::USERINFO_URL, $access_token, $schema );
+        $this->user_info_client = new UserInfoClient( self::USERINFO_URL, $access_token );
         $this->user_info_client->fetchUserInfo();
         $this->user_info = $this->user_info_client->getUserInfo();
     }

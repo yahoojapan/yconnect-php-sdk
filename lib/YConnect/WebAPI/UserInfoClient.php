@@ -32,7 +32,6 @@ namespace YConnect\WebAPI;
 
 use YConnect\Endpoint\ApiClient;
 use YConnect\Credential\BearerToken;
-use YConnect\Exception\TokenException;
 use YConnect\Util\Logger;
 use YConnect\Exception\ApiException;
 
@@ -49,11 +48,6 @@ class UserInfoClient extends ApiClient
     private $url = null;
 
     /**
-     * \private \brief レスポンスタイプ
-     */
-    private $schema = "openid";
-
-    /**
      * \private \brief UserInfo配列
      */
     private $user_info = array();
@@ -62,9 +56,9 @@ class UserInfoClient extends ApiClient
      * \brief UserInfoClientのインスタンス生成
      *
      * @param	$endpoint_url	エンドポイントURL
-     * @param	$schema	schema
+     * @param	$access_token	アクセストークン
      */
-    public function __construct($endpoint_url, $access_token, $schema=null)
+    public function __construct($endpoint_url, $access_token)
     {
         if( is_string($access_token) )
             $access_token = new BearerToken( $access_token, null );
@@ -73,10 +67,6 @@ class UserInfoClient extends ApiClient
 
         $this->url  = $endpoint_url;
         $this->access_token = $access_token;
-
-        if( $schema != null ) {
-            $this->schema = $schema;
-        }
     }
 
     /**
@@ -85,8 +75,6 @@ class UserInfoClient extends ApiClient
      */
     public function fetchUserInfo()
     {
-        parent::setParam( "schema", $this->schema );
-
         parent::fetchResource( $this->url, "GET" );
 
         $res_body = parent::getLastResponse();
@@ -97,6 +85,7 @@ class UserInfoClient extends ApiClient
     /**
      * \brief UserInfo配列取得メソッド
      *
+     * @return array|false UserInfoObject
      */
     public function getUserInfo()
     {
