@@ -117,7 +117,13 @@ class JWT
             return false;
         }
         $result = openssl_verify($data, $signature, $publicKeyId, 'RSA-SHA256');
-        openssl_free_key($publicKeyId);
+
+        // PHP 8.0.0 以降は自動でリソースが開放されるため非推奨になった
+        // PHP 8.0.0 未満は開放が必要なため呼び出す
+        if(version_compare(PHP_VERSION, '8.0.0', '<')) {
+            openssl_free_key($publicKeyId);
+        }
+
         if ($result !== 1) {
             // invalid signature
             return false;
