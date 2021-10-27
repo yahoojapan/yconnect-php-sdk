@@ -23,53 +23,49 @@
  * THE SOFTWARE.
  */
 
-/** \file ApiClient.php
- *
- * \brief Web APIアクセスの機能を提供するクラスを定義しています.
- */
-
 namespace YConnect\Endpoint;
 
+use UnexpectedValueException;
 use YConnect\Util\HttpClient;
 use YConnect\Exception\TokenException;
 use YConnect\Credential\BearerToken;
 
 /**
- * \class ApiClientクラス
+ * ApiClientクラス
  *
- * \brief Web APIアクセスの機能を提供するクラスです.
- *
- * Web APIアクセスに必要な機能を提供しています.
+ * Web APIアクセスに必要な機能を提供するクラスです.
  */
 class ApiClient
 {
     /**
-     * \private \brief Access Token
+     * @var BearerToken アクセストークン
      */
     private $token;
 
     /**
-     * \private \brief リクエストパラメータ
+     * @var array<string, string|int> リクエストパラメータ
      */
     private $params = array();
 
     /**
-     * \private \brief レスポンスボディ
+     * @var string レスポンスボディ
      */
     private $res_body = null;
 
     /**
-     * \private \brief レスポンスステータス
+     * @var int レスポンスステータス
      */
     private $res_status = null;
 
     /**
-     * \private \brief レスポンスエラーステータス
+     * @var string レスポンスエラーステータス
      */
     private $res_error = '';
 
     /**
-     * \brief AuthorizationClientのインスタンス生成
+     * ApiClientのインスタンス生成
+     *
+     * @param BearerToken $access_token アクセストークンオブジェクト
      */
     public function __construct($access_token)
     {
@@ -78,28 +74,29 @@ class ApiClient
     }
 
     /**
-     * \brief パラメータ設定メソッド
+     * パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$parameters パラメータ名と値の連想配列
+     * @param array<string, string|int> $parameters パラメータ名と値の連想配列
+     * @throws UnexpectedValueException parametersが配列ではないときに発生
      */
     protected function setParams($parameters = array())
     {
         if ( !is_array($parameters) )
-            throw new \UnexpectedValueException('array is required');
+            throw new UnexpectedValueException('array is required');
 
         foreach ( $parameters as $key => $val )
             $this->setParam($key, $val);
     }
 
     /**
-     * \brief 複数パラメータ設定メソッド
+     * 複数パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$key	パラメータ名
-     * @param   $val    値
+     * @param string $key パラメータ名
+     * @param string|int $val 値
      */
     protected function setParam($key, $val)
     {
@@ -108,10 +105,12 @@ class ApiClient
     }
 
     /**
-     * \brief APIエンドポイントリソース取得メソッド
-     * @param	$url	APIエンドポイント
-     * @param	$method	HTTPリクエストメソッド
-     * @throws  UnexpectedValueException
+     * APIエンドポイントリソース取得メソッド
+     *
+     * @param string $url APIエンドポイント
+     * @param string $method HTTPリクエストメソッド
+     * @throws UnexpectedValueException 対応していないHTTPリクエストメソッドが指定されたときに発生
+     * @throws TokenException レスポンスヘッダーにエラーが含まれているときに発生
      */
     protected function fetchResource($url, $method)
     {
@@ -141,7 +140,7 @@ class ApiClient
             $httpClient->requestDelete($url, $this->params);
             break;
         default:
-            throw new \UnexpectedValueException('unsupported http method');
+            throw new UnexpectedValueException('unsupported http method');
         }
 
 
@@ -152,38 +151,44 @@ class ApiClient
     }
 
     /**
-     * \brief レスポンス取得メソッド
-     * @return	レスポンス
+     * レスポンスボディ取得メソッド
+     *
+     * @return string|null レスポンスボディ
      */
     protected function getLastResponse()
     {
         return $this->res_body;
     }
 
+    /**
+     * HTTPクライアント取得メソッド
+     *
+     * @return HttpClient HTTPクライアント
+     */
     protected function getHttpClient()
     {
         return new HttpClient();
     }
 
     /**
-     * check supported token type
-     * Only Bearer Token is supported as of now
+     * トークンがサポートしているものか確認
      *
-     * @param   $token    Access Token
-     * @throws  UnexpectedValueException
+     * 現在はBearerトークンのみサポート
+     *
+     * @param BearerToken $token Accessトークン
+     * @throws UnexpectedValueException 入力されたトークンがBearerTokenではないときに発生
      */
     private function _checkTokenType($token)
     {
         if ( ! $token instanceof BearerToken )
-            throw new \UnexpectedValueException('unsupported Access Token format');
+            throw new UnexpectedValueException('unsupported Access Token format');
     }
 
     /**
-     * check WebAPI Authorication error
+     *  WebAPIで認証エラーが発生したか確認
      *
-     * @param   $header           WWW-Authenticate header string
-     * @throws  TokenException    if WWW-Authenticate is not NULL
-     * @see     TokenException
+     * @param string|null $header WWW-Authenticateヘッダーの値
+     * @throws TokenException WWW-Authenticateの値がnullではないときに発生
      */
     private function _checkAuthorizationError($header)
     {

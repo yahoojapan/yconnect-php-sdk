@@ -23,44 +23,39 @@
  * THE SOFTWARE.
  */
 
-/** \file HttpClient.php
- *
- * \brief HTTP通信の機能を提供するクラスを定義しています.
- */
-
 namespace YConnect\Util;
 
+use Exception;
+
 /**
- * \class HttpClientクラス
- *
- * \brief HTTP通信の機能を提供するクラスです.
+ * HttpClientクラス
  *
  * 各サーバのリクエストで用いられるHTTP通信の機能を提供するクラスです.
  */
 class HttpClient
 {
     /**
-     * \private \brief curlインスタンス
+     * @var resource|null curlインスタンス
      */
     private $ch = null;
 
     /**
-     * \private \brief SSLチェックフラグ
+     * @var bool SSLチェックフラグ
      */
     private static $sslCheckFlag = true;
 
     /**
-     * \private \brief 全レスポンスヘッダ情報
+     * @var array<string, string|int> 全レスポンスヘッダ情報
      */
     private $headers = array();
 
     /**
-     * \private \brief レスポンスボディ
+     * @var string|null レスポンスボディ
      */
     private $body = null;
 
     /**
-     * \brief Curlインスタンス生成
+     * Curlインスタンス生成
      */
     public function __construct()
     {
@@ -77,7 +72,7 @@ class HttpClient
     }
 
     /**
-     * \brief Curlインスタンス削除
+     * Curlインスタンス削除
      */
     public function __destruct()
     {
@@ -89,7 +84,7 @@ class HttpClient
     }
 
     /**
-     * \brief SSLチェック解除メソッド
+     * SSLチェック解除メソッド
      */
     public static function disableSSLCheck()
     {
@@ -99,8 +94,9 @@ class HttpClient
     }
 
     /**
-     * \brief ヘッダ設定メソッド
-     * @param	$headers	ヘッダの配列
+     * ヘッダ設定メソッド
+     *
+     * @param string[] $headers ヘッダの配列
      */
     public function setHeader($headers = null)
     {
@@ -112,9 +108,11 @@ class HttpClient
     }
 
     /**
-     * \brief POSTリクエストメソッド
-     * @param	$url	エンドポイントURL
-     * @param	$data	パラメータ配列
+     * POSTリクエストメソッド
+     *
+     * @param string $url エンドポイントURL
+     * @param array<string, string|int>|null $data パラメータ配列
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function requestPost($url, $data=null)
     {
@@ -134,7 +132,7 @@ class HttpClient
         if( !$result ) {
             Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
             Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new \Exception( "failed curl_exec." );
+            throw new Exception( "failed curl_exec." );
         }
 
         $this->extractResponse( $result, $info );
@@ -144,9 +142,11 @@ class HttpClient
     }
 
     /**
-     * \brief GETリクエストメソッド
-     * @param	$url	エンドポイントURL
-     * @param	$data	パラメータ配列
+     * GETリクエストメソッド
+     *
+     * @param string $url エンドポイントURL
+     * @param array<string, string|int>|null $data パラメータ配列
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function requestGet($url, $data=null)
     {
@@ -174,7 +174,7 @@ class HttpClient
         if( !$result ) {
             Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
             Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new \Exception( "failed curl_exec." );
+            throw new Exception( "failed curl_exec." );
         }
 
         $this->extractResponse( $result, $info );
@@ -184,9 +184,11 @@ class HttpClient
     }
 
     /**
-     * \brief PUTリクエストメソッド
-     * @param	$url	エンドポイントURL
-     * @param	$data	パラメータ配列
+     * PUTリクエストメソッド
+     *
+     * @param string $url エンドポイントURL
+     * @param array<string, string|int>|null $data パラメータ配列
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function requestPut($url, $data=null)
     {
@@ -207,7 +209,7 @@ class HttpClient
         if( !$result ) {
             Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
             Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new \Exception( "failed curl_exec." );
+            throw new Exception( "failed curl_exec." );
         }
 
         $this->extractResponse( $result, $info );
@@ -217,9 +219,11 @@ class HttpClient
     }
 
     /**
-     * \brief DELETEリクエストメソッド
-     * @param	$url	エンドポイントURL
-     * @param	$data	パラメータ配列
+     * DELETEリクエストメソッド
+     *
+     * @param string $url エンドポイントURL
+     * @param array<string, string|int>|null $data パラメータ配列
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function requestDelete($url, $data=null)
     {
@@ -239,7 +243,7 @@ class HttpClient
         if( !$result ) {
             Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
             Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new \Exception( "failed curl_exec." );
+            throw new Exception( "failed curl_exec." );
         }
 
         $this->extractResponse( $result, $info );
@@ -249,7 +253,9 @@ class HttpClient
     }
 
     /**
-     * \brief 全レスポンスヘッダ取得メソッド
+     * 全レスポンスヘッダ取得メソッド
+     *
+     * @return array<string, string|int>|false 全レスポンスヘッダ
      */
     public function getResponseHeaders()
     {
@@ -261,8 +267,10 @@ class HttpClient
     }
 
     /**
-     * \brief レスポンスヘッダ取得メソッド
-     * @param	$header_name	ヘッダフィールド
+     * レスポンスヘッダ取得メソッド
+     *
+     * @param string $header_name ヘッダフィールド
+     * @return string|int|null レスポンスヘッダの値
      */
     public function getResponseHeader($header_name)
     {
@@ -274,7 +282,9 @@ class HttpClient
     }
 
     /**
-     * \brief レスポンスボディ取得メソッド
+     * レスポンスボディ取得メソッド
+     *
+     * @return string|null レスポンスボディ
      */
     public function getResponseBody()
     {
@@ -286,11 +296,12 @@ class HttpClient
     }
 
     /**
-     * \brief レスポンス抽出メソッド
+     * レスポンス抽出メソッド
      *
      * レスポンスをヘッダとボディ別に抽出
      *
-     * @param	$raw_response	レスポンス文字列
+     * @param string $raw_response レスポンス文字列
+     * @param array{id: string} $info curl実行結果情報
      */
     private function extractResponse($raw_response, $info)
     {

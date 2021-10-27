@@ -27,18 +27,20 @@ namespace YConnect\Util;
 
 use YConnect\Credential\PublicKeys;
 
-/** \file YConnectJWT.php
+/**
+ * JWTクラス
  *
- * \brief JSON Web Token (JWT) for YConnect
+ * JSON Web Token (JWT)に関する操作を提供するクラスです.
  */
-
 class JWT
 {
     /**
-     * @param string $jwt token
-     * @param PublicKeys $public_keys public keys
+     * IDトークンをデコード
      *
-     * @return object The JWT's payload
+     * @param string $jwt JWT形式のIDトークン
+     * @param PublicKeys $public_keys 公開鍵リスト
+     *
+     * @return object JWTのペイロード部のオブジェクト
      */
     public static function getDecodedToken($jwt, $public_keys)
     {
@@ -68,9 +70,10 @@ class JWT
     }
 
     /**
-     * @param string base64 encoded
+     * 文字列をbase64URLデコード
      *
-     * @return decoded string
+     * @param string base64URLエンコードされた文字列
+     * @return string base64URLデコードされた文字列
      */
     public static function urlDecode($str)
     {
@@ -85,9 +88,10 @@ class JWT
     }
 
     /**
-     * @param string $data JSON
+     * JSON文字列をオブジェクトに変換
      *
-     * @return object Object representation of JSON string
+     * @param string $data JSON文字列
+     * @return object JSON文字列からデコードしたオブジェクト
      */
     public static function jsonDecode($data)
     {
@@ -101,12 +105,14 @@ class JWT
     }
 
     /**
-     * @param string $b64header Header part of JWT
-     * @param string $b64payload Payload part of JWT
-     * @param string $signature Signature part of JWT
-     * @param string $publicKey
+     * JWTのシグネチャを検証
      *
-     * @return bool When valid signature, return true.
+     * @param string $b64header JWTのヘッダ部(base64URLエンコード)
+     * @param string $b64payload JWTのペイロード部(base64URLエンコード)
+     * @param string $signature JWTのシグネチャ部(base64URLデコード済)
+     * @param string $publicKey 公開鍵
+     *
+     * @return bool 検証が成功すればtrue, そうでなければfalse
      */
     private static function verifySignature($b64header, $b64payload, $signature, $publicKey)
     {

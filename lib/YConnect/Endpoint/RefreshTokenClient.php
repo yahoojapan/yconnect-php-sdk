@@ -25,36 +25,36 @@
 
 namespace YConnect\Endpoint;
 
+use YConnect\Credential\ClientCredential;
 use YConnect\Endpoint\TokenClient;
 use YConnect\Constant\GrantType;
 use YConnect\Util\Logger;
 use YConnect\Credential\BearerToken;
 use YConnect\Exception\TokenException;
 
-/** \file RefreshTokenClient.php
- *
- * \brief Refresh Token フローの機能を実装しています.
- */
-
 /**
- * \class RefreshTokenClientクラス
+ * RefreshTokenClientクラス
  *
- * \brief Refresh Token フローの機能を実装したクラスです.
+ * Refresh Token フローの機能を実装したクラスです.
  */
 class RefreshTokenClient extends TokenClient
 {
     /**
-     * \private \brief Refresh Token
+     * @var string|null リフレッシュトークン
      */
     private $refresh_token = null;
 
     /**
-     * \private \brief Access Token
+     * @var BearerToken|null アクセストークン
      */
     private $access_token = null;
 
     /**
-     * \brief RefreshTokenClientのインスタンス生成
+     * RefreshTokenClientのインスタンス生成
+     *
+     * @param string $endpoint_uri エンドポイントURI
+     * @param ClientCredential $client_credential 認証情報
+     * @param string $refresh_token リフレッシュトークン
      */
     public function __construct($endpoint_uri, $client_credential, $refresh_token)
     {
@@ -63,8 +63,9 @@ class RefreshTokenClient extends TokenClient
     }
 
     /**
-     * \brief Refresh Token設定メソッド
-     * @param	$refresh_token	Refresh Token
+     * Refresh Token設定メソッド
+     *
+     * @param string $refresh_token リフレッシュトークン
      */
     public function setRefreshToken($refresh_token)
     {
@@ -72,7 +73,9 @@ class RefreshTokenClient extends TokenClient
     }
 
     /**
-     * \brief Access Token取得メソッド
+     * アクセストークン取得メソッド
+     *
+     * @return BearerToken|false アクセストークン
      */
     public function getAccessToken()
     {
@@ -84,7 +87,9 @@ class RefreshTokenClient extends TokenClient
     }
 
     /**
-     * \brief Tokenエンドポイントリソース取得メソッド
+     * Tokenエンドポイントリソース取得メソッド
+     *
+     * @throws TokenException レスポンスにエラーを含むときに発生
      */
     public function fetchToken()
     {
@@ -106,8 +111,9 @@ class RefreshTokenClient extends TokenClient
     }
 
     /**
-     * \brief エンドポイントURL設定メソッド
-     * @param	$endpoint_url	エンドポイントURL
+     * エンドポイントURL設定メソッド
+     *
+     * @param string $endpoint_url エンドポイントURL
      */
     protected function _setEndpointUrl($endpoint_url)
     {
@@ -116,8 +122,9 @@ class RefreshTokenClient extends TokenClient
 
     /**
      * JSONパラメータ抽出処理
+     *
      * @param string $json パースするJSON
-     * @throws TokenException
+     * @throws TokenException レスポンスにエラーを含むときに発生
      */
     private function _parseJson($json)
     {

@@ -23,107 +23,110 @@
  * THE SOFTWARE.
  */
 
-/**
- * \file YConnectClient.php
- *
- * \brief Yahoo! JAPAN Connect クライアントライブラリ
- */
-
 namespace YConnect;
 
+use Exception;
+use UnexpectedValueException;
 use YConnect\Constant\GrantType;
+use YConnect\Credential\BearerToken;
+use YConnect\Credential\ClientCredential;
+use YConnect\Credential\ClientCredentialsClient;
 use YConnect\Credential\IdToken;
 use YConnect\Credential\PublicKeys;
+use YConnect\Credential\RefreshToken;
 use YConnect\Endpoint\AuthorizationClient;
 use YConnect\Endpoint\AuthorizationCodeClient;
 use YConnect\Endpoint\PublicKeysClient;
 use YConnect\Endpoint\RefreshTokenClient;
+use YConnect\Exception\ApiException;
+use YConnect\Exception\IdTokenException;
 use YConnect\Exception\TokenException;
 use YConnect\Util\HttpClient;
 use YConnect\Util\Logger;
 use YConnect\WebAPI\UserInfoClient;
 
 /**
- * \class YConnectClientクラス
+ * YConnectClientクラス
  *
- * \brief Yahoo! JAPAN Connect クライアントライブラリ
+ * Yahoo! JAPAN Connect クライアントライブラリ
  */
 class YConnectClient
 {
     /**
-     * \brief Authorization Endpoint
+     * Authorization Endpoint
      */
     const AUTHORIZATION_URL = "https://auth.login.yahoo.co.jp/yconnect/v2/authorization";
 
     /**
-     * \brief Token Endpoint
+     * Token Endpoint
      */
     const TOKEN_URL = "https://auth.login.yahoo.co.jp/yconnect/v2/token";
 
     /**
-     * \brief UserInfo Endpoint
+     * UserInfo Endpoint
      */
     const USERINFO_URL = "https://userinfo.yahooapis.jp/yconnect/v2/attribute";
 
     /**
-     * \brief PublicKeys Endpoint
+     * PublicKeys Endpoint
      */
     const PUBLIC_KEYS_ENDPOINT_URL = "https://auth.login.yahoo.co.jp/yconnect/v2/public-keys";
 
     /**
-     * \private \brief ClientCredentialインスタンス
+     * @var ClientCredential|null ClientCredentialインスタンス
      */
     private $clientCred = null;
 
     /**
-     * \private \brief AuthorizationClientインスタンス
+     * @var AuthorizationClient|null AuthorizationClientインスタンス
      */
     private $auth_client = null;
 
     /**
-     * \private \brief AuthorizationCodeClientインスタンス
+     * @var AuthorizationCodeClient|null AuthorizationCodeClientインスタンス
      */
     private $auth_code_client = null;
 
     /**
-     * \private \brief RefreshTokenインスタンス
+     * @var RefreshTokenClient|null RefreshTokenインスタンス
      */
     private $refresh_token_client = null;
 
     /**
-     * \private \brief ClientCredentialsClientインスタンス
+     * @var ClientCredentialsClient|null ClientCredentialsClientインスタンス
      */
+    // TODO: 削除
     private $client_credentials_client = null;
 
     /**
-     * \private \brief Access Token
+     * @var BearerToken|null アクセストークン
      */
     private $access_token = null;
 
     /**
-     * \private \brief Refresh Token
+     * @var RefreshToken|null リフレッシュトークン
      */
     private $refresh_token = null;
 
     /**
-     * \private \brief Access Token Expiration
+     * @var int|null アクセストークンの有効期限
      */
     private $expiration = null;
 
     /**
-     * \private \brief IdToken
+     * @var object|null Idトークン
      */
     private $id_token = null;
 
     /**
-     * \private \brief UserInfo
+     * @var object|null UserInfo
      */
     private $user_info = null;
 
     /**
-     * \brief インスタンス生成
+     * インスタンス生成
      *
-     * @param	$clientCred	クライアントクレデンシャル
+     * @param ClientCredential $clientCred 認証情報
      */
     public function __construct($clientCred)
     {
@@ -131,9 +134,9 @@ class YConnectClient
     }
 
     /**
-     * \brief デバッグ用出力メソッド
+     * デバッグ用出力メソッド
      *
-     * @param $display	true:コンソール出力 false:ログファイル出力
+     * @param bool $display true:コンソール出力 false:ログファイル出力
      */
     public function enableDebugMode($display = false)
     {
@@ -142,8 +145,7 @@ class YConnectClient
     }
 
     /**
-     * \brief SSL証明書チェック解除メソッド
-     *
+     * SSL証明書チェック解除メソッド
      */
     public function disableSSLCheck()
     {
@@ -151,18 +153,19 @@ class YConnectClient
     }
 
     /**
-     * \brief 認可リクエストメソッド
+     * 認可リクエストメソッド
      *
      * Authorizationエンドポイントにリクエストして同意画面を表示する。
      *
-     * @param	$redirect_uri	クライアントリダイレクトURL
-     * @param	$state	state(リクエストとコールバック間の検証用ランダム値)
-     * @param	$nonce	nonce(リプレイアタック対策のランダム値)
-     * @param	$response_type   response_type
-     * @param	$display	display(認証画面タイプ)
-     * @param   $prompt	prompt(ログイン、同意画面選択)
-     * @param   $max_age max_age(最大認証経過時間)
-     * @param   $code_challenge code_challenge(認可コード横取り攻撃対策（PKCE）のパラメーター)
+     * @param string $redirect_uri クライアントリダイレクトURL
+     * @param string $state state(リクエストとコールバック間の検証用ランダム値)
+     * @param string $nonce nonce(リプレイアタック対策のランダム値)
+     * @param string $response_type response_type
+     * @param string[]|null $scope
+     * @param string|null $display display(認証画面タイプ)
+     * @param string[]|null $prompt prompt(ログイン、同意画面選択)
+     * @param int|null $max_age max_age(最大認証経過時間)
+     * @param string|null $plain_code_challenge code_challenge(認可コード横取り攻撃対策（PKCE）のパラメーター)
      */
     public function requestAuth($redirect_uri, $state, $nonce, $response_type, $scope = null, $display = null,
                                 $prompt = null, $max_age = null, $plain_code_challenge = null)
@@ -187,10 +190,10 @@ class YConnectClient
     }
 
     /**
-     * \brief サポートしているレスポンス確認メソッド
+     * サポートしているレスポンス確認メソッド
      *
-     * @param	$state	state
-     * @throws  TokenException
+     * @param string $state state
+     * @throws TokenException stateが一致しないときに発生
      */
     private function _checkResponse($state)
     {
@@ -203,12 +206,14 @@ class YConnectClient
     }
 
     /**
-     * \brief 認可コード取得メソッド
+     * 認可コード取得メソッド
      *
-     * コールバックURLからAuthorizaiton Codeを抽出します。
-     * stateを検証して正しければAuthorizaiton Codeの値を、そうでなければfalseを返します。
+     * コールバックURLからAuthorization Codeを抽出します。
+     * stateを検証して正しければAuthorization Codeの値を、そうでなければfalseを返します。
      *
-     * @param	$state	state
+     * @param string $state state
+     * @return string|false code
+     * @throws TokenException パラメータにエラーが含まれているときに発生
      */
     public function getAuthorizationCode($state)
     {
@@ -229,14 +234,16 @@ class YConnectClient
     }
 
     /**
-     * \brief アクセストークンリクエストメソッド
+     * アクセストークンリクエストメソッド
      *
      * Tokenエンドポイントにリクエストします。
      *
-     * @param    $redirect_uri    クライアントリダイレクトURL
-     * @param    $code code
-     * @param    $code_verifier code verifier
-     * @throws \Exception
+     * @param string $redirect_uri クライアントリダイレクトURL
+     * @param string $code code
+     * @param string|null $code_verifier code verifier
+     * @throws UnexpectedValueException 公開鍵リストが取得できなかったときに発生
+     * @throws TokenException レスポンスにエラーが含まれているときに発生
+     * @throws Exception curlコマンドの実行に失敗したときに発生
      */
     public function requestAccessToken($redirect_uri, $code, $code_verifier = null)
     {
@@ -244,7 +251,7 @@ class YConnectClient
         $public_keys_client->fetchPublicKeys();
         $public_keys_json = $public_keys_client->getResponse();
         if(!$public_keys_json) {
-            throw new \UnexpectedValueException('Failed to fetch public keys');
+            throw new UnexpectedValueException('Failed to fetch public keys');
         }
 
         $this->auth_code_client = $this->_getAuthorizationCodeClient(
@@ -272,11 +279,9 @@ class YConnectClient
     }
 
     /**
-     * \brief アクセストークン取得メソッド
+     * アクセストークン取得メソッド
      *
-     * アクセストークンを取得します。
-     *
-     * @return	access_token
+     * @return string アクセストークン
      */
     public function getAccessToken()
     {
@@ -284,11 +289,9 @@ class YConnectClient
     }
 
     /**
-     * \brief リフレッシュトークン取得メソッド
+     * リフレッシュトークン取得メソッド
      *
-     * リフレッシュトークンを取得します。
-     *
-     * @return	refresh_token
+     * @return string リフレッシュトークン
      */
     public function getRefreshToken()
     {
@@ -296,11 +299,9 @@ class YConnectClient
     }
 
     /**
-     * \brief アクセストークン有効期限取得メソッド
+     * アクセストークン有効期限取得メソッド
      *
-     * アクセストークンの有効期限を取得します。
-     *
-     * @return	expiration
+     * @return int expiration
      */
     public function getAccessTokenExpiration()
     {
@@ -308,11 +309,12 @@ class YConnectClient
     }
 
     /**
-     * \brief IDトークン検証メソッド
+     * IDトークン検証メソッド
      *
      * IDトークンの各パラメータの値を検証します。
      *
-     * @return boolean
+     * @return bool 検証に成功したときtrue
+     * @throws IdTokenException 検証に失敗したときに発生
      */
     public function verifyIdToken($nonce, $access_token)
     {
@@ -320,10 +322,9 @@ class YConnectClient
     }
 
     /**
-     * \brief IDトークン取得メソッド
+     * IDトークン取得メソッド
      *
-     * IDトークンオブジェクトを取得します。
-     *
+     * @return object IDトークン
      */
     public function getIdToken()
     {
@@ -331,12 +332,13 @@ class YConnectClient
     }
 
     /**
-     * \brief アクセストークン更新メソッド
+     * アクセストークン更新メソッド
      *
      * Tokenエンドポイントにリクエストします。
      * リフレッシュトークンをつかってアクセストークンを更新します。
      *
-     * @param	$refresh_token	リフレッシュトークン
+     * @param string $refresh_token リフレッシュトークン
+     * @throws TokenException レスポンスにエラーが含まれているときに発生
      */
     public function refreshAccessToken($refresh_token)
     {
@@ -352,7 +354,9 @@ class YConnectClient
      *
      * UserInfoエンドポイントにリクエストします。
      *
-     * @param	$access_token	アクセストークン
+     * @param string|BearerToken $access_token アクセストークン
+     * @throws ApiException レスポンスボディにエラーが含まれているときに発生
+     * @throws TokenException レスポンスヘッダーにエラーが含まれているときに発生
      */
     public function requestUserInfo($access_token)
     {
@@ -362,10 +366,11 @@ class YConnectClient
     }
 
     /**
-     * \brief UserInfo取得メソッド
+     * UserInfo取得メソッド
      *
      * ユーザー識別子などをstdClassのインスタンスとして取得します。
      *
+     * @return object UserInfo
      */
     public function getUserInfo()
     {
@@ -373,7 +378,7 @@ class YConnectClient
     }
 
     /**
-     * \brief ハッシュ化された code challenge を生成します
+     * ハッシュ化された code challenge を生成
      *
      * @param string $plain_code_challenge ハッシュ化前の code challenge
      * @return string SHA-256でハッシュ化された code challenge
@@ -384,6 +389,14 @@ class YConnectClient
         return str_replace('=', '', strtr(base64_encode($hash), '+/', '-_'));
     }
 
+    /**
+     * authorization client取得
+     *
+     * @param string $endpoint エンドポイントURL
+     * @param ClientCredential $client_cred 認証情報
+     * @param string $response_type レスポンスタイプ
+     * @return AuthorizationClient
+     */
     protected function _getAuthorizationClient($endpoint, $client_cred, $response_type)
     {
         return new AuthorizationClient(
@@ -393,11 +406,27 @@ class YConnectClient
         );
     }
 
+    /**
+     * public keys client取得
+     *
+     * @param string $endpoint エンドポイントURL
+     * @return PublicKeysClient
+     */
     protected function _getPublicKeysClient($endpoint)
     {
         return new PublicKeysClient($endpoint);
     }
 
+    /**
+     * authorization code client 取得
+     *
+     * @param string $endpoint エンドポイントURL
+     * @param ClientCredential $client_cred 認証情報
+     * @param string $code code
+     * @param string $redirect_uri リダイレクトURI
+     * @param string $public_keys_json 公開鍵情報のJSON
+     * @return AuthorizationCodeClient
+     */
     protected function _getAuthorizationCodeClient($endpoint, $client_cred, $code, $redirect_uri, $public_keys_json)
     {
         return new AuthorizationCodeClient(
@@ -409,6 +438,14 @@ class YConnectClient
         );
     }
 
+    /**
+     * refresh token client取得
+     *
+     * @param string $endpoint エンドポイントURL
+     * @param ClientCredential $client_cred 認証情報
+     * @param string $refresh_token リフレッシュトークン
+     * @return RefreshTokenClient
+     */
     protected function _getRefreshTokenClient($endpoint, $client_cred, $refresh_token)
     {
         return new RefreshTokenClient(
@@ -418,6 +455,13 @@ class YConnectClient
         );
     }
 
+    /**
+     * user info client 取得
+     *
+     * @param string $endpoint エンドポイントURL
+     * @param string|BearerToken $access_token アクセストークン
+     * @return UserInfoClient
+     */
     protected function _getUserInfoClient($endpoint, $access_token)
     {
         return new UserInfoClient($endpoint, $access_token);

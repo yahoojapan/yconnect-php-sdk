@@ -1,4 +1,5 @@
 <?php
+// TODO: 使われていないクラスのため削除予定
 /**
  * The MIT License (MIT)
  *

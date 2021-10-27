@@ -23,40 +23,37 @@
  * THE SOFTWARE.
  */
 
-/** \file TokenException.php
- *
- * \brief Token サーバ例外処理クラスを定義しています.
- */
-
 namespace YConnect\Exception;
 
+use Exception;
+
 /**
- * \class TokenExceptionクラス
- *
- * \brief Token サーバ例外処理クラスです.
+ * TokenExceptionクラス
  *
  * Token サーバ例外処理クラスです.
  */
-class TokenException extends \Exception
+class TokenException extends Exception
 {
     /**
-     * \brief エラー詳細
+     * @var string|null エラー詳細
      */
     public $error_detail = null;
 
     /**
-     * \brief エラーコード
+     * @var int エラーコード
      */
     public $error_code;
 
     /**
-     * \brief インスタンス生成
+     * インスタンス生成
      *
-     * @param	$error	エラー概要
-     * @param	$error_desc	エラー詳細
-     * @param	$code
+     * @param string $error エラー概要
+     * @param string $error_detail エラー詳細
+     * @param int $error_code エラーコード
+     * @param int $code
+     * @param Exception|null $previous
      */
-    public function __construct($error, $error_detail = "", $error_code = 0, $code = 0, \Exception $previous = null)
+    public function __construct($error, $error_detail = "", $error_code = 0, $code = 0, Exception $previous = null)
     {
         parent::__construct($error, $code, $previous);
         $this->error_detail = $error_detail;
@@ -64,9 +61,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief リダイレクトURIエラー確認メソッド
+     * リダイレクトURIエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool リダイレクトURIエラーならtrue, そうでなければfalse
      */
     public function invalidRedirectUri()
     {
@@ -78,9 +75,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief クライアント認証URIエラー確認メソッド
+     * クライアント認証URIエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool クライアント認証URIエラーならtrue, そうでなければfalse
      */
     public function invalidClient()
     {
@@ -92,9 +89,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief scopeエラー確認メソッド
+     * スコープエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool スコープエラーならtrue, そうでなければfalse
      */
     public function invalidScope()
     {
@@ -106,9 +103,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief Refresh Token有効期限切れ確認メソッド
+     * リフレッシュトークン有効期限切れ確認メソッド
      *
-     * @return	true or false
+     * @return bool リフレッシュトークン有効期限切れならtrue, そうでなければfalse
      */
     public function invalidGrant()
     {
@@ -120,9 +117,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief Access Token有効期限切れ確認メソッド
+     * アクセストークン有効期限切れ確認メソッド
      *
-     * @return	true or false
+     * @return bool アクセストークン有効期限切れならtrue, そうでなければfalse
      */
     public function tokenExpired()
     {
@@ -134,9 +131,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief 無効なToken確認メソッド
+     * 無効なトークン確認メソッド
      *
-     * @return	true or false
+     * @return bool 無効なトークンならtrue, そうでなければfalse
      */
     public function invalidToken()
     {
@@ -148,9 +145,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief パラメータ関連エラー確認メソッド
+     * パラメータ関連エラー確認メソッド
      *
-     * @return	true or false
+     * @return bool パラメータ関連エラーならtrue, そうでなければfalse
      */
     public function invalidRequest()
     {
@@ -162,9 +159,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief 認可タイプエラー確認メソッド
+     * 認可タイプエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool 認可タイプエラーならtrue, そうでなければfalse
      */
     public function unsupportedGrantType()
     {
@@ -176,9 +173,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief HTTPSエラー確認メソッド
+     * HTTPSエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool HTTPSエラーならtrue, そうでなければfalse
      */
     public function accessDenied()
     {
@@ -190,9 +187,9 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief サーバーエラー確認メソッド
+     * サーバーエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool サーバーエラーならtrue, そうでなければfalse
      */
     public function serverError()
     {
@@ -203,6 +200,9 @@ class TokenException extends \Exception
         }
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )[ $this->error_code ]";

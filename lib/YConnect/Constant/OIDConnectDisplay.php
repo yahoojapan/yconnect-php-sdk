@@ -23,41 +23,37 @@
  * THE SOFTWARE.
  */
 
-/** \file OIDConnectDisplay.php
- *
- * \brief displayの列挙型クラスです.
- */
 namespace YConnect\Constant;
 
 /**
- * \class OIDConnectDisplayクラス
+ * OIDConnectDisplayクラス
  *
- * \brief displayの列挙型クラスです.
+ * displayの列挙型クラスです.
  */
 class OIDConnectDisplay
 {
     /**
-     * \public \brief empty string: ユーザーエージェント判定によるテンプレート出し分け
+     * page: ユーザーエージェント判定によるテンプレート出し分け
      */
     const DEFAULT_DISPLAY = "page";
 
     /**
-     * \public \brief page: PC版テンプレート
+     * page: PC版テンプレート
      */
     const PC = "page";
 
     /**
-     * \public \brief touch: スマートフォン版テンプレート
+     * touch: スマートフォン版テンプレート
      */
     const SMART_PHONE = "touch";
 
     /**
-     * \public \brief popup: ポップアップ版テンプレート
+     * popup: ポップアップ版テンプレート
      */
     const POPUP = "popup";
 
     /**
-     * \public \brief inapp: ネイティブアプリ版テンプレート
+     * inapp: ネイティブアプリ版テンプレート
      */
     const NATIVE_APP = "inapp";
 }

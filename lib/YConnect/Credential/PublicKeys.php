@@ -31,18 +31,19 @@ class PublicKeys
     private $public_keys;
 
     /**
-     * PublicKeys constructor.
-     * @param string $json json string
+     * コンストラクタ
+     *
+     * @param string $json json文字列
      */
     public function __construct($json) {
         $this->public_keys = json_decode($json);
     }
 
     /**
-     * get public key by kid
+     * kidから公開鍵を取得
      *
      * @param string $kid kid
-     * @return string|null public key
+     * @return string|null 公開鍵
      */
     public function getPublicKey($kid) {
         if(!isset($this->public_keys->$kid)) {

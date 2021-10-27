@@ -23,21 +23,17 @@
  * THE SOFTWARE.
  */
 
-/** \file ResponseType.php
- *
- * \brief response_typeの列挙型クラスです.
- */
 namespace YConnect\Constant;
 
 /**
- * \class ResponseTypeクラス
+ * ResponseTypeクラス
  *
- * \brief response_typeの列挙型クラスです.
+ * response_typeの列挙型クラスです.
  */
 class ResponseType
 {
     /**
-     * \public \brief code
+     * code
      */
     const CODE = "code";
 }

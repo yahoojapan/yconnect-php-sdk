@@ -30,31 +30,29 @@ use Exception;
 use YConnect\Util\HttpClient;
 
 /**
- * \class PublicKeysClientクラス
+ * PublicKeysClientクラス
  *
- * \brief Public keys APIアクセスの機能を提供するクラスです.
- *
- * Public keys APIアクセスに必要な機能を提供しています.
+ * Public keys APIアクセスに必要な機能を提供するクラスです.
  */
 class PublicKeysClient
 {
     /**
-     * \private \brief Public keysサーバエンドポイントURL
+     * @var string Public keysサーバエンドポイントURL
      */
     private $url;
 
     /**
-     * \private \brief レスポンスボディ
+     * @var string|null レスポンスボディ
      */
     private $res_body = null;
 
     /**
-     * \private \brief レスポンスステータス
+     * @var int|null レスポンスステータス
      */
     private $res_status = null;
 
     /**
-     * \brief PublicKeysClientのインスタンス生成
+     * PublicKeysClientのインスタンス生成
      *
      * @param string $endpoint_url エンドポイントURL
      */
@@ -64,9 +62,9 @@ class PublicKeysClient
     }
 
     /**
-     * \brief APIエンドポイントリソース取得メソッド
+     * APIエンドポイントリソース取得メソッド
      *
-     * @throws Exception
+     * @throws Exception HTTPコールに失敗したときに発生
      */
     public function fetchPublicKeys()
     {
@@ -77,8 +75,9 @@ class PublicKeysClient
     }
 
     /**
-     * \brief レスポンス取得メソッド
-     * @return	レスポンス
+     * レスポンス取得メソッド
+     *
+     * @return string|null レスポンス
      */
     public function getResponse()
     {
@@ -89,6 +88,11 @@ class PublicKeysClient
         }
     }
 
+    /**
+     * HTTPクライアント取得メソッド
+     *
+     * @return HttpClient
+     */
     protected function _getHttpClient() {
         return new HttpClient();
     }

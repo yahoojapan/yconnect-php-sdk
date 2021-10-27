@@ -23,49 +23,45 @@
  * THE SOFTWARE.
  */
 
-/** \file AuthorizationClient.php
- *
- * \brief OAuth2 Authorization処理クラスです.
- */
-
 namespace YConnect\Endpoint;
 
 use YConnect\Constant\ResponseType;
+use YConnect\Credential\ClientCredential;
 use YConnect\Util\Logger;
 
 /**
- * \class AuthorizationClientクラス
+ * AuthorizationClientクラス
  *
- * \brief Authorizationの機能を実装したクラスです.
+ * Authorizationの機能を実装したクラスです.
  */
 class AuthorizationClient
 {
     /**
-     * \private \brief 認可サーバエンドポイントURL
+     * @var string 認可サーバエンドポイントURL
      */
     private $url = null;
 
     /**
-     * \private \brief クレデンシャル
+     * @var ClientCredential 認証情報
      */
     private $cred = null;
 
     /**
-     * \private \brief レスポンスタイプ
+     * @var string レスポンスタイプ
      */
     private $response_type = ResponseType::CODE;
 
     /**
-     * \private \brief パラメータ
+     * @var array<string, string|int> パラメータ
      */
     private $params = array();
 
     /**
-     * \brief AuthorizationClientのインスタンス生成
+     * AuthorizationClientのインスタンス生成
      *
-     * @param	$endpoint_url	エンドポイントURL
-     * @param	$client_credential	クライアントクレデンシャル
-     * @param	$response_type	response_type
+     * @param string $endpoint_url エンドポイントURL
+     * @param ClientCredential $client_credential クライアントクレデンシャル
+     * @param string|null $response_type レスポンスタイプ
      */
     public function __construct($endpoint_url, $client_credential, $response_type=null)
     {
@@ -78,12 +74,12 @@ class AuthorizationClient
     }
 
     /**
-     * \brief 認可リクエストメソッド
+     * 認可リクエストメソッド
      *
-     * 認可サーバへAuthorozation Codeをリクエストします.
+     * 認可サーバへAuthorization Codeリクエストします.
      *
-     * @param	$redirect_uri	リダイレクトURI
-     * @param	$state	state
+     * @param string $redirect_uri リダイレクトURI
+     * @param string $state state
      */
     public function requestAuthorizationGrant($redirect_uri, $state=null)
     {
@@ -91,7 +87,7 @@ class AuthorizationClient
         self::setParam( "client_id", $this->cred->id );
         self::setParam( "redirect_uri", $redirect_uri );
 
-        // RECOMMENEDED
+        // RECOMMENDED
         if( $state != null ) {
             self::setParam( "state", $state );
         }
@@ -105,8 +101,9 @@ class AuthorizationClient
     }
 
     /**
-     * \brief scope設定メソッド
-     * @param	$scope_array	scope名の配列
+     * scope設定メソッド
+     *
+     * @param string[] $scope_array scope名の配列
      */
     public function setScopes($scope_array)
     {
@@ -114,8 +111,9 @@ class AuthorizationClient
     }
 
     /**
-     * \brief レスポンスタイプ設定メソッド
-     * @param	$response_type	response_type
+     * レスポンスタイプ設定メソッド
+     *
+     * @param string $response_type レスポンスタイプ
      */
     public function setResponseType($response_type)
     {
@@ -123,12 +121,12 @@ class AuthorizationClient
     }
 
     /**
-     * \brief パラメータ設定メソッド
+     * パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$key	パラメータ名
-     * @param	$val	値
+     * @param string $key パラメータ名
+     * @param string|int $val 値
      */
     public function setParam($key, $val)
     {
@@ -136,11 +134,11 @@ class AuthorizationClient
     }
 
     /**
-     * \brief 複数パラメータ設定メソッド
+     * 複数パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$keyval_array	パラメータ名と値の連想配列
+     * @param array<string, string|int> $keyval_array パラメータ名と値の連想配列
      */
     public function setParams($keyval_array)
     {
@@ -148,8 +146,9 @@ class AuthorizationClient
     }
 
     /**
-     * \brief 認可サーバエンドポイントURL設定メソッド
-     * @param	$endpoint_url	エンドポイントURL
+     * 認可サーバエンドポイントURL設定メソッド
+     *
+     * @param string $endpoint_url エンドポイントURL
      */
     protected function _setEndpointUrl($endpoint_url)
     {
@@ -157,7 +156,8 @@ class AuthorizationClient
     }
 
     /**
-     * \brief リダイレクト実行
+     * リダイレクト実行
+     *
      * @param string $request_uri リダイレクト先のURL
      */
     protected function _redirect($request_uri)

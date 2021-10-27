@@ -23,44 +23,44 @@
  * THE SOFTWARE.
  */
 
-/** \file TokenClient.php
- *
- * \brief OAuth2 Token処理クラスです.
- */
-
 namespace YConnect\Endpoint;
 
+use Exception;
+use YConnect\Credential\ClientCredential;
 use YConnect\Util\HttpClient;
 
 /**
- * \class TokenClientクラス
+ * TokenClientクラス
  *
- * \brief Tokenリクエストの機能を実装したクラスです.
+ * Tokenリクエストの機能を実装したクラスです.
  */
 class TokenClient
 {
     /**
-     * \private \brief エンドポイントURL
+     * @var string|null エンドポイントURL
      */
     private $url = null;
 
     /**
-     * \private \brief パラメータ
+     * @var array<string, string|int> パラメータ
      */
     private $params = array();
 
     /**
-     * \private \brief レスポンスボディ
+     * @var string|null レスポンスボディ
      */
     private $res_body = null;
 
     /**
-     * \private \brief クレデンシャルの文字列
+     * @var ClientCredential|null 認証情報
      */
     protected $cred = null;
 
     /**
-     * \brief TokenClientのインスタンス生成
+     * TokenClientのインスタンス生成
+     *
+     * @param string $endpoint_url エンドポイントURL
+     * @param ClientCredential $client_credential 認証情報
      */
     public function __construct($endpoint_url, $client_credential)
     {
@@ -69,7 +69,9 @@ class TokenClient
     }
 
     /**
-     * \brief Tokenエンドポイントリソース取得メソッド
+     * Tokenエンドポイントリソース取得メソッド
+     *
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function fetchToken()
     {
@@ -83,8 +85,9 @@ class TokenClient
     }
 
     /**
-     * \brief レスポンス取得メソッド
-     * @return	レスポンス
+     * レスポンス取得メソッド
+     *
+     * @return string|null レスポンス
      */
     public function getResponse()
     {
@@ -96,11 +99,11 @@ class TokenClient
     }
 
     /**
-     * \brief 複数パラメータ設定メソッド
+     * 複数パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$keyval_array	パラメータ名と値の連想配列
+     * @param array<string, string|int> $keyval_array パラメータ名と値の連想配列
      */
     public function setParams($keyval_array)
     {
@@ -108,12 +111,12 @@ class TokenClient
     }
 
     /**
-     * \brief パラメータ設定メソッド
+     * パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$key	パラメータ名
-     * @param	$val	値
+     * @param string $key パラメータ名
+     * @param string|int $val 値
      */
     public function setParam($key, $val)
     {
@@ -121,14 +124,20 @@ class TokenClient
     }
 
     /**
-     * \brief エンドポイントURL設定メソッド
-     * @param	$endpoint_url	エンドポイントURL
+     * エンドポイントURL設定メソッド
+     *
+     * @param string $endpoint_url エンドポイントURL
      */
     protected function _setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
     }
 
+    /**
+     * HTTPクライアント取得メソッド
+     *
+     * @return HttpClient
+     */
     protected function _getHttpClient()
     {
         return new HttpClient();

@@ -23,11 +23,6 @@
  * THE SOFTWARE.
  */
 
-/** \file IdToken.php
- *
- * \brief ID Tokenを保持するクラスを定義しています.
- */
-
 namespace YConnect\Credential;
 
 use YConnect\Util\JWT;
@@ -35,25 +30,38 @@ use YConnect\Exception\IdTokenException;
 use YConnect\Util\Logger;
 
 /**
- * \class IdTokenクラス
+ * IdTokenクラス
  *
- * \brief ID Tokenを保持するクラスです.
+ * ID Tokenを保持するクラスです.
  */
 class IdToken
 {
+    /**
+     * @var string[] IDトークンに含まれている必要があるキー
+     */
     private $required_keys = array('iss', 'sub', 'aud', 'exp', 'iat', 'nonce');
 
+    /**
+     * @var object|null IDトークンのペイロード部のオブジェクト
+     */
     private $json = NULL;
+
+    /**
+     * @var string JWT
+     */
     private $jwt = '';
 
-    // for verify
+    /**
+     * @var string IDトークンの発行元
+     * @see https://openid.net/specs/openid-connect-core-1_0.html#Terminology OIDC仕様書
+     */
     private static $issuer = "https://auth.login.yahoo.co.jp/yconnect/v2";
 
     /**
-     * Constructor
+     * コンストラクタ
      *
-     * @param string $data   JWT raw string
-     * @param PublicKeys $public_keys    Map of public key
+     * @param string $data 文字列形式のJWT
+     * @param PublicKeys $public_keys 公開鍵リスト
      */
     public function __construct($data, $public_keys)
     {
@@ -77,7 +85,7 @@ class IdToken
     }
 
     /**
-     * @return JWT raw string
+     * @return string 文字列形式のJWT
      */
     public function toString()
     {
@@ -85,7 +93,7 @@ class IdToken
     }
 
     /**
-     * @return user_id
+     * @return string ユーザ識別子
      */
     public function getSub()
     {
@@ -93,7 +101,7 @@ class IdToken
     }
 
     /**
-     * @return expiration timestamp
+     * @return int IDトークンの有効期限のUNIXタイムスタンプ
      */
     public function getExpiration()
     {
@@ -101,7 +109,7 @@ class IdToken
     }
 
     /**
-     * @return true if expired
+     * @return bool 有効期限切れならばtrue, そうでなければfalse
      */
     public function isExpired()
     {
@@ -109,13 +117,24 @@ class IdToken
     }
 
     /**
-     * @return id token type stdClass
+     * @return object IDトークン
      */
     public function getIdToken()
     {
         return $this->json;
     }
 
+    /**
+     * IDトークン検証
+     *
+     * @param object $object IDトークンのオブジェクト
+     * @param string $auth_nonce nonce
+     * @param string $client_id クライアントID
+     * @param string $access_token アクセストークン
+     * @param int $acceptable_range IDトークン発行時間の許容期間(sec)
+     * @return bool 検証が成功したときtrue
+     * @throws IdTokenException 検証が失敗したときに発生
+     */
     public static function verify($object, $auth_nonce, $client_id, $access_token, $acceptable_range = 600)
     {
         // Is iss equal to issuer ?
@@ -154,9 +173,9 @@ class IdToken
     }
 
     /**
-     * check the required data of id_token
+     * IDトークンに必要なデータが入っているか確認
      *
-     * @param   object  JWT stdClass object
+     * @param object ペイロードのオブジェクト
      */
     private function _checkFormat($obj)
     {
@@ -167,10 +186,10 @@ class IdToken
     }
 
     /**
-     * generate hash for at_hash
+     * at_hashを生成
      *
-     * @param $value
-     * @return mixed
+     * @param string $value 生成元文字列
+     * @return string at_hash
      */
     private static function generateHash($value)
     {

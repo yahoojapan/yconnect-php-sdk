@@ -23,40 +23,36 @@
  * THE SOFTWARE.
  */
 
-/** \file UserInfoClient.php
- *
- * \brief OAuth2 Authorization処理クラスです.
- */
-
 namespace YConnect\WebAPI;
 
 use YConnect\Endpoint\ApiClient;
 use YConnect\Credential\BearerToken;
+use YConnect\Exception\TokenException;
 use YConnect\Util\Logger;
 use YConnect\Exception\ApiException;
 
 /**
- * \class UserInfoClientクラス
+ * UserInfoClientクラス
  *
- * \brief Authorizationの機能を実装したクラスです.
+ * UserInfoにアクセスする機能を実装したクラスです.
  */
 class UserInfoClient extends ApiClient
 {
     /**
-     * \private \brief UserInfoエンドポイントURL
+     * @var string|null UserInfoエンドポイントURL
      */
     private $url = null;
 
     /**
-     * \private \brief UserInfo配列
+     * @var object|null UserInfo配列
      */
     private $user_info = array();
 
     /**
-     * \brief UserInfoClientのインスタンス生成
+     * UserInfoClientのインスタンス生成
      *
-     * @param	$endpoint_url	エンドポイントURL
-     * @param	$access_token	アクセストークン
+     * @param string $endpoint_url エンドポイントURL
+     * @param string|BearerToken $access_token アクセストークン
      */
     public function __construct($endpoint_url, $access_token)
     {
@@ -70,8 +66,10 @@ class UserInfoClient extends ApiClient
     }
 
     /**
-     * \brief UserInfoエンドポイントリソース取得メソッド
+     * UserInfoエンドポイントリソース取得メソッド
      *
+     * @throws TokenException レスポンスヘッダーにエラーが含まれているときに発生
+     * @throws ApiException レスポンスボディにエラーが含まれているときに発生
      */
     public function fetchUserInfo()
     {
@@ -83,9 +81,9 @@ class UserInfoClient extends ApiClient
     }
 
     /**
-     * \brief UserInfo配列取得メソッド
+     * UserInfo配列取得メソッド
      *
-     * @return array|false UserInfoObject
+     * @return object|false UserInfoObject
      */
     public function getUserInfo()
     {
@@ -98,8 +96,9 @@ class UserInfoClient extends ApiClient
 
     /**
      * JSONパラメータ抽出処理
+     *
      * @param string $json パースするJSON
-     * @throws ApiException
+     * @throws ApiException レスポンスにエラーが含まれているときに発生
      */
     private function _parseJson($json)
     {

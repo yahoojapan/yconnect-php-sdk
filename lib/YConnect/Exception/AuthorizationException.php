@@ -23,35 +23,31 @@
  * THE SOFTWARE.
  */
 
-/** \file AuthorizationException.php
- *
- * \brief 認可サーバ例外処理クラスを定義しています.
- */
-
 namespace YConnect\Exception;
 
+use Exception;
+
 /**
- * \class AuthorizationExceptionクラス
+ * AuthorizationExceptionクラス
  *
- * \brief 認可サーバ例外処理クラスです.
- *
- * 認可サーバ例外処理例外処理クラスです.
+ * 認可サーバ例外処理クラスです.
  */
-class AuthorizationException extends \Exception
+class AuthorizationException extends Exception
 {
     /**
-     * \brief \public エラー詳細
+     * @var string|null エラー詳細
      */
     public $error_detail = null;
 
     /**
-     * \brief インスタンス生成
+     * インスタンス生成
      *
-     * @param	$error	エラー概要
-     * @param	$error_desc	エラー詳細
-     * @param	$code
+     * @param string $error エラー概要
+     * @param string $error_detail エラー詳細
+     * @param int $code エラーコード
+     * @param Exception|null $previous
      */
-    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
+    public function __construct($error, $error_detail = "", $code = 0, Exception $previous = null)
     {
         parent::__construct($error, $code, $previous);
         $this->error_detail = $error_detail;
@@ -59,9 +55,9 @@ class AuthorizationException extends \Exception
 
 
     /**
-     * \brief リクエストエラー確認メソッド
+     * リクエストエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool 無効なリクエストエラーならtrue, そうでなければfalse
      */
     public function invalidRequest()
     {
@@ -73,9 +69,9 @@ class AuthorizationException extends \Exception
     }
 
     /**
-     * \brief scopeエラー確認メソッド
+     * スコープエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool スコープエラーならtrue, そうでなければfalse
      */
     public function invalidScope()
     {
@@ -87,9 +83,9 @@ class AuthorizationException extends \Exception
     }
 
     /**
-     * \brief ログイン画面表示要求エラー確認メソッド
+     * ログイン画面表示要求エラー確認メソッド
      *
-     * @return	true or false
+     * @return bool ログイン画面表示要求エラーならtrue, そうでなければfalse
      */
     public function loginRequired()
     {
@@ -101,9 +97,9 @@ class AuthorizationException extends \Exception
     }
 
     /**
-     * \brief 同意画面表示要求エラー確認メソッド
+     * 同意画面表示要求エラー確認メソッド
      *
-     * @return	true or false
+     * @return bool 同意画面表示要求エラーならtrue, そうでなければfalse
      */
     public function consentRequired()
     {
@@ -115,9 +111,9 @@ class AuthorizationException extends \Exception
     }
 
     /**
-     * \brief レスポンスタイプエラー確認メソッド
+     * レスポンスタイプエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool レスポンスタイプエラーならtrue, そうでなければfalse
      */
     public function unsupportedResponseType()
     {
@@ -129,9 +125,9 @@ class AuthorizationException extends \Exception
     }
 
     /**
-     * \brief クライアント認証エラー確認メソッド
+     * クライアント認証エラー確認メソッド
      *
-     * @return	true or false
+     * @return bool クライアント認証エラーならtrue, そうでなければfalse
      */
     public function unauthorizedClient()
     {
@@ -143,9 +139,9 @@ class AuthorizationException extends \Exception
     }
 
     /**
-     * \brief HTTPSエラー確認メソッド
+     * HTTPSエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool HTTPSエラーならtrue, そうでなければfalse
      */
     public function accessDenied()
     {
@@ -157,9 +153,9 @@ class AuthorizationException extends \Exception
     }
 
     /**
-     * \brief サーバーエラー確認メソッド
+     * サーバーエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool サーバーエラーならtrue, そうでなければfalse
      */
     public function serverError()
     {
@@ -170,6 +166,9 @@ class AuthorizationException extends \Exception
         }
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";

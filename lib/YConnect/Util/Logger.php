@@ -38,48 +38,48 @@ namespace YConnect\Util;
 class Logger
 {
     /**
-     * \brief ログレベル定数 debug
+     * ログレベル定数 debug
      */
     const DEBUG = 1;
 
     /**
-     * \brief ログレベル定数 info
+     * ログレベル定数 info
      */
     const INFO = 2;
 
     /**
-     * \brief ログレベル定数 error
+     * ログレベル定数 error
      */
     const ERROR = 3;
 
     /**
-     * \brief ログ出力方法定数
+     * ログ出力方法定数 console
      */
     const CONSOLE_TYPE = "console";
 
     /**
-     * \brief ログ出力方法定数
+     * ログ出力方法定数 log
      */
     const LOG_TYPE = "log";
 
     /**
-     * \private \brief ログ出力方法
+     * @var string ログ出力方法
      */
     private static $log_type = self::LOG_TYPE;
     /**
-     * \private \brief ログレベル
+     * @var string ログレベル
      */
     private static $log_level = self::ERROR;
 
     /**
-     * \private \brief ログ出力先パス
+     * @var string ログ出力先パス
      */
     private static $log_path = null;
 
     /**
-     * \brief ログ出力方法設定メソッド
+     * ログ出力方法設定メソッド
      *
-     * @param	$log_type ログ出力方法定数(CONSOLE_TYPE or LOG_TYPE)
+     * @param string $log_type ログ出力方法定数(CONSOLE_TYPE or LOG_TYPE)
      */
     public static function setLogType($log_type)
     {
@@ -93,9 +93,9 @@ class Logger
     }
 
     /**
-     * \brief ログレベル設定メソッド
+     * ログレベル設定メソッド
      *
-     * @param	$log_level	ログレベル定数(DEBUG or INFO or ERROR)
+     * @param string $log_level ログレベル定数(DEBUG or INFO or ERROR)
      */
     public static function setLogLevel($log_level)
     {
@@ -111,9 +111,9 @@ class Logger
     }
 
     /**
-     * \brief ログ出力先パス設定メソッド
+     * ログ出力先パス設定メソッド
      *
-     * @param	$log_path	ログ出力先パス
+     * @param string $log_path ログ出力先パス
      */
     public static function setLogPath($log_path)
     {
@@ -121,10 +121,10 @@ class Logger
     }
 
     /**
-     * \brief デバッグログ出力メソッド
+     * デバッグログ出力メソッド
      *
-     * @param	$message	ログメッセージ
-     * @param	$object	対象オブジェクト
+     * @param string $message ログメッセージ
+     * @param object|null $object 対象オブジェクト
      */
     public static function debug($message, $object = null)
     {
@@ -133,10 +133,10 @@ class Logger
     }
 
     /**
-     * \brief 情報ログ出力メソッド
+     * 情報ログ出力メソッド
      *
-     * @param	$message	ログメッセージ
-     * @param	$object	対象オブジェクト
+     * @param string $message ログメッセージ
+     * @param object|null $object 対象オブジェクト
      */
     public static function info($message, $object = null)
     {
@@ -145,10 +145,10 @@ class Logger
     }
 
     /**
-     * \brief エラーログ出力メソッド
+     * エラーログ出力メソッド
      *
-     * @param	$message ログメッセージ
-     * @param	$object	対象オブジェクト
+     * @param string $message ログメッセージ
+     * @param object|null $object 対象オブジェクト
      */
     public static function error($message, $object = null)
     {
@@ -157,10 +157,10 @@ class Logger
     }
 
     /**
-     * \brief 共通ログ出力メソッド
+     * 共通ログ出力メソッド
      *
-     * @param	$message ログメッセージ
-     * @param	$object	対象オブジェクト
+     * @param string $message ログメッセージ
+     * @param object|null $object 対象オブジェクト
      */
     private static function outputLog($message, $object = null)
     {

@@ -23,14 +23,10 @@
  * THE SOFTWARE.
  */
 
-/** \file AuthorizationCodeClient.php
- *
- * \brief Authorization Code フローの機能を実装しています.
- */
-
 namespace YConnect\Endpoint;
 
-use YConnect\Endpoint\TokenClient;
+use YConnect\Credential\ClientCredential;
+use YConnect\Credential\PublicKeys;
 use YConnect\Constant\GrantType;
 use YConnect\Util\Logger;
 use YConnect\Credential\BearerToken;
@@ -39,44 +35,50 @@ use YConnect\Credential\IdToken;
 use YConnect\Exception\TokenException;
 
 /**
- * \class AuthorizationCodeClientクラス
+ * AuthorizationCodeClientクラス
  *
- * \brief Authorization Code フローの機能を実装したクラスです.
+ * Authorization Code フローの機能を実装したクラスです.
  */
 class AuthorizationCodeClient extends TokenClient
 {
     /**
-     * \private \brief 認可コード
+     * @var string|null 認可コード
      */
     private $code = null;
 
     /**
-     * \private \brief リダイレクトURI
+     * @var string|null リダイレクトURI
      */
     private $redirect_uri = null;
 
     /**
-     * \private \brief Access Token
+     * @var BearerToken|null アクセストークン
      */
     private $access_token = null;
 
     /**
-     * \private \brief Refresh Token
+     * @var RefreshToken|null リフレッシュトークン
      */
     private $refresh_token = null;
 
     /**
-     * \private \brief Public Keys
+     * @var PublicKeys|null 公開鍵リスト
      */
     private $public_keys = null;
 
     /**
-     * \private \brief ID Token
+     * @var object|null IDトークン
      */
     private $id_token = null;
 
     /**
-     * \brief AuthorizationCodeClientのインスタンス生成
+     * AuthorizationCodeClientのインスタンス生成
+     *
+     * @param string $endpoint_url リクエストURL
+     * @param ClientCredential $client_credential 認証情報
+     * @param string $code 認可コード
+     * @param string $redirect_uri リダイレクトURI
+     * @param PublicKeys $public_keys 公開鍵リスト
      */
     public function __construct($endpoint_url, $client_credential, $code, $redirect_uri, $public_keys)
     {
@@ -87,8 +89,9 @@ class AuthorizationCodeClient extends TokenClient
     }
 
     /**
-     * \brief code設定メソッド
-     * @param	$code	認可コード
+     * code設定メソッド
+     *
+     * @param string $code 認可コード
      */
     public function setCode($code)
     {
@@ -96,8 +99,9 @@ class AuthorizationCodeClient extends TokenClient
     }
 
     /**
-     * \brief redirect_uri設定メソッド
-     * @param	$redirect_uri	リダイレクトURL
+     * リダイレクトURI設定メソッド
+     *
+     * @param string $redirect_uri リダイレクトURL
      */
     public function setRedirectUri($redirect_uri)
     {
@@ -105,8 +109,9 @@ class AuthorizationCodeClient extends TokenClient
     }
 
     /**
-     * \brief Access Token取得メソッド
-     * @return	access_token
+     * アクセストークン取得メソッド
+     *
+     * @return BearerToken|false アクセストークン
      */
     public function getAccessToken()
     {
@@ -118,8 +123,9 @@ class AuthorizationCodeClient extends TokenClient
     }
 
     /**
-     * \brief Refresh Token取得メソッド
-     * @return	refresh_token
+     * リフレッシュトークン取得メソッド
+     *
+     * @return RefreshToken|false リフレッシュトークン
      */
     public function getRefreshToken()
     {
@@ -131,8 +137,9 @@ class AuthorizationCodeClient extends TokenClient
     }
 
     /**
-     * \brief ID Token取得メソッド
-     * @return	id_token
+     * IDトークン取得メソッド
+     *
+     * @return object|false idトークン
      */
     public function getIdToken()
     {
@@ -144,7 +151,9 @@ class AuthorizationCodeClient extends TokenClient
     }
 
     /**
-     * \brief Tokenエンドポイントリソース取得メソッド
+     * Tokenエンドポイントリソース取得メソッド
+     *
+     * @throws TokenException レスポンスにエラーが含まれているときに発生
      */
     public function fetchToken()
     {
@@ -168,8 +177,9 @@ class AuthorizationCodeClient extends TokenClient
     }
 
     /**
-     * \brief エンドポイントURL設定メソッド
-     * @param	$endpoint_url	エンドポイントURL
+     * エンドポイントURL設定メソッド
+     *
+     * @param string $endpoint_url エンドポイントURL
      */
     protected function _setEndpointUrl($endpoint_url)
     {
@@ -177,9 +187,10 @@ class AuthorizationCodeClient extends TokenClient
     }
 
     /**
-     * \brief JSONパラメータ抽出処理
+     * JSONパラメータ抽出処理
+     *
      * @param string $json パース対象のJSON
-     * @throws TokenException
+     * @throws TokenException レスポンスにエラーが含まれているときに発生
      */
     private function _parseJson($json)
     {
@@ -210,6 +221,12 @@ class AuthorizationCodeClient extends TokenClient
         }
     }
 
+    /**
+     * IDトークンオブジェクトを取得
+     *
+     * @param string $id_token IDトークンの文字列
+     * @return IdToken
+     */
     protected function _getIdToken($id_token)
     {
         return new IdToken( $id_token, $this->public_keys );
