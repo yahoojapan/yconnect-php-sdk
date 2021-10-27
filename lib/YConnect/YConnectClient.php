@@ -30,7 +30,6 @@ use UnexpectedValueException;
 use YConnect\Constant\GrantType;
 use YConnect\Credential\BearerToken;
 use YConnect\Credential\ClientCredential;
-use YConnect\Credential\ClientCredentialsClient;
 use YConnect\Credential\IdToken;
 use YConnect\Credential\PublicKeys;
 use YConnect\Credential\RefreshToken;
@@ -91,12 +90,6 @@ class YConnectClient
      * @var RefreshTokenClient|null RefreshTokenインスタンス
      */
     private $refresh_token_client = null;
-
-    /**
-     * @var ClientCredentialsClient|null ClientCredentialsClientインスタンス
-     */
-    // TODO: 削除
-    private $client_credentials_client = null;
 
     /**
      * @var BearerToken|null アクセストークン
