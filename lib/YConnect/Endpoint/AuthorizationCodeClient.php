@@ -199,28 +199,18 @@ class AuthorizationCodeClient extends TokenClient
     {
         $json_response = json_decode($json, true);
         Logger::debug("json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response);
-        if ($json_response != null) {
-            if (empty($json_response["error"])) {
-                $access_token  = $json_response["access_token"];
-                $exp           = $json_response["expires_in"];
-                $refresh_token = $json_response["refresh_token"];
-                $this->access_token  = new BearerToken($access_token, $exp);
-                $this->refresh_token = new RefreshToken($refresh_token);
-                if (array_key_exists("id_token", $json_response)) {
-                    $id_token = $json_response["id_token"];
-                    $id_token_object = $this->getIdTokenObject($id_token);
-                    $this->id_token = $id_token_object->getIdToken();
-                }
-            } else {
-                $error      = $json_response["error"];
-                $error_desc = $json_response["error_description"];
-                $error_code = $json_response["error_code"];
-                Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
-                throw new TokenException($error, $error_desc, $error_code);
-            }
-        } else {
-            Logger::error("no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body");
-            throw new TokenException("no_response", "Failed to get the response body");
+
+        $this->checkErrorResponse($json_response);
+
+        $access_token = $json_response["access_token"];
+        $exp = $json_response["expires_in"];
+        $refresh_token = $json_response["refresh_token"];
+        $this->access_token = new BearerToken($access_token, $exp);
+        $this->refresh_token = new RefreshToken($refresh_token);
+        if (array_key_exists("id_token", $json_response)) {
+            $id_token = $json_response["id_token"];
+            $id_token_object = $this->getIdTokenObject($id_token);
+            $this->id_token = $id_token_object->getIdToken();
         }
     }
 

@@ -83,13 +83,11 @@ class Logger
      */
     public static function setLogType($log_type)
     {
-        if ($log_type == self::CONSOLE_TYPE) {
-            self::$log_type = self::CONSOLE_TYPE;
-        } elseif ($log_type == self::LOG_TYPE) {
-            self::$log_type = self::LOG_TYPE;
-        } else {
-            self::$log_type = self::LOG_TYPE;
+        if (in_array($log_type, [self::CONSOLE_TYPE, self::LOG_TYPE])) {
+            self::$log_type = $log_type;
+            return;
         }
+        self::$log_type = self::LOG_TYPE;
     }
 
     /**
@@ -99,15 +97,11 @@ class Logger
      */
     public static function setLogLevel($log_level)
     {
-        if ($log_level == self::DEBUG) {
+        if (in_array($log_level, [self::DEBUG, self::INFO, self::ERROR])) {
             self::$log_level = $log_level;
-        } elseif ($log_level == self::INFO) {
-            self::$log_level = $log_level;
-        } elseif ($log_level == self::ERROR) {
-            self::$log_level = $log_level;
-        } else {
-            self::$log_level = self::INFO;
+            return;
         }
+        self::$log_level = self::INFO;
     }
 
     /**
@@ -167,22 +161,24 @@ class Logger
      */
     private static function outputLog($message, $object = null)
     {
-        if (self::$log_type == self::CONSOLE_TYPE) {
+        if (self::$log_type === self::CONSOLE_TYPE) {
             echo $message."\n";
             if ($object != null) {
                 echo print_r($object, true);
             }
-        } elseif (self::$log_type == self::LOG_TYPE) {
-            if (self::$log_path == null) {
+            return;
+        }
+        if (self::$log_type === self::LOG_TYPE) {
+            if (!self::$log_path) {
                 error_log($message);
                 if ($object != null) {
                     error_log(print_r($object, true));
                 }
-            } else {
-                error_log($message."\n", 3, self::$log_path);
-                if ($object != null) {
-                    error_log(print_r($object, true), 3, self::$log_path);
-                }
+                return;
+            }
+            error_log($message . "\n", 3, self::$log_path);
+            if ($object != null) {
+                error_log(print_r($object, true), 3, self::$log_path);
             }
         }
     }

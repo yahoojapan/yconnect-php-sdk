@@ -31,6 +31,7 @@ use YConnect\Constant\OIDConnectScope;
 use YConnect\Constant\ResponseType;
 use YConnect\Credential\ClientCredential;
 use YConnect\Exception\ApiException;
+use YConnect\Exception\TokenException;
 use YConnect\YConnectClient;
 
 // アプリケーションID, シークレッvト

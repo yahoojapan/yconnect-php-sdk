@@ -30,6 +30,7 @@ use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 use ReflectionException;
 use YConnect\Credential\ClientCredential;
+use YConnect\Exception\TokenException;
 use YConnect\Util\HttpClient;
 
 class TokenClientTest extends PHPUnit_Framework_TestCase
@@ -151,6 +152,64 @@ class TokenClientTest extends PHPUnit_Framework_TestCase
         $params = $params_field->getValue($client);
 
         $this->assertSame($val, $params[$key]);
+    }
+
+    /**
+     * @test
+     * @throws ReflectionException
+     */
+    public function testCheckErrorResponse()
+    {
+        $client = new TokenClientMock();
+
+        $response = array(
+            "access_token" => "access_token_sample",
+            "expires_in" => 3600
+        );
+
+        $checkErrorResponseMethod = (new ReflectionClass(TokenClient::class))->getMethod('checkErrorResponse');
+        $checkErrorResponseMethod->setAccessible(true);
+        $checkErrorResponseMethod->invoke($client, $response);
+    }
+
+    /**
+     * @test
+     * @throws ReflectionException
+     */
+    public function testCheckErrorResponseThrowsTokenExceptionByErrorResponse()
+    {
+        $client = new TokenClientMock();
+
+        $error = "error_sample";
+
+        $response = array(
+            "error" => $error,
+            "error_description" => "error_description_sample",
+            "error_code" => 1000
+        );
+
+        $this->expectException(TokenException::class);
+        $this->expectExceptionMessage($error);
+
+        $checkErrorResponseMethod = (new ReflectionClass(TokenClient::class))->getMethod('checkErrorResponse');
+        $checkErrorResponseMethod->setAccessible(true);
+        $checkErrorResponseMethod->invoke($client, $response);
+    }
+
+    /**
+     * @test
+     * @throws ReflectionException
+     */
+    public function testCheckErrorResponseThrowsTokenExceptionByNoResponse()
+    {
+        $client = new TokenClientMock();
+
+        $this->expectException(TokenException::class);
+        $this->expectExceptionMessage("no_response");
+
+        $checkErrorResponseMethod = (new ReflectionClass(TokenClient::class))->getMethod('checkErrorResponse');
+        $checkErrorResponseMethod->setAccessible(true);
+        $checkErrorResponseMethod->invoke($client, null);
     }
 }
 

@@ -27,7 +27,9 @@ namespace YConnect\Endpoint;
 
 use Exception;
 use YConnect\Credential\ClientCredential;
+use YConnect\Exception\TokenException;
 use YConnect\Util\HttpClient;
+use YConnect\Util\Logger;
 
 /**
  * TokenClientクラス
@@ -131,6 +133,28 @@ class TokenClient
     protected function setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
+    }
+
+    /**
+     * レスポンスにエラーが含まれていないか確認
+     *
+     * @param array<string, string|int> $response 検査するレスポンス配列
+     * @throws TokenException レスポンスにエラーが含まれているときに発生
+     */
+    protected function checkErrorResponse($response)
+    {
+        if (!$response) {
+            Logger::error("no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body");
+            throw new TokenException("no_response", "Failed to get the response body");
+        }
+
+        if (isset($response["error"])) {
+            $error      = $response["error"];
+            $error_desc = $response["error_description"];
+            $error_code = $response["error_code"];
+            Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
+            throw new TokenException($error, $error_desc, $error_code);
+        }
     }
 
     /**

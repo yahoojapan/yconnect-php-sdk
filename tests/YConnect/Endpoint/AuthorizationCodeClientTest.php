@@ -177,17 +177,17 @@ class AuthorizationCodeClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJsonThrowsTokenExceptionTokenExceptionByErrorResponse()
+    public function testParseJsonThrowsTokenException()
     {
         // 実行画面にエラーログが表示されるのを防止
         Logger::setLogType(Logger::LOG_TYPE);
         Logger::setLogPath("/dev/null");
 
-        $error = "page_not_found";
+        $error = "error_sample";
         $error_description = "/info is not found";
         $error_code = 404;
 
-        $client = new AuthorizationCodeClientMock();
+        $client = new AuthorizationCodeClientMockForParseJson();
 
         $json = json_encode(array(
             "error" => $error,
@@ -201,27 +201,6 @@ class AuthorizationCodeClientTest extends PHPUnit_Framework_TestCase
         $parse_json_method = (new ReflectionClass(AuthorizationCodeClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
-    }
-
-    /**
-     * @test
-     * @throws ReflectionException
-     */
-    public function testParseJsonThrowsTokenExceptionTokenExceptionByNoResponse()
-    {
-        // 実行画面にエラーログが表示されるのを防止
-        Logger::setLogType(Logger::LOG_TYPE);
-        Logger::setLogPath("/dev/null");
-
-
-        $client = new AuthorizationCodeClientMock();
-
-        $this->expectException(TokenException::class);
-        $this->expectExceptionMessage("no_response");
-
-        $parse_json_method = (new ReflectionClass(AuthorizationCodeClient::class))->getMethod("parseJson");
-        $parse_json_method->setAccessible(true);
-        $parse_json_method->invoke($client, null);
     }
 }
 
@@ -243,6 +222,19 @@ class AuthorizationCodeClientMock extends AuthorizationCodeClient
         $id_token_filed->setValue($id_token_object, $id_token);
 
         return $id_token_object;
+    }
+}
+
+class AuthorizationCodeClientMockForParseJson extends AuthorizationCodeClient
+{
+
+    public function __construct()
+    {
+    }
+
+    protected function checkErrorResponse($response)
+    {
+        throw new TokenException("error_sample", "", "");
     }
 }
 

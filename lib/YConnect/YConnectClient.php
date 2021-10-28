@@ -118,7 +118,7 @@ class YConnectClient
      */
     public function enableDebugMode($display = false)
     {
-        if ($display == true) {
+        if ($display) {
             Logger::setLogType(Logger::CONSOLE_TYPE);
         }
         Logger::setLogLevel(Logger::DEBUG);
@@ -214,6 +214,7 @@ class YConnectClient
             $error      = array_key_exists("error", $_GET) ? $_GET["error"] : null;
             $error_desc = array_key_exists("error_description", $_GET) ? $_GET["error_description"] : null;
             $error_code = array_key_exists("error_code", $_GET) ? $_GET["error_code"] : null;
+
             if (!empty($error)) {
                 throw new TokenException($error, $error_desc, $error_code);
             }
@@ -221,6 +222,7 @@ class YConnectClient
             if (!isset($_GET["code"])) {
                 return false;
             }
+
             return $_GET["code"];
         } else {
             return false;

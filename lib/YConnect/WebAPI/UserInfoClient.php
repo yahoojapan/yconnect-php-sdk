@@ -104,18 +104,19 @@ class UserInfoClient extends ApiClient
     {
         $json_response = json_decode($json, true);
         Logger::debug("json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response);
-        if ($json_response != null) {
-            if (empty($json_response["error"])) {
-                $this->user_info = $json_response;
-            } else {
-                $error      = $json_response["error"];
-                $error_desc = $json_response["error_description"];
-                Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
-                throw new ApiException($error, $error_desc);
-            }
-        } else {
+
+        if (!$json_response) {
             Logger::error("no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body");
             throw new ApiException("no_response", "Failed to get the response body");
         }
+
+        if (isset($json_response["error"])) {
+            $error      = $json_response["error"];
+            $error_desc = $json_response["error_description"];
+            Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
+            throw new ApiException($error, $error_desc);
+        }
+
+        $this->user_info = $json_response;
     }
 }

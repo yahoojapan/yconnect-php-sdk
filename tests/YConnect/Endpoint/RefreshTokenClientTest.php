@@ -89,17 +89,17 @@ class RefreshTokenClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJsonThrowsTokenExceptionTokenExceptionByErrorResponse()
+    public function testParseJsonThrowsTokenException()
     {
         // 実行画面にエラーログが表示されるのを防止
         Logger::setLogType(Logger::LOG_TYPE);
         Logger::setLogPath("/dev/null");
 
-        $error = "page_not_found";
+        $error = "error_sample";
         $error_description = "/info is not found";
         $error_code = 404;
 
-        $client = new RefreshTokenClientMock();
+        $client = new RefreshTokenClientMockForParseJson();
 
         $json = json_encode(array(
             "error" => $error,
@@ -114,27 +114,6 @@ class RefreshTokenClientTest extends PHPUnit_Framework_TestCase
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
     }
-
-    /**
-     * @test
-     * @throws ReflectionException
-     */
-    public function testParseJsonThrowsTokenExceptionTokenExceptionByNoResponse()
-    {
-        // 実行画面にエラーログが表示されるのを防止
-        Logger::setLogType(Logger::LOG_TYPE);
-        Logger::setLogPath("/dev/null");
-
-
-        $client = new RefreshTokenClientMock();
-
-        $this->expectException(TokenException::class);
-        $this->expectExceptionMessage("no_response");
-
-        $parse_json_method = (new ReflectionClass(RefreshTokenClient::class))->getMethod("parseJson");
-        $parse_json_method->setAccessible(true);
-        $parse_json_method->invoke($client, null);
-    }
 }
 
 class RefreshTokenClientMock extends RefreshTokenClient
@@ -142,5 +121,18 @@ class RefreshTokenClientMock extends RefreshTokenClient
 
     public function __construct()
     {
+    }
+}
+
+class RefreshTokenClientMockForParseJson extends RefreshTokenClient
+{
+
+    public function __construct()
+    {
+    }
+
+    protected function checkErrorResponse($response)
+    {
+        throw new TokenException("error_sample", "", "");
     }
 }

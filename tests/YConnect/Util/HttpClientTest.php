@@ -54,17 +54,14 @@ class HttpClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @throws ReflectionException
      */
-    public function testGetResponseHeadersReturnsFalse()
+    public function testGetResponseHeadersReturnsEmptyArray()
     {
         $client = new HttpClientMock();
 
-        $headers_field = (new ReflectionClass(HttpClient::class))->getProperty('headers');
-        $headers_field->setAccessible(true);
-        $headers_field->setValue($client, null);
-
-        $this->assertFalse($client->getResponseHeaders());
+        $result = $client->getResponseHeaders();
+        $this->assertTrue(is_array($result));
+        $this->assertEmpty($result);
     }
 
     /**
