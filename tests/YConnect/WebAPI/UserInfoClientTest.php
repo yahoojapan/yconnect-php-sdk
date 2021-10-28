@@ -25,11 +25,13 @@
 
 namespace YConnect\WebAPI;
 
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
 use YConnect\Exception\ApiException;
 use YConnect\Util\Logger;
 
-class UserInfoClientTest extends \PHPUnit_Framework_TestCase
+class UserInfoClientTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -44,7 +46,7 @@ class UserInfoClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new UserInfoClientMock();
 
-        $user_info_filed = (new \ReflectionClass(UserInfoClient::class))->getProperty("user_info");
+        $user_info_filed = (new ReflectionClass(UserInfoClient::class))->getProperty("user_info");
         $user_info_filed->setAccessible(true);
         $user_info_filed->setValue($client, $user_info);
 
@@ -77,7 +79,7 @@ class UserInfoClientTest extends \PHPUnit_Framework_TestCase
             "name" => $name
         ));
 
-        $parse_json_method = (new \ReflectionClass(UserInfoClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(UserInfoClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
 
@@ -110,7 +112,7 @@ class UserInfoClientTest extends \PHPUnit_Framework_TestCase
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage($error);
 
-        $parse_json_method = (new \ReflectionClass(UserInfoClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(UserInfoClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
     }
@@ -131,7 +133,7 @@ class UserInfoClientTest extends \PHPUnit_Framework_TestCase
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage("no_response");
 
-        $parse_json_method = (new \ReflectionClass(UserInfoClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(UserInfoClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, null);
     }

@@ -25,15 +25,14 @@
 
 namespace YConnect\Endpoint;
 
-
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
 use YConnect\Credential\BearerToken;
-use YConnect\Credential\IdToken;
-use YConnect\Credential\RefreshToken;
 use YConnect\Exception\TokenException;
 use YConnect\Util\Logger;
 
-class RefreshTokenClientTest extends \PHPUnit_Framework_TestCase
+class RefreshTokenClientTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -46,7 +45,7 @@ class RefreshTokenClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new RefreshTokenClientMock();
 
-        $access_token_filed = (new \ReflectionClass(RefreshTokenClient::class))->getProperty("access_token");
+        $access_token_filed = (new ReflectionClass(RefreshTokenClient::class))->getProperty("access_token");
         $access_token_filed->setAccessible(true);
         $access_token_filed->setValue($client, new BearerToken($access_token, $exp));
 
@@ -67,7 +66,8 @@ class RefreshTokenClientTest extends \PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJson() {
+    public function testParseJson()
+    {
         $access_token = "sample_access_token";
         $exp = 3600;
 
@@ -78,7 +78,7 @@ class RefreshTokenClientTest extends \PHPUnit_Framework_TestCase
             "expires_in" => $exp
         ));
 
-        $parse_json_method = (new \ReflectionClass(RefreshTokenClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(RefreshTokenClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
 
@@ -89,7 +89,8 @@ class RefreshTokenClientTest extends \PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJsonThrowsTokenExceptionTokenExceptionByErrorResponse() {
+    public function testParseJsonThrowsTokenExceptionTokenExceptionByErrorResponse()
+    {
         // 実行画面にエラーログが表示されるのを防止
         Logger::setLogType(Logger::LOG_TYPE);
         Logger::setLogPath("/dev/null");
@@ -109,7 +110,7 @@ class RefreshTokenClientTest extends \PHPUnit_Framework_TestCase
         $this->expectException(TokenException::class);
         $this->expectExceptionMessage($error);
 
-        $parse_json_method = (new \ReflectionClass(RefreshTokenClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(RefreshTokenClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
     }
@@ -118,7 +119,8 @@ class RefreshTokenClientTest extends \PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJsonThrowsTokenExceptionTokenExceptionByNoResponse() {
+    public function testParseJsonThrowsTokenExceptionTokenExceptionByNoResponse()
+    {
         // 実行画面にエラーログが表示されるのを防止
         Logger::setLogType(Logger::LOG_TYPE);
         Logger::setLogPath("/dev/null");
@@ -129,7 +131,7 @@ class RefreshTokenClientTest extends \PHPUnit_Framework_TestCase
         $this->expectException(TokenException::class);
         $this->expectExceptionMessage("no_response");
 
-        $parse_json_method = (new \ReflectionClass(RefreshTokenClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(RefreshTokenClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, null);
     }

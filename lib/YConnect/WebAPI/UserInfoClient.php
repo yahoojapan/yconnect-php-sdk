@@ -41,7 +41,7 @@ class UserInfoClient extends ApiClient
     /**
      * @var string|null UserInfoエンドポイントURL
      */
-    private $url = null;
+    private $url;
 
     /**
      * @var object|null UserInfo配列
@@ -56,13 +56,13 @@ class UserInfoClient extends ApiClient
      */
     public function __construct($endpoint_url, $access_token)
     {
-        if( is_string($access_token) )
-            $access_token = new BearerToken( $access_token, null );
+        if (is_string($access_token)) {
+            $access_token = new BearerToken($access_token, null);
+        }
 
-        parent::__construct( $access_token );
+        parent::__construct($access_token);
 
         $this->url  = $endpoint_url;
-        $this->access_token = $access_token;
     }
 
     /**
@@ -73,11 +73,11 @@ class UserInfoClient extends ApiClient
      */
     public function fetchUserInfo()
     {
-        parent::fetchResource( $this->url, "GET" );
+        parent::fetchResource($this->url, "GET");
 
         $res_body = parent::getLastResponse();
 
-        $this->_parseJson($res_body);
+        $this->parseJson($res_body);
     }
 
     /**
@@ -87,7 +87,7 @@ class UserInfoClient extends ApiClient
      */
     public function getUserInfo()
     {
-        if( $this->user_info != null ) {
+        if ($this->user_info != null) {
             return $this->user_info;
         } else {
             return false;
@@ -100,22 +100,22 @@ class UserInfoClient extends ApiClient
      * @param string $json パースするJSON
      * @throws ApiException レスポンスにエラーが含まれているときに発生
      */
-    private function _parseJson($json)
+    private function parseJson($json)
     {
-        $json_response = json_decode( $json, true );
-        Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
-        if( $json_response != null ) {
-            if( empty( $json_response["error"] ) ) {
+        $json_response = json_decode($json, true);
+        Logger::debug("json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response);
+        if ($json_response != null) {
+            if (empty($json_response["error"])) {
                 $this->user_info = $json_response;
             } else {
                 $error      = $json_response["error"];
                 $error_desc = $json_response["error_description"];
-                Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
-                throw new ApiException( $error, $error_desc );
+                Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
+                throw new ApiException($error, $error_desc);
             }
         } else {
-            Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
-            throw new ApiException( "no_response", "Failed to get the response body" );
+            Logger::error("no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body");
+            throw new ApiException("no_response", "Failed to get the response body");
         }
     }
 }

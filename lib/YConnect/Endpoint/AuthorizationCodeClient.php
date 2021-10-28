@@ -25,6 +25,7 @@
 
 namespace YConnect\Endpoint;
 
+use Exception;
 use YConnect\Credential\ClientCredential;
 use YConnect\Credential\PublicKeys;
 use YConnect\Constant\GrantType;
@@ -42,14 +43,14 @@ use YConnect\Exception\TokenException;
 class AuthorizationCodeClient extends TokenClient
 {
     /**
-     * @var string|null 認可コード
+     * @var string 認可コード
      */
-    private $code = null;
+    private $code;
 
     /**
-     * @var string|null リダイレクトURI
+     * @var string リダイレクトURI
      */
-    private $redirect_uri = null;
+    private $redirect_uri;
 
     /**
      * @var BearerToken|null アクセストークン
@@ -62,9 +63,9 @@ class AuthorizationCodeClient extends TokenClient
     private $refresh_token = null;
 
     /**
-     * @var PublicKeys|null 公開鍵リスト
+     * @var PublicKeys 公開鍵リスト
      */
-    private $public_keys = null;
+    private $public_keys;
 
     /**
      * @var object|null IDトークン
@@ -82,7 +83,7 @@ class AuthorizationCodeClient extends TokenClient
      */
     public function __construct($endpoint_url, $client_credential, $code, $redirect_uri, $public_keys)
     {
-        parent::__construct( $endpoint_url, $client_credential );
+        parent::__construct($endpoint_url, $client_credential);
         $this->code = $code;
         $this->redirect_uri = $redirect_uri;
         $this->public_keys = $public_keys;
@@ -115,7 +116,7 @@ class AuthorizationCodeClient extends TokenClient
      */
     public function getAccessToken()
     {
-        if( $this->access_token != null ) {
+        if ($this->access_token != null) {
             return $this->access_token;
         } else {
             return false;
@@ -129,7 +130,7 @@ class AuthorizationCodeClient extends TokenClient
      */
     public function getRefreshToken()
     {
-        if( $this->refresh_token != null ) {
+        if ($this->refresh_token != null) {
             return $this->refresh_token;
         } else {
             return false;
@@ -143,7 +144,7 @@ class AuthorizationCodeClient extends TokenClient
      */
     public function getIdToken()
     {
-        if( $this->id_token != null ) {
+        if ($this->id_token != null) {
             return $this->id_token;
         } else {
             return false;
@@ -154,26 +155,28 @@ class AuthorizationCodeClient extends TokenClient
      * Tokenエンドポイントリソース取得メソッド
      *
      * @throws TokenException レスポンスにエラーが含まれているときに発生
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function fetchToken()
     {
-        parent::setParam( "grant_type", GrantType::AUTHORIZATION_CODE );
-        parent::setParam( "code", $this->code );
-        parent::setParam( "redirect_uri", $this->redirect_uri );
+        parent::setParam("grant_type", GrantType::AUTHORIZATION_CODE);
+        parent::setParam("code", $this->code);
+        parent::setParam("redirect_uri", $this->redirect_uri);
 
         parent::fetchToken();
 
         $res_body = parent::getResponse();
 
-        $this->_parseJson($res_body);
+        $this->parseJson($res_body);
 
-        Logger::debug( "token endpoint response(" . get_class() . "::" . __FUNCTION__ . ")",
+        Logger::debug(
+            "token endpoint response(" . get_class() . "::" . __FUNCTION__ . ")",
             array(
                 $this->access_token,
                 $this->refresh_token
             )
         );
-        Logger::info( "got access and refresh token(" . get_class() . "::" . __FUNCTION__ . ")" );
+        Logger::info("got access and refresh token(" . get_class() . "::" . __FUNCTION__ . ")");
     }
 
     /**
@@ -181,9 +184,9 @@ class AuthorizationCodeClient extends TokenClient
      *
      * @param string $endpoint_url エンドポイントURL
      */
-    protected function _setEndpointUrl($endpoint_url)
+    protected function setEndpointUrl($endpoint_url)
     {
-        parent::_setEndpointUrl($endpoint_url);
+        parent::setEndpointUrl($endpoint_url);
     }
 
     /**
@@ -192,32 +195,32 @@ class AuthorizationCodeClient extends TokenClient
      * @param string $json パース対象のJSON
      * @throws TokenException レスポンスにエラーが含まれているときに発生
      */
-    private function _parseJson($json)
+    private function parseJson($json)
     {
-        $json_response = json_decode( $json, true );
-        Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
-        if( $json_response != null ) {
-            if( empty( $json_response["error"] ) ) {
+        $json_response = json_decode($json, true);
+        Logger::debug("json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response);
+        if ($json_response != null) {
+            if (empty($json_response["error"])) {
                 $access_token  = $json_response["access_token"];
                 $exp           = $json_response["expires_in"];
                 $refresh_token = $json_response["refresh_token"];
-                $this->access_token  = new BearerToken( $access_token, $exp );
-                $this->refresh_token = new RefreshToken( $refresh_token );
-                if(array_key_exists("id_token", $json_response)) {
+                $this->access_token  = new BearerToken($access_token, $exp);
+                $this->refresh_token = new RefreshToken($refresh_token);
+                if (array_key_exists("id_token", $json_response)) {
                     $id_token = $json_response["id_token"];
-                    $id_token_object = $this->_getIdToken($id_token);
+                    $id_token_object = $this->getIdTokenObject($id_token);
                     $this->id_token = $id_token_object->getIdToken();
                 }
             } else {
                 $error      = $json_response["error"];
                 $error_desc = $json_response["error_description"];
                 $error_code = $json_response["error_code"];
-                Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
-                throw new TokenException( $error, $error_desc, $error_code );
+                Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
+                throw new TokenException($error, $error_desc, $error_code);
             }
         } else {
-            Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
-            throw new TokenException( "no_response", "Failed to get the response body" );
+            Logger::error("no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body");
+            throw new TokenException("no_response", "Failed to get the response body");
         }
     }
 
@@ -227,8 +230,8 @@ class AuthorizationCodeClient extends TokenClient
      * @param string $id_token IDトークンの文字列
      * @return IdToken
      */
-    protected function _getIdToken($id_token)
+    protected function getIdTokenObject($id_token)
     {
-        return new IdToken( $id_token, $this->public_keys );
+        return new IdToken($id_token, $this->public_keys);
     }
 }

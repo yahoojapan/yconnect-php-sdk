@@ -71,7 +71,7 @@ class ClientCredential
      */
     public function toAuthorizationHeader()
     {
-        return base64_encode( $this->id . ":" . $this->secret );
+        return base64_encode($this->id . ":" . $this->secret);
     }
 
     /**
@@ -81,13 +81,11 @@ class ClientCredential
      */
     public function toQueryString()
     {
-        $query = http_build_query(
+        return http_build_query(
             array(
                 "client_id"     => $this->id,
                 "client_secret" => $this->secret
             )
         );
-
-        return $query;
     }
 }

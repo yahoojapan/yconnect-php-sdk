@@ -58,7 +58,6 @@ class IdTokenException extends Exception
      */
     public function __toString()
     {
-        $str = __CLASS__ . ": " . $this->message . "( $this->error_detail )";
-        return $str;
+        return __CLASS__ . ": " . $this->message . "( $this->error_detail )";
     }
 }

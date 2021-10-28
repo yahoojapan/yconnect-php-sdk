@@ -26,6 +26,8 @@
 namespace YConnect;
 
 use Exception;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
 use YConnect\Constant\GrantType;
 use YConnect\Constant\OIDConnectDisplay;
@@ -40,7 +42,7 @@ use YConnect\Endpoint\RefreshTokenClient;
 use YConnect\Exception\TokenException;
 use YConnect\WebAPI\UserInfoClient;
 
-class YConnectClientTest extends \PHPUnit_Framework_TestCase
+class YConnectClientTest extends PHPUnit_Framework_TestCase
 {
     private $client_id = "sample~client~id";
     private $client_secret = "sample~client~secret";
@@ -67,7 +69,8 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
         $this->client_cred = new ClientCredential($this->client_id, $this->client_secret);
 
         $client = new YConnectClient($this->client_cred);
-        $generate_code_challenge_method = (new \ReflectionClass(YConnectClient::class))->getMethod("_generateCodeChallenge");
+        $generate_code_challenge_method = (new ReflectionClass(YConnectClient::class))
+            ->getMethod("generateCodeChallenge");
         $generate_code_challenge_method->setAccessible(true);
         $this->code_challenge = $generate_code_challenge_method->invoke($client, $this->code_challenge_plain);
     }
@@ -110,8 +113,15 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
         $client = new YConnectClientMock($this->client_cred);
         $client->authorizationClient = $mock;
 
-        $client->requestAuth($this->redirect_uri, $this->state, $this->nonce, $this->response_type, $this->scope,
-            $this->display, $this->prompt);
+        $client->requestAuth(
+            $this->redirect_uri,
+            $this->state,
+            $this->nonce,
+            $this->response_type,
+            $this->scope,
+            $this->display,
+            $this->prompt
+        );
     }
 
     /**
@@ -135,8 +145,17 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
         $client = new YConnectClientMock($this->client_cred);
         $client->authorizationClient = $mock;
 
-        $client->requestAuth($this->redirect_uri, $this->state, $this->nonce, $this->response_type, $this->scope,
-            $this->display, $this->prompt, $this->max_age, $this->code_challenge_plain);
+        $client->requestAuth(
+            $this->redirect_uri,
+            $this->state,
+            $this->nonce,
+            $this->response_type,
+            $this->scope,
+            $this->display,
+            $this->prompt,
+            $this->max_age,
+            $this->code_challenge_plain
+        );
     }
 
     /**
@@ -146,7 +165,7 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
     public function testCheckResponseReturnsTrue()
     {
         $client = new YConnectClientMock($this->client_cred);
-        $check_response_method = (new \ReflectionClass(YConnectClient::class))->getMethod("_checkResponse");
+        $check_response_method = (new ReflectionClass(YConnectClient::class))->getMethod("checkResponse");
         $check_response_method->setAccessible(true);
 
         $_GET["state"] = $this->state;
@@ -161,7 +180,7 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
     public function testCheckResponseReturnsFalse()
     {
         $client = new YConnectClientMock($this->client_cred);
-        $check_response_method = (new \ReflectionClass(YConnectClient::class))->getMethod("_checkResponse");
+        $check_response_method = (new ReflectionClass(YConnectClient::class))->getMethod("checkResponse");
         $check_response_method->setAccessible(true);
 
         $this->assertFalse($check_response_method->invoke($client, $this->state));
@@ -174,7 +193,7 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
     public function testCheckResponseThrowsTokenException()
     {
         $client = new YConnectClientMock($this->client_cred);
-        $check_response_method = (new \ReflectionClass(YConnectClient::class))->getMethod("_checkResponse");
+        $check_response_method = (new ReflectionClass(YConnectClient::class))->getMethod("checkResponse");
         $check_response_method->setAccessible(true);
 
         $this->expectException(TokenException::class);
@@ -279,7 +298,7 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
             ->method("setParams")
             ->with(array(
                 "grant_type" => GrantType::AUTHORIZATION_CODE,
-                "code"       => $code
+                "code" => $code
             ));
         $authorization_code_client_mock->expects($this->once())
             ->method("fetchToken");
@@ -332,7 +351,7 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
             ->method("setParams")
             ->with(array(
                 "grant_type" => GrantType::AUTHORIZATION_CODE,
-                "code"       => $code
+                "code" => $code
             ));
         $authorization_code_client_mock->expects($this->once())
             ->method("setParam")
@@ -360,6 +379,7 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @throws TokenException
      */
     public function testRefreshAccessToken()
     {
@@ -385,6 +405,7 @@ class YConnectClientTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @throws Exception
      */
     public function testRequestUserInfo()
     {
@@ -417,27 +438,27 @@ class YConnectClientMock extends YConnectClient
     public $refreshTokenClient;
     public $userInfoClient;
 
-    protected function _getAuthorizationClient($endpoint, $client_cred, $response_type)
+    protected function getAuthorizationClient($endpoint, $client_cred, $response_type)
     {
         return $this->authorizationClient;
     }
 
-    protected function _getPublicKeysClient($endpoint)
+    protected function getPublicKeysClient($endpoint)
     {
         return $this->publicKeysClient;
     }
 
-    protected function _getAuthorizationCodeClient($endpoint, $client_cred, $code, $redirect_uri, $public_keys_json)
+    protected function getAuthorizationCodeClient($endpoint, $client_cred, $code, $redirect_uri, $public_keys_json)
     {
         return $this->authorizationCodeClient;
     }
 
-    protected function _getRefreshTokenClient($endpoint, $client_cred, $refresh_token)
+    protected function getRefreshTokenClient($endpoint, $client_cred, $refresh_token)
     {
         return $this->refreshTokenClient;
     }
 
-    protected function _getUserInfoClient($endpoint, $access_token)
+    protected function getUserInfoClient($endpoint, $access_token)
     {
         return $this->userInfoClient;
     }

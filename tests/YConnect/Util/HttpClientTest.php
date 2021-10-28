@@ -25,10 +25,11 @@
 
 namespace YConnect\Util;
 
-
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
 
-class HttpClientTest extends \PHPUnit_Framework_TestCase
+class HttpClientTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -44,7 +45,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new HttpClientMock();
 
-        $headers_field = (new \ReflectionClass(HttpClient::class))->getProperty('headers');
+        $headers_field = (new ReflectionClass(HttpClient::class))->getProperty('headers');
         $headers_field->setAccessible(true);
         $headers_field->setValue($client, $headers);
 
@@ -59,7 +60,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new HttpClientMock();
 
-        $headers_field = (new \ReflectionClass(HttpClient::class))->getProperty('headers');
+        $headers_field = (new ReflectionClass(HttpClient::class))->getProperty('headers');
         $headers_field->setAccessible(true);
         $headers_field->setValue($client, null);
 
@@ -80,7 +81,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new HttpClientMock();
 
-        $headers_field = (new \ReflectionClass(HttpClient::class))->getProperty('headers');
+        $headers_field = (new ReflectionClass(HttpClient::class))->getProperty('headers');
         $headers_field->setAccessible(true);
         $headers_field->setValue($client, $headers);
 
@@ -101,7 +102,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new HttpClientMock();
 
-        $headers_field = (new \ReflectionClass(HttpClient::class))->getProperty('headers');
+        $headers_field = (new ReflectionClass(HttpClient::class))->getProperty('headers');
         $headers_field->setAccessible(true);
         $headers_field->setValue($client, $headers);
 
@@ -118,7 +119,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new HttpClientMock();
 
-        $body_field = (new \ReflectionClass(HttpClient::class))->getProperty('body');
+        $body_field = (new ReflectionClass(HttpClient::class))->getProperty('body');
         $body_field->setAccessible(true);
         $body_field->setValue($client, $body);
 
@@ -133,7 +134,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new HttpClientMock();
 
-        $body_field = (new \ReflectionClass(HttpClient::class))->getProperty('body');
+        $body_field = (new ReflectionClass(HttpClient::class))->getProperty('body');
         $body_field->setAccessible(true);
         $body_field->setValue($client, null);
 
@@ -155,7 +156,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new HttpClientMock();
 
-        $extract_response_method = (new \ReflectionClass(HttpClient::class))->getMethod('extractResponse');
+        $extract_response_method = (new ReflectionClass(HttpClient::class))->getMethod('extractResponse');
         $extract_response_method->setAccessible(true);
         $extract_response_method->invoke($client, $header . $body, $info);
 

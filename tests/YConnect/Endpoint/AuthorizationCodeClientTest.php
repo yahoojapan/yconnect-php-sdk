@@ -25,7 +25,8 @@
 
 namespace YConnect\Endpoint;
 
-
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
 use YConnect\Credential\BearerToken;
 use YConnect\Credential\IdToken;
@@ -33,7 +34,7 @@ use YConnect\Credential\RefreshToken;
 use YConnect\Exception\TokenException;
 use YConnect\Util\Logger;
 
-class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
+class AuthorizationCodeClientTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -46,7 +47,7 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new AuthorizationCodeClientMock();
 
-        $access_token_filed = (new \ReflectionClass(AuthorizationCodeClient::class))->getProperty("access_token");
+        $access_token_filed = (new ReflectionClass(AuthorizationCodeClient::class))->getProperty("access_token");
         $access_token_filed->setAccessible(true);
         $access_token_filed->setValue($client, new BearerToken($access_token, $exp));
 
@@ -73,7 +74,7 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new AuthorizationCodeClientMock();
 
-        $refresh_token_filed = (new \ReflectionClass(AuthorizationCodeClient::class))->getProperty("refresh_token");
+        $refresh_token_filed = (new ReflectionClass(AuthorizationCodeClient::class))->getProperty("refresh_token");
         $refresh_token_filed->setAccessible(true);
         $refresh_token_filed->setValue($client, new RefreshToken($refresh_token));
 
@@ -100,7 +101,7 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new AuthorizationCodeClientMock();
 
-        $id_token_filed = (new \ReflectionClass(AuthorizationCodeClient::class))->getProperty("id_token");
+        $id_token_filed = (new ReflectionClass(AuthorizationCodeClient::class))->getProperty("id_token");
         $id_token_filed->setAccessible(true);
         $id_token_filed->setValue($client, $id_token);
 
@@ -121,7 +122,8 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJson() {
+    public function testParseJson()
+    {
         $access_token = "sample_access_token";
         $exp = 3600;
         $refresh_token = "sample_refresh_token";
@@ -136,7 +138,7 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
             "id_token" => $id_token
         ));
 
-        $parse_json_method = (new \ReflectionClass(AuthorizationCodeClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(AuthorizationCodeClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
 
@@ -149,7 +151,8 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJsonWithoutIdToken() {
+    public function testParseJsonWithoutIdToken()
+    {
         $access_token = "sample_access_token";
         $exp = 3600;
         $refresh_token = "sample_refresh_token";
@@ -162,7 +165,7 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
             "refresh_token" => $refresh_token
         ));
 
-        $parse_json_method = (new \ReflectionClass(AuthorizationCodeClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(AuthorizationCodeClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
 
@@ -174,7 +177,8 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJsonThrowsTokenExceptionTokenExceptionByErrorResponse() {
+    public function testParseJsonThrowsTokenExceptionTokenExceptionByErrorResponse()
+    {
         // 実行画面にエラーログが表示されるのを防止
         Logger::setLogType(Logger::LOG_TYPE);
         Logger::setLogPath("/dev/null");
@@ -194,7 +198,7 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
         $this->expectException(TokenException::class);
         $this->expectExceptionMessage($error);
 
-        $parse_json_method = (new \ReflectionClass(AuthorizationCodeClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(AuthorizationCodeClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, $json);
     }
@@ -203,7 +207,8 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
      * @test
      * @throws ReflectionException
      */
-    public function testParseJsonThrowsTokenExceptionTokenExceptionByNoResponse() {
+    public function testParseJsonThrowsTokenExceptionTokenExceptionByNoResponse()
+    {
         // 実行画面にエラーログが表示されるのを防止
         Logger::setLogType(Logger::LOG_TYPE);
         Logger::setLogPath("/dev/null");
@@ -214,7 +219,7 @@ class AuthorizationCodeClientTest extends \PHPUnit_Framework_TestCase
         $this->expectException(TokenException::class);
         $this->expectExceptionMessage("no_response");
 
-        $parse_json_method = (new \ReflectionClass(AuthorizationCodeClient::class))->getMethod("_parseJson");
+        $parse_json_method = (new ReflectionClass(AuthorizationCodeClient::class))->getMethod("parseJson");
         $parse_json_method->setAccessible(true);
         $parse_json_method->invoke($client, null);
     }
@@ -230,10 +235,10 @@ class AuthorizationCodeClientMock extends AuthorizationCodeClient
     /**
      * @throws ReflectionException
      */
-    protected function _getIdToken($id_token)
+    protected function getIdTokenObject($id_token)
     {
         $id_token_object = new IdTokenMock();
-        $id_token_filed = (new \ReflectionClass(IdToken::class))->getProperty("json");
+        $id_token_filed = (new ReflectionClass(IdToken::class))->getProperty("json");
         $id_token_filed->setAccessible(true);
         $id_token_filed->setValue($id_token_object, $id_token);
 
@@ -241,7 +246,8 @@ class AuthorizationCodeClientMock extends AuthorizationCodeClient
     }
 }
 
-class IdTokenMock extends IdToken {
+class IdTokenMock extends IdToken
+{
     public function __construct()
     {
     }

@@ -35,9 +35,9 @@ use Exception;
 class HttpClient
 {
     /**
-     * @var resource|null curlインスタンス
+     * @var resource curlインスタンス
      */
-    private $ch = null;
+    private $ch;
 
     /**
      * @var bool SSLチェックフラグ
@@ -59,16 +59,15 @@ class HttpClient
      */
     public function __construct()
     {
-        if ( !defined( 'CURL_SSLVERSION_TLSv1_2' ) ) {
-            define( 'CURL_SSLVERSION_TLSv1_2', 6);
+        if (!defined('CURL_SSLVERSION_TLSv1_2')) {
+            // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName
+            define('CURL_SSLVERSION_TLSv1_2', 6);
         }
         $this->ch = curl_init();
-        //curl_setopt( $this->ch, CURLOPT_VERBOSE, 1 ); // 詳細情報出力
-        //curl_setopt( $this->ch, CURLOPT_FAILONERROR, 1 );	// 400以上でなにもしない
-        curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
-        curl_setopt( $this->ch, CURLOPT_HEADER, true );
-        curl_setopt( $this->ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2 );
-        Logger::debug( "curl_init(" . get_class() . "::" . __FUNCTION__ . ")" );
+        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($this->ch, CURLOPT_HEADER, true);
+        curl_setopt($this->ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+        Logger::debug("curl_init(" . get_class() . "::" . __FUNCTION__ . ")");
     }
 
     /**
@@ -76,10 +75,10 @@ class HttpClient
      */
     public function __destruct()
     {
-        if( $this->ch != null ) {
-            curl_close( $this->ch );
+        if ($this->ch != null) {
+            curl_close($this->ch);
             $this->ch = null;
-            Logger::debug( "curl_closed(" . get_class() . "::" . __FUNCTION__ . ")" );
+            Logger::debug("curl_closed(" . get_class() . "::" . __FUNCTION__ . ")");
         }
     }
 
@@ -90,7 +89,7 @@ class HttpClient
     {
         self::$sslCheckFlag = false;
 
-        Logger::debug( "disable SSL check(" . get_class() . "::" . __FUNCTION__ . ")" );
+        Logger::debug("disable SSL check(" . get_class() . "::" . __FUNCTION__ . ")");
     }
 
     /**
@@ -100,11 +99,11 @@ class HttpClient
      */
     public function setHeader($headers = null)
     {
-        if( $headers != null ) {
-            curl_setopt( $this->ch, CURLOPT_HTTPHEADER, $headers );
+        if ($headers != null) {
+            curl_setopt($this->ch, CURLOPT_HTTPHEADER, $headers);
         }
 
-        Logger::debug( "added headers(" . get_class() . "::" . __FUNCTION__ . ")", $headers );
+        Logger::debug("added headers(" . get_class() . "::" . __FUNCTION__ . ")", $headers);
     }
 
     /**
@@ -114,31 +113,31 @@ class HttpClient
      * @param array<string, string|int>|null $data パラメータ配列
      * @throws Exception HTTPリクエストに失敗したときに発生
      */
-    public function requestPost($url, $data=null)
+    public function requestPost($url, $data = null)
     {
-        curl_setopt( $this->ch, CURLOPT_URL, $url );
-        curl_setopt( $this->ch, CURLOPT_POST, 1 );
-        curl_setopt( $this->ch, CURLOPT_POSTFIELDS, $data );
-        Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
+        curl_setopt($this->ch, CURLOPT_URL, $url);
+        curl_setopt($this->ch, CURLOPT_POST, 1);
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
+        Logger::info("curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url);
 
-        if( !self::$sslCheckFlag ) {
-            curl_setopt( $this->ch, CURLOPT_SSL_VERIFYPEER, false );
-            curl_setopt( $this->ch, CURLOPT_SSL_VERIFYHOST, false );
+        if (!self::$sslCheckFlag) {
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, false);
         }
 
-        $result = curl_exec( $this->ch );
-        $info   = curl_getinfo( $this->ch );
+        $result = curl_exec($this->ch);
+        $info   = curl_getinfo($this->ch);
 
-        if( !$result ) {
-            Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
-            Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new Exception( "failed curl_exec." );
+        if (!$result) {
+            Logger::error("failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")");
+            Logger::error("curl_errno: " . curl_errno($this->ch));
+            throw new Exception("failed curl_exec.");
         }
 
-        $this->extractResponse( $result, $info );
+        $this->extractResponse($result, $info);
 
-        Logger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
-        Logger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
+        Logger::info("curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data);
+        Logger::debug("response body(" . get_class() . "::" . __FUNCTION__ . ")", $result);
     }
 
     /**
@@ -148,39 +147,39 @@ class HttpClient
      * @param array<string, string|int>|null $data パラメータ配列
      * @throws Exception HTTPリクエストに失敗したときに発生
      */
-    public function requestGet($url, $data=null)
+    public function requestGet($url, $data = null)
     {
-        if( $data != null ) {
-            $query = http_build_query( $data );
-            $parse = parse_url( $url );
-            if( !empty( $parse["query"] ) ) {
+        if ($data != null) {
+            $query = http_build_query($data);
+            $parse = parse_url($url);
+            if (!empty($parse["query"])) {
                 $url .= '&' . $query;
             } else {
                 $url .= '?' . $query;
             }
         }
 
-        curl_setopt( $this->ch, CURLOPT_URL, $url );
-        Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
+        curl_setopt($this->ch, CURLOPT_URL, $url);
+        Logger::info("curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url);
 
-        if( !self::$sslCheckFlag ) {
-            curl_setopt( $this->ch, CURLOPT_SSL_VERIFYPEER, false );
-            curl_setopt( $this->ch, CURLOPT_SSL_VERIFYHOST, false );
+        if (!self::$sslCheckFlag) {
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, false);
         }
 
-        $result = curl_exec( $this->ch );
-        $info   = curl_getinfo( $this->ch );
+        $result = curl_exec($this->ch);
+        $info   = curl_getinfo($this->ch);
 
-        if( !$result ) {
-            Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
-            Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new Exception( "failed curl_exec." );
+        if (!$result) {
+            Logger::error("failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")");
+            Logger::error("curl_errno: " . curl_errno($this->ch));
+            throw new Exception("failed curl_exec.");
         }
 
-        $this->extractResponse( $result, $info );
+        $this->extractResponse($result, $info);
 
-        Logger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
-        Logger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
+        Logger::info("curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data);
+        Logger::debug("response body(" . get_class() . "::" . __FUNCTION__ . ")", $result);
     }
 
     /**
@@ -190,32 +189,32 @@ class HttpClient
      * @param array<string, string|int>|null $data パラメータ配列
      * @throws Exception HTTPリクエストに失敗したときに発生
      */
-    public function requestPut($url, $data=null)
+    public function requestPut($url, $data = null)
     {
-        curl_setopt( $this->ch, CURLOPT_URL, $url );
-        curl_setopt( $this->ch, CURLOPT_CUSTOMREQUEST, "PUT" );
-        curl_setopt( $this->ch, CURLOPT_POSTFIELDS, $data );
+        curl_setopt($this->ch, CURLOPT_URL, $url);
+        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
 
-        Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
+        Logger::info("curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url);
 
-        if( !self::$sslCheckFlag ) {
-            curl_setopt( $this->ch, CURLOPT_SSL_VERIFYPEER, false );
-            curl_setopt( $this->ch, CURLOPT_SSL_VERIFYHOST, false );
+        if (!self::$sslCheckFlag) {
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, false);
         }
 
-        $result = curl_exec( $this->ch );
-        $info   = curl_getinfo( $this->ch );
+        $result = curl_exec($this->ch);
+        $info   = curl_getinfo($this->ch);
 
-        if( !$result ) {
-            Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
-            Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new Exception( "failed curl_exec." );
+        if (!$result) {
+            Logger::error("failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")");
+            Logger::error("curl_errno: " . curl_errno($this->ch));
+            throw new Exception("failed curl_exec.");
         }
 
-        $this->extractResponse( $result, $info );
+        $this->extractResponse($result, $info);
 
-        Logger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
-        Logger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
+        Logger::info("curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data);
+        Logger::debug("response body(" . get_class() . "::" . __FUNCTION__ . ")", $result);
     }
 
     /**
@@ -225,31 +224,31 @@ class HttpClient
      * @param array<string, string|int>|null $data パラメータ配列
      * @throws Exception HTTPリクエストに失敗したときに発生
      */
-    public function requestDelete($url, $data=null)
+    public function requestDelete($url, $data = null)
     {
-        curl_setopt( $this->ch, CURLOPT_URL, $url );
-        curl_setopt( $this->ch, CURLOPT_CUSTOMREQUEST, "DELETE" );
-        curl_setopt( $this->ch, CURLOPT_POSTFIELDS, $data );
-        Logger::info( "curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url );
+        curl_setopt($this->ch, CURLOPT_URL, $url);
+        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
+        Logger::info("curl url(" . get_class() . "::" . __FUNCTION__ . ")", $url);
 
-        if( !self::$sslCheckFlag ) {
-            curl_setopt( $this->ch, CURLOPT_SSL_VERIFYPEER, false );
-            curl_setopt( $this->ch, CURLOPT_SSL_VERIFYHOST, false );
+        if (!self::$sslCheckFlag) {
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, false);
         }
 
-        $result = curl_exec( $this->ch );
-        $info   = curl_getinfo( $this->ch );
+        $result = curl_exec($this->ch);
+        $info = curl_getinfo($this->ch);
 
-        if( !$result ) {
-            Logger::error( "failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")" );
-            Logger::error( "curl_errno: " . curl_errno( $this->ch ) );
-            throw new Exception( "failed curl_exec." );
+        if (!$result) {
+            Logger::error("failed curl_exec(" . get_class() . "::" . __FUNCTION__ . ")");
+            Logger::error("curl_errno: " . curl_errno($this->ch));
+            throw new Exception("failed curl_exec.");
         }
 
-        $this->extractResponse( $result, $info );
+        $this->extractResponse($result, $info);
 
-        Logger::info( "curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data );
-        Logger::debug( "response body(" . get_class() . "::" . __FUNCTION__ . ")", $result );
+        Logger::info("curl_exec(" . get_class() . "::" . __FUNCTION__ . ")", $data);
+        Logger::debug("response body(" . get_class() . "::" . __FUNCTION__ . ")", $result);
     }
 
     /**
@@ -259,7 +258,7 @@ class HttpClient
      */
     public function getResponseHeaders()
     {
-        if( $this->headers != null ) {
+        if ($this->headers != null) {
             return $this->headers;
         } else {
             return false;
@@ -274,7 +273,7 @@ class HttpClient
      */
     public function getResponseHeader($header_name)
     {
-        if( array_key_exists( $header_name, $this->headers ) ) {
+        if (array_key_exists($header_name, $this->headers)) {
             return $this->headers[$header_name];
         } else {
             return null;
@@ -288,7 +287,7 @@ class HttpClient
      */
     public function getResponseBody()
     {
-        if( $this->body != null ) {
+        if ($this->body != null) {
             return $this->body;
         } else {
             return null;
@@ -306,31 +305,31 @@ class HttpClient
     private function extractResponse($raw_response, $info)
     {
         // ヘッダとボディを分割
-        $headers_raw = substr( $raw_response, 0, $info['header_size'] );
-        $headers_raw = preg_replace( "/(\r\n\r\n)$/", "", $headers_raw );
-        $body_raw    = substr( $raw_response, $info['header_size'] );
+        $headers_raw = substr($raw_response, 0, $info['header_size']);
+        $headers_raw = preg_replace("/(\r\n\r\n)$/", "", $headers_raw);
+        $body_raw    = substr($raw_response, $info['header_size']);
 
         // ヘッダを連想配列形式に変換
-        $headers_raw_array = preg_split( "/\r\n/", $headers_raw );
-        $headers_raw_array = array_map( "trim", $headers_raw_array );
+        $headers_raw_array = preg_split("/\r\n/", $headers_raw);
+        $headers_raw_array = array_map("trim", $headers_raw_array);
 
-        foreach( $headers_raw_array as $header_raw ) {
+        $headers_array = array();
 
-            if( preg_match( "/HTTP/", $header_raw ) ) {
-                $headers_asoc_array[0] = $header_raw;
-            } elseif( !empty( $header_raw ) ) {
-                $tmp = preg_split( "/: /", $header_raw );
+        foreach ($headers_raw_array as $header_raw) {
+            if (preg_match("/HTTP/", $header_raw)) {
+                $headers_array[0] = $header_raw;
+            } elseif (!empty($header_raw)) {
+                $tmp = preg_split("/: /", $header_raw);
                 $field = $tmp[0];
                 $value = $tmp[1];
-                $headers_asoc_array[$field] = $value;
+                $headers_array[$field] = $value;
             }
-
         }
 
-        $this->headers = $headers_asoc_array;
+        $this->headers = $headers_array;
         $this->body    = $body_raw;
 
-        Logger::debug( "extracted headers(" . get_class() . "::" . __FUNCTION__ . ")", $this->headers );
-        Logger::debug( "extracted body(" . get_class() . "::" . __FUNCTION__ . ")", $this->body );
+        Logger::debug("extracted headers(" . get_class() . "::" . __FUNCTION__ . ")", $this->headers);
+        Logger::debug("extracted body(" . get_class() . "::" . __FUNCTION__ . ")", $this->body);
     }
 }

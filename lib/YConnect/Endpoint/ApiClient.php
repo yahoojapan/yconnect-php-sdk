@@ -25,6 +25,7 @@
 
 namespace YConnect\Endpoint;
 
+use Exception;
 use UnexpectedValueException;
 use YConnect\Util\HttpClient;
 use YConnect\Exception\TokenException;
@@ -53,23 +54,13 @@ class ApiClient
     private $res_body = null;
 
     /**
-     * @var int レスポンスステータス
-     */
-    private $res_status = null;
-
-    /**
-     * @var string レスポンスエラーステータス
-     */
-    private $res_error = '';
-
-    /**
      * ApiClientのインスタンス生成
      *
      * @param BearerToken $access_token アクセストークンオブジェクト
      */
     public function __construct($access_token)
     {
-        $this->_checkTokenType($access_token);
+        $this->checkTokenType($access_token);
         $this->token = $access_token;
     }
 
@@ -83,11 +74,13 @@ class ApiClient
      */
     protected function setParams($parameters = array())
     {
-        if ( !is_array($parameters) )
+        if (!is_array($parameters)) {
             throw new UnexpectedValueException('array is required');
+        }
 
-        foreach ( $parameters as $key => $val )
+        foreach ($parameters as $key => $val) {
             $this->setParam($key, $val);
+        }
     }
 
     /**
@@ -100,8 +93,9 @@ class ApiClient
      */
     protected function setParam($key, $val)
     {
-        if ( !is_numeric($key) && is_string($key) && is_scalar($val) )
+        if (!is_numeric($key) && is_string($key) && is_scalar($val)) {
             $this->params[$key] = $val;
+        }
     }
 
     /**
@@ -111,6 +105,7 @@ class ApiClient
      * @param string $method HTTPリクエストメソッド
      * @throws UnexpectedValueException 対応していないHTTPリクエストメソッドが指定されたときに発生
      * @throws TokenException レスポンスヘッダーにエラーが含まれているときに発生
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     protected function fetchResource($url, $method)
     {
@@ -120,32 +115,32 @@ class ApiClient
             (string)$this->token
         ));
 
-        switch ( $method ) {
-        case 'GET':
-            $httpClient->requestGet($url, $this->params);
-            break;
-        case 'POST':
-            $httpClient->requestPost($url, $this->params);
-            // supported safe data RFC3986
-            if (is_array($this->params)) {
-                foreach ($this->params as $key => $value) {
-                    $this->params[$key] = rawurlencode(rawurldecode($value));
+        switch ($method) {
+            case 'GET':
+                $httpClient->requestGet($url, $this->params);
+                break;
+            case 'POST':
+                $httpClient->requestPost($url, $this->params);
+                // supported safe data RFC3986
+                if (is_array($this->params)) {
+                    foreach ($this->params as $key => $value) {
+                        $this->params[$key] = rawurlencode(rawurldecode($value));
+                    }
                 }
-            }
-            break;
-        case 'PUT':
-            $httpClient->requestPut($url, $this->params);
-            break;
-        case 'DELETE':
-            $httpClient->requestDelete($url, $this->params);
-            break;
-        default:
-            throw new UnexpectedValueException('unsupported http method');
+                break;
+            case 'PUT':
+                $httpClient->requestPut($url, $this->params);
+                break;
+            case 'DELETE':
+                $httpClient->requestDelete($url, $this->params);
+                break;
+            default:
+                throw new UnexpectedValueException('unsupported http method');
         }
 
 
         $res_error_header = $httpClient->getResponseHeader('WWW-Authenticate');
-        $this->_checkAuthorizationError($res_error_header);
+        $this->checkAuthorizationError($res_error_header);
 
         $this->res_body = $httpClient->getResponseBody();
     }
@@ -178,10 +173,11 @@ class ApiClient
      * @param BearerToken $token Accessトークン
      * @throws UnexpectedValueException 入力されたトークンがBearerTokenではないときに発生
      */
-    private function _checkTokenType($token)
+    private function checkTokenType($token)
     {
-        if ( ! $token instanceof BearerToken )
+        if (!$token instanceof BearerToken) {
             throw new UnexpectedValueException('unsupported Access Token format');
+        }
     }
 
     /**
@@ -190,9 +186,10 @@ class ApiClient
      * @param string|null $header WWW-Authenticateヘッダーの値
      * @throws TokenException WWW-Authenticateの値がnullではないときに発生
      */
-    private function _checkAuthorizationError($header)
+    private function checkAuthorizationError($header)
     {
-        if ( $header !== NULL )
-            throw new TokenException( $header );
+        if ($header !== null) {
+            throw new TokenException($header);
+        }
     }
 }

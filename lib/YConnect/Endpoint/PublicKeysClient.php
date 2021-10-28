@@ -25,7 +25,6 @@
 
 namespace YConnect\Endpoint;
 
-
 use Exception;
 use YConnect\Util\HttpClient;
 
@@ -47,18 +46,13 @@ class PublicKeysClient
     private $res_body = null;
 
     /**
-     * @var int|null レスポンスステータス
-     */
-    private $res_status = null;
-
-    /**
      * PublicKeysClientのインスタンス生成
      *
      * @param string $endpoint_url エンドポイントURL
      */
     public function __construct($endpoint_url)
     {
-        $this->url  = $endpoint_url;
+        $this->url = $endpoint_url;
     }
 
     /**
@@ -68,7 +62,7 @@ class PublicKeysClient
      */
     public function fetchPublicKeys()
     {
-        $httpClient = $this->_getHttpClient();
+        $httpClient = $this->getHttpClient();
         $httpClient->requestGet($this->url);
 
         $this->res_body = $httpClient->getResponseBody();
@@ -81,7 +75,7 @@ class PublicKeysClient
      */
     public function getResponse()
     {
-        if( $this->res_body != null ) {
+        if ($this->res_body != null) {
             return $this->res_body;
         } else {
             return null;
@@ -93,7 +87,8 @@ class PublicKeysClient
      *
      * @return HttpClient
      */
-    protected function _getHttpClient() {
+    protected function getHttpClient()
+    {
         return new HttpClient();
     }
 }

@@ -25,12 +25,12 @@
 
 namespace YConnect\Endpoint;
 
-use YConnect\Credential\ClientCredential;
-use YConnect\Endpoint\TokenClient;
+use Exception;
 use YConnect\Constant\GrantType;
-use YConnect\Util\Logger;
 use YConnect\Credential\BearerToken;
+use YConnect\Credential\ClientCredential;
 use YConnect\Exception\TokenException;
+use YConnect\Util\Logger;
 
 /**
  * RefreshTokenClientクラス
@@ -40,9 +40,9 @@ use YConnect\Exception\TokenException;
 class RefreshTokenClient extends TokenClient
 {
     /**
-     * @var string|null リフレッシュトークン
+     * @var string リフレッシュトークン
      */
-    private $refresh_token = null;
+    private $refresh_token;
 
     /**
      * @var BearerToken|null アクセストークン
@@ -58,7 +58,7 @@ class RefreshTokenClient extends TokenClient
      */
     public function __construct($endpoint_uri, $client_credential, $refresh_token)
     {
-        parent::__construct( $endpoint_uri, $client_credential );
+        parent::__construct($endpoint_uri, $client_credential);
         $this->refresh_token = $refresh_token;
     }
 
@@ -79,7 +79,7 @@ class RefreshTokenClient extends TokenClient
      */
     public function getAccessToken()
     {
-        if( $this->access_token != null ) {
+        if ($this->access_token != null) {
             return $this->access_token;
         } else {
             return false;
@@ -90,24 +90,26 @@ class RefreshTokenClient extends TokenClient
      * Tokenエンドポイントリソース取得メソッド
      *
      * @throws TokenException レスポンスにエラーを含むときに発生
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function fetchToken()
     {
-        parent::setParam( "grant_type", GrantType::REFRESH_TOKEN );
-        parent::setParam( "refresh_token", $this->refresh_token );
+        parent::setParam("grant_type", GrantType::REFRESH_TOKEN);
+        parent::setParam("refresh_token", $this->refresh_token);
 
         parent::fetchToken();
 
         $res_body = parent::getResponse();
 
-        $this->_parseJson($res_body);
+        $this->parseJson($res_body);
 
-        Logger::debug( "refresh token response(" . get_class() . "::" . __FUNCTION__ . ")",
+        Logger::debug(
+            "refresh token response(" . get_class() . "::" . __FUNCTION__ . ")",
             array(
                 $this->access_token,
             )
         );
-        Logger::info( "got access and refresh token(" . get_class() . "::" . __FUNCTION__ . ")" );
+        Logger::info("got access and refresh token(" . get_class() . "::" . __FUNCTION__ . ")");
     }
 
     /**
@@ -115,9 +117,9 @@ class RefreshTokenClient extends TokenClient
      *
      * @param string $endpoint_url エンドポイントURL
      */
-    protected function _setEndpointUrl($endpoint_url)
+    protected function setEndpointUrl($endpoint_url)
     {
-        parent::_setEndpointUrl($endpoint_url);
+        parent::setEndpointUrl($endpoint_url);
     }
 
     /**
@@ -126,25 +128,25 @@ class RefreshTokenClient extends TokenClient
      * @param string $json パースするJSON
      * @throws TokenException レスポンスにエラーを含むときに発生
      */
-    private function _parseJson($json)
+    private function parseJson($json)
     {
-        $json_response = json_decode( $json, true );
-        Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
-        if( $json_response != null ) {
-            if( empty( $json_response["error"] ) ) {
-                $access_token  = $json_response["access_token"];
-                $exp           = $json_response["expires_in"];
-                $this->access_token = new BearerToken( $access_token, $exp );
+        $json_response = json_decode($json, true);
+        Logger::debug("json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response);
+        if ($json_response != null) {
+            if (empty($json_response["error"])) {
+                $access_token = $json_response["access_token"];
+                $exp = $json_response["expires_in"];
+                $this->access_token = new BearerToken($access_token, $exp);
             } else {
-                $error      = $json_response["error"];
+                $error = $json_response["error"];
                 $error_desc = $json_response["error_description"];
                 $error_code = $json_response["error_code"];
-                Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
-                throw new TokenException( $error, $error_desc, $error_code );
+                Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
+                throw new TokenException($error, $error_desc, $error_code);
             }
         } else {
-            Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
-            throw new TokenException( "no_response", "Failed to get the response body" );
+            Logger::error("no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body");
+            throw new TokenException("no_response", "Failed to get the response body");
         }
     }
 }

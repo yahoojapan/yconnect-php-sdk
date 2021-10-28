@@ -25,8 +25,9 @@
 
 namespace YConnect\Exception;
 
+use PHPUnit_Framework_TestCase;
 
-class TokenExceptionTest extends \PHPUnit_Framework_TestCase
+class TokenExceptionTest extends PHPUnit_Framework_TestCase
 {
     private static $INVALID_REDIRECT_URI = "invalid_redirect_uri";
     private static $INVALID_CLIENT = "invalid_client";
@@ -41,7 +42,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidRedirectUriReturnsTrue() {
+    public function testInvalidRedirectUriReturnsTrue()
+    {
         $exception = new TokenException(self::$INVALID_REDIRECT_URI);
 
         $this->assertTrue($exception->invalidRedirectUri());
@@ -50,7 +52,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidRedirectUriReturnsFalse() {
+    public function testInvalidRedirectUriReturnsFalse()
+    {
         $exception = new TokenException(self::$INVALID_CLIENT);
 
         $this->assertFalse($exception->invalidRedirectUri());
@@ -59,7 +62,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidClientReturnsTrue() {
+    public function testInvalidClientReturnsTrue()
+    {
         $exception = new TokenException(self::$INVALID_CLIENT);
 
         $this->assertTrue($exception->invalidClient());
@@ -68,7 +72,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidClientReturnsFalse() {
+    public function testInvalidClientReturnsFalse()
+    {
         $exception = new TokenException(self::$INVALID_SCOPE);
 
         $this->assertFalse($exception->invalidClient());
@@ -77,7 +82,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidScopeReturnsTrue() {
+    public function testInvalidScopeReturnsTrue()
+    {
         $exception = new TokenException(self::$INVALID_SCOPE);
 
         $this->assertTrue($exception->invalidScope());
@@ -86,7 +92,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidScopeReturnsFalse() {
+    public function testInvalidScopeReturnsFalse()
+    {
         $exception = new TokenException(self::$INVALID_GRANT);
 
         $this->assertFalse($exception->invalidScope());
@@ -95,7 +102,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidGrantReturnsTrue() {
+    public function testInvalidGrantReturnsTrue()
+    {
         $exception = new TokenException(self::$INVALID_GRANT);
 
         $this->assertTrue($exception->invalidGrant());
@@ -104,7 +112,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidGrantReturnsFalse() {
+    public function testInvalidGrantReturnsFalse()
+    {
         $exception = new TokenException(self::$INVALID_TOKEN);
 
         $this->assertFalse($exception->invalidGrant());
@@ -113,7 +122,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testTokenExpiredReturnsTrue() {
+    public function testTokenExpiredReturnsTrue()
+    {
         $exception = new TokenException(self::$INVALID_TOKEN);
 
         $this->assertTrue($exception->tokenExpired());
@@ -122,7 +132,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testTokenExpiredReturnsFalse() {
+    public function testTokenExpiredReturnsFalse()
+    {
         $exception = new TokenException(self::$INVALID_REQUEST);
 
         $this->assertFalse($exception->tokenExpired());
@@ -131,7 +142,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidTokenReturnsTrue() {
+    public function testInvalidTokenReturnsTrue()
+    {
         $exception = new TokenException(self::$INVALID_TOKEN);
 
         $this->assertTrue($exception->invalidToken());
@@ -140,7 +152,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidTokenReturnsFalse() {
+    public function testInvalidTokenReturnsFalse()
+    {
         $exception = new TokenException(self::$INVALID_REQUEST);
 
         $this->assertFalse($exception->invalidToken());
@@ -149,7 +162,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidRequestReturnsTrue() {
+    public function testInvalidRequestReturnsTrue()
+    {
         $exception = new TokenException(self::$INVALID_REQUEST);
 
         $this->assertTrue($exception->invalidRequest());
@@ -158,7 +172,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidRequestReturnsFalse() {
+    public function testInvalidRequestReturnsFalse()
+    {
         $exception = new TokenException(self::$UNSUPPORTED_GRANT_TYPE);
 
         $this->assertFalse($exception->invalidRequest());
@@ -167,7 +182,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testUnsupportedGrantTypeReturnsTrue() {
+    public function testUnsupportedGrantTypeReturnsTrue()
+    {
         $exception = new TokenException(self::$UNSUPPORTED_GRANT_TYPE);
 
         $this->assertTrue($exception->unsupportedGrantType());
@@ -176,7 +192,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testUnsupportedGrantTypeReturnsFalse() {
+    public function testUnsupportedGrantTypeReturnsFalse()
+    {
         $exception = new TokenException(self::$ACCESS_DENIED);
 
         $this->assertFalse($exception->unsupportedGrantType());
@@ -185,7 +202,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testAccessDeniedReturnsTrue() {
+    public function testAccessDeniedReturnsTrue()
+    {
         $exception = new TokenException(self::$ACCESS_DENIED);
 
         $this->assertTrue($exception->accessDenied());
@@ -194,7 +212,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testAccessDeniedReturnsFalse() {
+    public function testAccessDeniedReturnsFalse()
+    {
         $exception = new TokenException(self::$SERVER_ERROR);
 
         $this->assertFalse($exception->accessDenied());
@@ -203,7 +222,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testServerErrorReturnsTrue() {
+    public function testServerErrorReturnsTrue()
+    {
         $exception = new TokenException(self::$SERVER_ERROR);
 
         $this->assertTrue($exception->serverError());
@@ -212,7 +232,8 @@ class TokenExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testServerErrorReturnsFalse() {
+    public function testServerErrorReturnsFalse()
+    {
         $exception = new TokenException(self::$INVALID_REDIRECT_URI);
 
         $this->assertFalse($exception->serverError());

@@ -25,14 +25,16 @@
 
 namespace YConnect\Credential;
 
+use PHPUnit_Framework_TestCase;
 
-class PublicKeysTest extends \PHPUnit_Framework_TestCase
+class PublicKeysTest extends PHPUnit_Framework_TestCase
 {
 
     /**
      * @test
      */
-    public function testGetPublicKey() {
+    public function testGetPublicKey()
+    {
         $kid = 'sample_kid';
         $public_key = 'sample_public_key';
 
@@ -48,7 +50,8 @@ class PublicKeysTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testGetPublicKeyReturnsNull() {
+    public function testGetPublicKeyReturnsNull()
+    {
         $kid = 'sample_kid';
         $public_key = 'sample_public_key';
 
@@ -60,5 +63,4 @@ class PublicKeysTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($public_keys->getPublicKey('invalid_kid'));
     }
-
 }

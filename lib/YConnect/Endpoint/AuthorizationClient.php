@@ -39,12 +39,12 @@ class AuthorizationClient
     /**
      * @var string 認可サーバエンドポイントURL
      */
-    private $url = null;
+    private $url;
 
     /**
      * @var ClientCredential 認証情報
      */
-    private $cred = null;
+    private $cred;
 
     /**
      * @var string レスポンスタイプ
@@ -63,12 +63,12 @@ class AuthorizationClient
      * @param ClientCredential $client_credential クライアントクレデンシャル
      * @param string|null $response_type レスポンスタイプ
      */
-    public function __construct($endpoint_url, $client_credential, $response_type=null)
+    public function __construct($endpoint_url, $client_credential, $response_type = null)
     {
         $this->url  = $endpoint_url;
         $this->cred = $client_credential;
 
-        if( $response_type != null ) {
+        if ($response_type != null) {
             $this->response_type = $response_type;
         }
     }
@@ -81,23 +81,23 @@ class AuthorizationClient
      * @param string $redirect_uri リダイレクトURI
      * @param string $state state
      */
-    public function requestAuthorizationGrant($redirect_uri, $state=null)
+    public function requestAuthorizationGrant($redirect_uri, $state = null)
     {
-        self::setParam( "response_type", $this->response_type );
-        self::setParam( "client_id", $this->cred->id );
-        self::setParam( "redirect_uri", $redirect_uri );
+        self::setParam("response_type", $this->response_type);
+        self::setParam("client_id", $this->cred->id);
+        self::setParam("redirect_uri", $redirect_uri);
 
         // RECOMMENDED
-        if( $state != null ) {
-            self::setParam( "state", $state );
+        if ($state != null) {
+            self::setParam("state", $state);
         }
 
-        $query = http_build_query( $this->params );
+        $query = http_build_query($this->params);
         $request_uri = $this->url . "?" .  $query;
 
-        Logger::info( "authorization request(" . get_class() . "::" . __FUNCTION__ . ")", $request_uri );
+        Logger::info("authorization request(" . get_class() . "::" . __FUNCTION__ . ")", $request_uri);
 
-        $this->_redirect($request_uri);
+        $this->redirect($request_uri);
     }
 
     /**
@@ -107,7 +107,7 @@ class AuthorizationClient
      */
     public function setScopes($scope_array)
     {
-        $this->params[ "scope" ] = implode( " ", $scope_array );
+        $this->params[ "scope" ] = implode(" ", $scope_array);
     }
 
     /**
@@ -138,11 +138,11 @@ class AuthorizationClient
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param array<string, string|int> $keyval_array パラメータ名と値の連想配列
+     * @param array<string, string|int> $key_val_array パラメータ名と値の連想配列
      */
-    public function setParams($keyval_array)
+    public function setParams($key_val_array)
     {
-        $this->params = array_merge( $this->params, $keyval_array );
+        $this->params = array_merge($this->params, $key_val_array);
     }
 
     /**
@@ -150,7 +150,7 @@ class AuthorizationClient
      *
      * @param string $endpoint_url エンドポイントURL
      */
-    protected function _setEndpointUrl($endpoint_url)
+    protected function setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
     }
@@ -160,10 +160,9 @@ class AuthorizationClient
      *
      * @param string $request_uri リダイレクト先のURL
      */
-    protected function _redirect($request_uri)
+    protected function redirect($request_uri)
     {
-        header( "Location: " . $request_uri );
+        header("Location: " . $request_uri);
         exit();
     }
-
 }

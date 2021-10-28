@@ -3,4 +3,9 @@
     <!-- Coding Rules -->
     <rule ref="PSR1"/>
     <rule ref="PSR2"/>
+
+    <!-- テストファイルのみで除外する -->
+    <rule ref="PSR1.Classes.ClassDeclaration">
+        <exclude-pattern>*/tests/*</exclude-pattern>
+    </rule>
 </ruleset>

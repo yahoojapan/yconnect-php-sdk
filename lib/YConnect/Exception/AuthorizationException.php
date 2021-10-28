@@ -61,7 +61,7 @@ class AuthorizationException extends Exception
      */
     public function invalidRequest()
     {
-        if( preg_match( "/invalid_request/", $this->message ) ) {
+        if (preg_match("/invalid_request/", $this->message)) {
             return true;
         } else {
             return false;
@@ -75,7 +75,7 @@ class AuthorizationException extends Exception
      */
     public function invalidScope()
     {
-        if( preg_match( "/invalid_scope/", $this->message ) ) {
+        if (preg_match("/invalid_scope/", $this->message)) {
             return true;
         } else {
             return false;
@@ -89,7 +89,7 @@ class AuthorizationException extends Exception
      */
     public function loginRequired()
     {
-        if( preg_match( "/login_required/", $this->message ) ) {
+        if (preg_match("/login_required/", $this->message)) {
             return true;
         } else {
             return false;
@@ -103,7 +103,7 @@ class AuthorizationException extends Exception
      */
     public function consentRequired()
     {
-        if( preg_match( "/consent_required/", $this->message ) ) {
+        if (preg_match("/consent_required/", $this->message)) {
             return true;
         } else {
             return false;
@@ -117,7 +117,7 @@ class AuthorizationException extends Exception
      */
     public function unsupportedResponseType()
     {
-        if( preg_match( "/unsupported_response_type/", $this->message ) ) {
+        if (preg_match("/unsupported_response_type/", $this->message)) {
             return true;
         } else {
             return false;
@@ -131,7 +131,7 @@ class AuthorizationException extends Exception
      */
     public function unauthorizedClient()
     {
-        if( preg_match( "/unauthorized_client/", $this->message ) ) {
+        if (preg_match("/unauthorized_client/", $this->message)) {
             return true;
         } else {
             return false;
@@ -145,7 +145,7 @@ class AuthorizationException extends Exception
      */
     public function accessDenied()
     {
-        if( preg_match( "/access_denied/", $this->message ) ) {
+        if (preg_match("/access_denied/", $this->message)) {
             return true;
         } else {
             return false;
@@ -159,7 +159,7 @@ class AuthorizationException extends Exception
      */
     public function serverError()
     {
-        if( preg_match( "/server_error/", $this->message ) ) {
+        if (preg_match("/server_error/", $this->message)) {
             return true;
         } else {
             return false;
@@ -171,8 +171,6 @@ class AuthorizationException extends Exception
      */
     public function __toString()
     {
-        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
-        return $str;
+        return __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
     }
-
 }

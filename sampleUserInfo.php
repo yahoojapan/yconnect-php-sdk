@@ -30,6 +30,7 @@ use YConnect\Constant\OIDConnectPrompt;
 use YConnect\Constant\OIDConnectScope;
 use YConnect\Constant\ResponseType;
 use YConnect\Credential\ClientCredential;
+use YConnect\Exception\ApiException;
 use YConnect\YConnectClient;
 
 // アプリケーションID, シークレッvト
@@ -59,19 +60,18 @@ $prompt = array(
 );
 
 // クレデンシャルインスタンス生成
-$cred = new ClientCredential( $client_id, $client_secret );
+$cred = new ClientCredential($client_id, $client_secret);
 // YConnectクライアントインスタンス生成
-$client = new YConnectClient( $cred );
+$client = new YConnectClient($cred);
 
 // デバッグ用ログ出力
 $client->enableDebugMode();
 
 try {
-
     // Authorization Codeを取得
-    $code_result = $client->getAuthorizationCode( $state );
+    $code_result = $client->getAuthorizationCode($state);
 
-    if( !$code_result ) {
+    if (!$code_result) {
 
         /*****************************
              Authorization Request
@@ -89,7 +89,6 @@ try {
             3600,
             $plain_code_challenge
         );
-
     } else {
 
         /****************************
@@ -114,65 +113,56 @@ try {
         *****************************/
 
         // IDトークンを検証
-        $client->verifyIdToken( $nonce, $client->getAccessToken());
+        $client->verifyIdToken($nonce, $client->getAccessToken());
         echo "ID TOKEN: <br/>";
-        echo "<pre>" . print_r( $client->getIdToken(), true ) . "</pre>";
+        echo "<pre>" . print_r($client->getIdToken(), true) . "</pre>";
 
         /************************
              UserInfo Request
         ************************/
 
         // UserInfoエンドポイントにリクエスト
-        $client->requestUserInfo( $client->getAccessToken() );
+        $client->requestUserInfo($client->getAccessToken());
         echo "<h1>UserInfo Request</h1>";
         echo "UserInfo: <br/>";
         // UserInfo情報を取得
-        echo "<pre>" . print_r( $client->getUserInfo(), true ) . "</pre>";
-
+        echo "<pre>" . print_r($client->getUserInfo(), true) . "</pre>";
     }
-
-} catch ( ApiException $ae ) {
-
+} catch (ApiException $ae) {
     // アクセストークンが有効期限切れであるかチェック
-    if( $ae->invalidToken() ) {
+    if ($ae->invalidToken()) {
 
         /************************************
              Refresh Access Token Request
         ************************************/
 
         try {
-
             // 保存していたリフレッシュトークンを指定してください
             $refresh_token = "STORED_REFRESH_TOKEN";
 
             // Tokenエンドポイントにリクエストしてアクセストークンを更新
-            $client->refreshAccessToken( $refresh_token );
+            $client->refreshAccessToken($refresh_token);
             echo "<h1>Refresh Access Token Request</h1>";
             echo "ACCESS TOKEN : " . $client->getAccessToken() . "<br/><br/>";
             echo "EXPIRATION   : " . $client->getAccessTokenExpiration();
-
-        } catch ( TokenException $te ) {
-
+        } catch (TokenException $te) {
             // リフレッシュトークンが有効期限切れであるかチェック
-            if( $te->invalidGrant() ) {
+            if ($te->invalidGrant()) {
                 // はじめのAuthorizationエンドポイントリクエストからやり直してください
                 echo "<h1>Refresh Token has Expired</h1>";
             }
 
-            echo "<pre>" . print_r( $te, true ) . "</pre>";
-
-        } catch ( \Exception $e ) {
-            echo "<pre>" . print_r( $e, true ) . "</pre>";
+            echo "<pre>" . print_r($te, true) . "</pre>";
+        } catch (Exception $e) {
+            echo "<pre>" . print_r($e, true) . "</pre>";
         }
-
-    } else if( $ae->invalidRequest() ) {
+    } elseif ($ae->invalidRequest()) {
         echo "<h1>Invalid Request</h1>";
-        echo "<pre>" . print_r( $ae, true ) . "</pre>";
+        echo "<pre>" . print_r($ae, true) . "</pre>";
     } else {
         echo "<h1>Other Error</h1>";
-        echo "<pre>" . print_r( $ae, true ) . "</pre>";
+        echo "<pre>" . print_r($ae, true) . "</pre>";
     }
-
-} catch ( \Exception $e ) {
-    echo "<pre>" . print_r( $e, true ) . "</pre>";
+} catch (Exception $e) {
+    echo "<pre>" . print_r($e, true) . "</pre>";
 }

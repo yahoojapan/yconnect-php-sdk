@@ -72,24 +72,9 @@ class YConnectClient
     const PUBLIC_KEYS_ENDPOINT_URL = "https://auth.login.yahoo.co.jp/yconnect/v2/public-keys";
 
     /**
-     * @var ClientCredential|null ClientCredentialインスタンス
+     * @var ClientCredential ClientCredentialインスタンス
      */
-    private $clientCred = null;
-
-    /**
-     * @var AuthorizationClient|null AuthorizationClientインスタンス
-     */
-    private $auth_client = null;
-
-    /**
-     * @var AuthorizationCodeClient|null AuthorizationCodeClientインスタンス
-     */
-    private $auth_code_client = null;
-
-    /**
-     * @var RefreshTokenClient|null RefreshTokenインスタンス
-     */
-    private $refresh_token_client = null;
+    private $clientCred;
 
     /**
      * @var BearerToken|null アクセストークン
@@ -133,8 +118,10 @@ class YConnectClient
      */
     public function enableDebugMode($display = false)
     {
-        if( $display == true ) Logger::setLogType( Logger::CONSOLE_TYPE );
-        Logger::setLogLevel( Logger::DEBUG );
+        if ($display == true) {
+            Logger::setLogType(Logger::CONSOLE_TYPE);
+        }
+        Logger::setLogLevel(Logger::DEBUG);
     }
 
     /**
@@ -160,26 +147,36 @@ class YConnectClient
      * @param int|null $max_age max_age(最大認証経過時間)
      * @param string|null $plain_code_challenge code_challenge(認可コード横取り攻撃対策（PKCE）のパラメーター)
      */
-    public function requestAuth($redirect_uri, $state, $nonce, $response_type, $scope = null, $display = null,
-                                $prompt = null, $max_age = null, $plain_code_challenge = null)
-    {
-        $auth_client = $this->_getAuthorizationClient(self::AUTHORIZATION_URL, $this->clientCred, $response_type);
-        $auth_client->setParam( "nonce", $nonce );
-        if( $scope != null ) {
-            $auth_client->setParam( "scope", implode( " ", $scope ) );
+    public function requestAuth(
+        $redirect_uri,
+        $state,
+        $nonce,
+        $response_type,
+        $scope = null,
+        $display = null,
+        $prompt = null,
+        $max_age = null,
+        $plain_code_challenge = null
+    ) {
+        $auth_client = $this->getAuthorizationClient(self::AUTHORIZATION_URL, $this->clientCred, $response_type);
+        $auth_client->setParam("nonce", $nonce);
+        if ($scope != null) {
+            $auth_client->setParam("scope", implode(" ", $scope));
         }
-        if( $display != null ) $auth_client->setParam( "display", $display );
-        if( $prompt != null ) {
-            $auth_client->setParam( "prompt", implode( " ", $prompt ) );
+        if ($display != null) {
+            $auth_client->setParam("display", $display);
         }
-        if( $max_age != null ) {
-            $auth_client->setParam( "max_age", $max_age);
+        if ($prompt != null) {
+            $auth_client->setParam("prompt", implode(" ", $prompt));
         }
-        if( $plain_code_challenge != null ) {
-            $auth_client->setParam( "code_challenge", $this->_generateCodeChallenge($plain_code_challenge) );
-            $auth_client->setParam( "code_challenge_method", "S256" );
+        if ($max_age != null) {
+            $auth_client->setParam("max_age", $max_age);
         }
-        $auth_client->requestAuthorizationGrant( $redirect_uri, $state );
+        if ($plain_code_challenge != null) {
+            $auth_client->setParam("code_challenge", $this->generateCodeChallenge($plain_code_challenge));
+            $auth_client->setParam("code_challenge_method", "S256");
+        }
+        $auth_client->requestAuthorizationGrant($redirect_uri, $state);
     }
 
     /**
@@ -188,12 +185,15 @@ class YConnectClient
      * @param string $state state
      * @throws TokenException stateが一致しないときに発生
      */
-    private function _checkResponse($state)
+    private function checkResponse($state)
     {
-        if( !isset( $_GET["state"] ) ) return false;
+        if (!isset($_GET["state"])) {
+            return false;
+        }
 
-        if( $state != $_GET["state"] )
-            throw new TokenException( "not_matched_state", "the state did not match" );
+        if ($state != $_GET["state"]) {
+            throw new TokenException("not_matched_state", "the state did not match");
+        }
 
         return true;
     }
@@ -210,16 +210,17 @@ class YConnectClient
      */
     public function getAuthorizationCode($state)
     {
-        if( self::_checkResponse( $state ) ) {
-
-            $error      = array_key_exists( "error", $_GET ) ? $_GET["error"] : null;
-            $error_desc = array_key_exists( "error_description", $_GET ) ? $_GET["error_description"] : null;
-            $error_code = array_key_exists( "error_code", $_GET ) ? $_GET["error_code"] : null;
-            if( !empty( $error ) ) {
-                throw new TokenException( $error, $error_desc, $error_code );
+        if (self::checkResponse($state)) {
+            $error      = array_key_exists("error", $_GET) ? $_GET["error"] : null;
+            $error_desc = array_key_exists("error_description", $_GET) ? $_GET["error_description"] : null;
+            $error_code = array_key_exists("error_code", $_GET) ? $_GET["error_code"] : null;
+            if (!empty($error)) {
+                throw new TokenException($error, $error_desc, $error_code);
             }
 
-            if( !isset( $_GET["code"] ) ) return false;
+            if (!isset($_GET["code"])) {
+                return false;
+            }
             return $_GET["code"];
         } else {
             return false;
@@ -240,14 +241,14 @@ class YConnectClient
      */
     public function requestAccessToken($redirect_uri, $code, $code_verifier = null)
     {
-        $public_keys_client = $this->_getPublicKeysClient(self::PUBLIC_KEYS_ENDPOINT_URL);
+        $public_keys_client = $this->getPublicKeysClient(self::PUBLIC_KEYS_ENDPOINT_URL);
         $public_keys_client->fetchPublicKeys();
         $public_keys_json = $public_keys_client->getResponse();
-        if(!$public_keys_json) {
+        if (!$public_keys_json) {
             throw new UnexpectedValueException('Failed to fetch public keys');
         }
 
-        $this->auth_code_client = $this->_getAuthorizationCodeClient(
+        $auth_code_client = $this->getAuthorizationCodeClient(
             self::TOKEN_URL,
             $this->clientCred,
             $code,
@@ -258,17 +259,17 @@ class YConnectClient
             "grant_type" => GrantType::AUTHORIZATION_CODE,
             "code"       => $code
         );
-        $this->auth_code_client->setParams( $token_req_params );
+        $auth_code_client->setParams($token_req_params);
 
-        if( $code_verifier != null ) {
-            $this->auth_code_client->setParam( "code_verifier", $code_verifier );
+        if ($code_verifier != null) {
+            $auth_code_client->setParam("code_verifier", $code_verifier);
         }
 
-        $this->auth_code_client->fetchToken();
-        $this->access_token  = $this->auth_code_client->getAccessToken();
-        $this->refresh_token = $this->auth_code_client->getRefreshToken();
+        $auth_code_client->fetchToken();
+        $this->access_token  = $auth_code_client->getAccessToken();
+        $this->refresh_token = $auth_code_client->getRefreshToken();
         $this->expiration    = $this->access_token->getExpiration();
-        $this->id_token      = $this->auth_code_client->getIdToken();
+        $this->id_token      = $auth_code_client->getIdToken();
     }
 
     /**
@@ -311,7 +312,7 @@ class YConnectClient
      */
     public function verifyIdToken($nonce, $access_token)
     {
-        return IdToken::verify( $this->id_token, $nonce, $this->clientCred->id, $access_token);
+        return IdToken::verify($this->id_token, $nonce, $this->clientCred->id, $access_token);
     }
 
     /**
@@ -335,10 +336,9 @@ class YConnectClient
      */
     public function refreshAccessToken($refresh_token)
     {
-        $this->refresh_token_client = $this->_getRefreshTokenClient(self::TOKEN_URL, $this->clientCred,
-            $refresh_token);
-        $this->refresh_token_client->fetchToken();
-        $this->access_token  = $this->refresh_token_client->getAccessToken();
+        $refresh_token_client = $this->getRefreshTokenClient(self::TOKEN_URL, $this->clientCred, $refresh_token);
+        $refresh_token_client->fetchToken();
+        $this->access_token  = $refresh_token_client->getAccessToken();
         $this->expiration    = $this->access_token->getExpiration();
     }
 
@@ -353,9 +353,9 @@ class YConnectClient
      */
     public function requestUserInfo($access_token)
     {
-        $this->user_info_client = $this->_getUserInfoClient( self::USERINFO_URL, $access_token );
-        $this->user_info_client->fetchUserInfo();
-        $this->user_info = $this->user_info_client->getUserInfo();
+        $user_info_client = $this->getUserInfoClient(self::USERINFO_URL, $access_token);
+        $user_info_client->fetchUserInfo();
+        $this->user_info = $user_info_client->getUserInfo();
     }
 
     /**
@@ -376,7 +376,7 @@ class YConnectClient
      * @param string $plain_code_challenge ハッシュ化前の code challenge
      * @return string SHA-256でハッシュ化された code challenge
      */
-    private function _generateCodeChallenge($plain_code_challenge)
+    private function generateCodeChallenge($plain_code_challenge)
     {
         $hash = hash('sha256', $plain_code_challenge, true);
         return str_replace('=', '', strtr(base64_encode($hash), '+/', '-_'));
@@ -390,7 +390,7 @@ class YConnectClient
      * @param string $response_type レスポンスタイプ
      * @return AuthorizationClient
      */
-    protected function _getAuthorizationClient($endpoint, $client_cred, $response_type)
+    protected function getAuthorizationClient($endpoint, $client_cred, $response_type)
     {
         return new AuthorizationClient(
             $endpoint,
@@ -405,7 +405,7 @@ class YConnectClient
      * @param string $endpoint エンドポイントURL
      * @return PublicKeysClient
      */
-    protected function _getPublicKeysClient($endpoint)
+    protected function getPublicKeysClient($endpoint)
     {
         return new PublicKeysClient($endpoint);
     }
@@ -420,7 +420,7 @@ class YConnectClient
      * @param string $public_keys_json 公開鍵情報のJSON
      * @return AuthorizationCodeClient
      */
-    protected function _getAuthorizationCodeClient($endpoint, $client_cred, $code, $redirect_uri, $public_keys_json)
+    protected function getAuthorizationCodeClient($endpoint, $client_cred, $code, $redirect_uri, $public_keys_json)
     {
         return new AuthorizationCodeClient(
             $endpoint,
@@ -439,7 +439,7 @@ class YConnectClient
      * @param string $refresh_token リフレッシュトークン
      * @return RefreshTokenClient
      */
-    protected function _getRefreshTokenClient($endpoint, $client_cred, $refresh_token)
+    protected function getRefreshTokenClient($endpoint, $client_cred, $refresh_token)
     {
         return new RefreshTokenClient(
             $endpoint,
@@ -455,7 +455,7 @@ class YConnectClient
      * @param string|BearerToken $access_token アクセストークン
      * @return UserInfoClient
      */
-    protected function _getUserInfoClient($endpoint, $access_token)
+    protected function getUserInfoClient($endpoint, $access_token)
     {
         return new UserInfoClient($endpoint, $access_token);
     }

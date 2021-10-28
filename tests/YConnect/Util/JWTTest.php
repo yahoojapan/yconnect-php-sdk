@@ -25,11 +25,11 @@
 
 namespace YConnect\Util;
 
-
+use PHPUnit_Framework_TestCase;
 use UnexpectedValueException;
 use YConnect\Credential\PublicKeys;
 
-class JWTTest extends \PHPUnit_Framework_TestCase
+class JWTTest extends PHPUnit_Framework_TestCase
 {
     private static $kid = "sample_kid";
     private static $payload;

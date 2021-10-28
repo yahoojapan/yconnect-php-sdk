@@ -37,9 +37,9 @@ use YConnect\Util\HttpClient;
 class TokenClient
 {
     /**
-     * @var string|null エンドポイントURL
+     * @var string エンドポイントURL
      */
-    private $url = null;
+    private $url;
 
     /**
      * @var array<string, string|int> パラメータ
@@ -75,12 +75,12 @@ class TokenClient
      */
     public function fetchToken()
     {
-        $httpClient = $this->_getHttpClient();
-        $httpClient->setHeader( array(
+        $httpClient = $this->getHttpClient();
+        $httpClient->setHeader(array(
             "Expect:", // POST HTTP 100-continue 無効
             "Authorization: Basic " . $this->cred->toAuthorizationHeader()
         ));
-        $httpClient->requestPost( $this->url, $this->params );
+        $httpClient->requestPost($this->url, $this->params);
         $this->res_body = $httpClient->getResponseBody();
     }
 
@@ -91,7 +91,7 @@ class TokenClient
      */
     public function getResponse()
     {
-        if( $this->res_body != null ) {
+        if ($this->res_body != null) {
             return $this->res_body;
         } else {
             return false;
@@ -103,11 +103,11 @@ class TokenClient
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param array<string, string|int> $keyval_array パラメータ名と値の連想配列
+     * @param array<string, string|int> $key_val_array パラメータ名と値の連想配列
      */
-    public function setParams($keyval_array)
+    public function setParams($key_val_array)
     {
-        $this->params = array_merge( $this->params, $keyval_array );
+        $this->params = array_merge($this->params, $key_val_array);
     }
 
     /**
@@ -128,7 +128,7 @@ class TokenClient
      *
      * @param string $endpoint_url エンドポイントURL
      */
-    protected function _setEndpointUrl($endpoint_url)
+    protected function setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
     }
@@ -138,7 +138,7 @@ class TokenClient
      *
      * @return HttpClient
      */
-    protected function _getHttpClient()
+    protected function getHttpClient()
     {
         return new HttpClient();
     }

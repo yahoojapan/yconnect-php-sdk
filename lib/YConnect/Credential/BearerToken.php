@@ -82,13 +82,11 @@ class BearerToken
      */
     public function toQueryString()
     {
-        $query = http_build_query(
+        return http_build_query(
             array(
                 "access_token" => $this->token
             )
         );
-
-        return $query;
     }
 
     /**

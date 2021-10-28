@@ -25,11 +25,14 @@
 
 namespace YConnect\Credential;
 
-
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
+use stdClass;
+use UnexpectedValueException;
 use YConnect\Exception\IdTokenException;
 
-class IdTokenTest extends \PHPUnit_Framework_TestCase
+class IdTokenTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -44,11 +47,11 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
 
         $id_token = new IdTokenMock();
 
-        $generate_hash_method = (new \ReflectionClass($id_token))->getMethod("generateHash");
+        $generate_hash_method = (new ReflectionClass($id_token))->getMethod("generateHash");
         $generate_hash_method->setAccessible(true);
         $at_hash = $generate_hash_method->invoke($id_token, $access_token);
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         $obj->iss = "https://auth.login.yahoo.co.jp/yconnect/v2";
         $obj->nonce = $nonce;
         $obj->aud = [$client_id];
@@ -69,7 +72,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
         $nonce = "sample_nonce";
         $client_id = "sample_client_id";
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         $obj->iss = "https://auth.login.yahoo.co.jp/yconnect/v2";
         $obj->nonce = $nonce;
         $obj->aud = [$client_id];
@@ -90,7 +93,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
         $nonce = "sample_nonce";
         $client_id = "sample_client_id";
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         $obj->iss = $iss;
         $obj->nonce = $nonce;
         $obj->aud = [$client_id];
@@ -121,7 +124,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
         $nonce = "sample_nonce";
         $client_id = "sample_client_id";
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         $obj->iss = "https://auth.login.yahoo.co.jp/yconnect/v2";
         $obj->nonce = 'invalid_nonce';
         $obj->aud = [$client_id];
@@ -144,7 +147,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
         $nonce = "sample_nonce";
         $client_id = "sample_client_id";
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         $obj->iss = "https://auth.login.yahoo.co.jp/yconnect/v2";
         $obj->nonce = $nonce;
         $obj->aud = ["invalid_client_id"];
@@ -167,7 +170,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
         $nonce = "sample_nonce";
         $client_id = "sample_client_id";
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         $obj->iss = "https://auth.login.yahoo.co.jp/yconnect/v2";
         $obj->nonce = $nonce;
         $obj->aud = [$client_id];
@@ -191,7 +194,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
         $nonce = "sample_nonce";
         $client_id = "sample_client_id";
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         $obj->iss = "https://auth.login.yahoo.co.jp/yconnect/v2";
         $obj->nonce = $nonce;
         $obj->aud = [$client_id];
@@ -214,7 +217,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
         $nonce = "sample_nonce";
         $client_id = "sample_client_id";
 
-        $obj = new \stdClass();
+        $obj = new stdClass();
         $obj->iss = "https://auth.login.yahoo.co.jp/yconnect/v2";
         $obj->nonce = $nonce;
         $obj->aud = [$client_id];
@@ -233,7 +236,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckFormat()
     {
-        $json = new \stdClass();
+        $json = new stdClass();
         $json->iss = "https://example.co.jp";
         $json->sub = "sample_ppid";
         $json->aud = ['sample_client_id'];
@@ -243,7 +246,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
 
         $id_token = new IdTokenMock();
 
-        $check_format_method = (new \ReflectionClass($id_token))->getMethod("_checkFormat");
+        $check_format_method = (new ReflectionClass($id_token))->getMethod("checkFormat");
         $check_format_method->setAccessible(true);
 
         $this->assertNull($check_format_method->invoke($id_token, $json));
@@ -256,7 +259,7 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckFormatThrowsUnexpectedValueException()
     {
-        $json = new \stdClass();
+        $json = new stdClass();
         $json->iss = "https://example.co.jp";
         $json->sub = "sample_ppid";
         $json->aud = ['sample_client_id'];
@@ -265,10 +268,10 @@ class IdTokenTest extends \PHPUnit_Framework_TestCase
 
         $id_token = new IdTokenMock();
 
-        $check_format_method = (new \ReflectionClass($id_token))->getMethod("_checkFormat");
+        $check_format_method = (new ReflectionClass($id_token))->getMethod("checkFormat");
         $check_format_method->setAccessible(true);
 
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Not a valid IdToken format');
 
         $check_format_method->invoke($id_token, $json);

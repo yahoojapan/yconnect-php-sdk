@@ -25,8 +25,9 @@
 
 namespace YConnect\Credential;
 
+use PHPUnit_Framework_TestCase;
 
-class BearerTokenTest extends \PHPUnit_Framework_TestCase
+class BearerTokenTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test

@@ -74,12 +74,10 @@ class RefreshToken
      */
     public function toQueryString()
     {
-        $query = http_build_query(
+        return http_build_query(
             array(
                 "refresh_token" => $this->token
             )
         );
-
-        return $query;
     }
 }

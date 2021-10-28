@@ -25,12 +25,13 @@
 
 namespace YConnect\Endpoint;
 
-
 use Exception;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
 use YConnect\Util\HttpClient;
 
-class PublicKeysClientTest extends \PHPUnit_Framework_TestCase
+class PublicKeysClientTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -70,7 +71,7 @@ class PublicKeysClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new PublicKeysClientMock();
 
-        $res_body_filed = (new \ReflectionClass(PublicKeysClient::class))->getProperty("res_body");
+        $res_body_filed = (new ReflectionClass(PublicKeysClient::class))->getProperty("res_body");
         $res_body_filed->setAccessible(true);
         $res_body_filed->setValue($client, $json);
 
@@ -96,7 +97,7 @@ class PublicKeysClientMock extends PublicKeysClient
     {
     }
 
-    protected function _getHttpClient()
+    protected function getHttpClient()
     {
         return $this->httpClient;
     }

@@ -25,14 +25,14 @@
 
 namespace YConnect\Endpoint;
 
-
 use Exception;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
-use YConnect\Credential\BearerToken;
 use YConnect\Credential\ClientCredential;
 use YConnect\Util\HttpClient;
 
-class TokenClientTest extends \PHPUnit_Framework_TestCase
+class TokenClientTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -61,7 +61,7 @@ class TokenClientTest extends \PHPUnit_Framework_TestCase
             ->method('getResponseBody')
             ->willReturn($json);
 
-        $cred_filed = (new \ReflectionClass(TokenClient::class))->getProperty("cred");
+        $cred_filed = (new ReflectionClass(TokenClient::class))->getProperty("cred");
         $cred_filed->setAccessible(true);
         $cred_filed->setValue($client, new ClientCredential("client_id_sample", "client_secret_sample"));
 
@@ -92,7 +92,7 @@ class TokenClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new TokenClientMock();
 
-        $res_body_filed = (new \ReflectionClass(TokenClient::class))->getProperty("res_body");
+        $res_body_filed = (new ReflectionClass(TokenClient::class))->getProperty("res_body");
         $res_body_filed->setAccessible(true);
         $res_body_filed->setValue($client, $json);
 
@@ -125,7 +125,7 @@ class TokenClientTest extends \PHPUnit_Framework_TestCase
         $client->setParam($key1, $val1);
         $client->setParams(array($key2 => $val2));
 
-        $params_field = (new \ReflectionClass(TokenClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(TokenClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $this->assertSame($val1, $params_field->getValue($client)[$key1]);
@@ -140,7 +140,7 @@ class TokenClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new TokenClientMock();
 
-        $params_field = (new \ReflectionClass(TokenClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(TokenClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $key = 'key';
@@ -162,7 +162,7 @@ class TokenClientMock extends TokenClient
     {
     }
 
-    protected function _getHttpClient()
+    protected function getHttpClient()
     {
         return $this->httpClient;
     }

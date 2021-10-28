@@ -25,8 +25,9 @@
 
 namespace YConnect\Exception;
 
+use PHPUnit_Framework_TestCase;
 
-class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
+class AuthorizationExceptionTest extends PHPUnit_Framework_TestCase
 {
     private static $INVALID_REQUEST = "invalid_request";
     private static $INVALID_SCOPE = "invalid_scope";
@@ -40,7 +41,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidRequestReturnsTrue() {
+    public function testInvalidRequestReturnsTrue()
+    {
         $exception = new AuthorizationException(self::$INVALID_REQUEST);
 
         $this->assertTrue($exception->invalidRequest());
@@ -49,7 +51,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidRequestReturnsFalse() {
+    public function testInvalidRequestReturnsFalse()
+    {
         $exception = new AuthorizationException(self::$INVALID_SCOPE);
 
         $this->assertFalse($exception->invalidRequest());
@@ -58,7 +61,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidScopeReturnsTrue() {
+    public function testInvalidScopeReturnsTrue()
+    {
         $exception = new AuthorizationException(self::$INVALID_SCOPE);
 
         $this->assertTrue($exception->invalidScope());
@@ -67,7 +71,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidScopeReturnsFalse() {
+    public function testInvalidScopeReturnsFalse()
+    {
         $exception = new AuthorizationException(self::$LOGIN_REQUIRED);
 
         $this->assertFalse($exception->invalidScope());
@@ -76,7 +81,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testLoginRequiredReturnsTrue() {
+    public function testLoginRequiredReturnsTrue()
+    {
         $exception = new AuthorizationException(self::$LOGIN_REQUIRED);
 
         $this->assertTrue($exception->loginRequired());
@@ -85,7 +91,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testLoginRequiredReturnsFalse() {
+    public function testLoginRequiredReturnsFalse()
+    {
         $exception = new AuthorizationException(self::$CONSENT_REQUIRED);
 
         $this->assertFalse($exception->loginRequired());
@@ -94,7 +101,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testConsentRequiredReturnsTrue() {
+    public function testConsentRequiredReturnsTrue()
+    {
         $exception = new AuthorizationException(self::$CONSENT_REQUIRED);
 
         $this->assertTrue($exception->consentRequired());
@@ -103,7 +111,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testConsentRequiredReturnsFalse() {
+    public function testConsentRequiredReturnsFalse()
+    {
         $exception = new AuthorizationException(self::$UNSUPPORTED_RESPONSE_TYPE);
 
         $this->assertFalse($exception->consentRequired());
@@ -112,7 +121,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testUnsupportedResponseTypeReturnsTrue() {
+    public function testUnsupportedResponseTypeReturnsTrue()
+    {
         $exception = new AuthorizationException(self::$UNSUPPORTED_RESPONSE_TYPE);
 
         $this->assertTrue($exception->unsupportedResponseType());
@@ -121,7 +131,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testUnsupportedResponseTypeReturnsFalse() {
+    public function testUnsupportedResponseTypeReturnsFalse()
+    {
         $exception = new AuthorizationException(self::$UNAUTHORIZED_CLIENT);
 
         $this->assertFalse($exception->unsupportedResponseType());
@@ -130,7 +141,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testUnauthorizedClientReturnsTrue() {
+    public function testUnauthorizedClientReturnsTrue()
+    {
         $exception = new AuthorizationException(self::$UNAUTHORIZED_CLIENT);
 
         $this->assertTrue($exception->unauthorizedClient());
@@ -139,7 +151,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testUnauthorizedClientReturnsFalse() {
+    public function testUnauthorizedClientReturnsFalse()
+    {
         $exception = new AuthorizationException(self::$ACCESS_DENIED);
 
         $this->assertFalse($exception->unauthorizedClient());
@@ -148,7 +161,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testAccessDeniedReturnsTrue() {
+    public function testAccessDeniedReturnsTrue()
+    {
         $exception = new AuthorizationException(self::$ACCESS_DENIED);
 
         $this->assertTrue($exception->accessDenied());
@@ -157,7 +171,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testAccessDeniedReturnsFalse() {
+    public function testAccessDeniedReturnsFalse()
+    {
         $exception = new AuthorizationException(self::$SERVER_ERROR);
 
         $this->assertFalse($exception->accessDenied());
@@ -166,7 +181,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testServerErrorReturnsTrue() {
+    public function testServerErrorReturnsTrue()
+    {
         $exception = new AuthorizationException(self::$SERVER_ERROR);
 
         $this->assertTrue($exception->serverError());
@@ -175,7 +191,8 @@ class AuthorizationExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testServerErrorReturnsFalse() {
+    public function testServerErrorReturnsFalse()
+    {
         $exception = new AuthorizationException(self::$INVALID_REQUEST);
 
         $this->assertFalse($exception->serverError());

@@ -25,12 +25,14 @@
 
 namespace YConnect\Endpoint;
 
-
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
+use UnexpectedValueException;
 use YConnect\Exception\TokenException;
 use YConnect\Util\HttpClient;
 
-class ApiClientTest extends \PHPUnit_Framework_TestCase
+class ApiClientTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -40,10 +42,10 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new ApiClientMock();
 
-        $set_params_method = (new \ReflectionClass(ApiClient::class))->getMethod('setParams');
+        $set_params_method = (new ReflectionClass(ApiClient::class))->getMethod('setParams');
         $set_params_method->setAccessible(true);
 
-        $params_field = (new \ReflectionClass(ApiClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(ApiClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $key1 = 'key1';
@@ -70,10 +72,10 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new ApiClientMock();
 
-        $set_params_method = (new \ReflectionClass(ApiClient::class))->getMethod('setParams');
+        $set_params_method = (new ReflectionClass(ApiClient::class))->getMethod('setParams');
         $set_params_method->setAccessible(true);
 
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('array is required');
 
         $set_params_method->invoke($client, 'invalid');
@@ -87,10 +89,10 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new ApiClientMock();
 
-        $set_param_method = (new \ReflectionClass(ApiClient::class))->getMethod('setParam');
+        $set_param_method = (new ReflectionClass(ApiClient::class))->getMethod('setParam');
         $set_param_method->setAccessible(true);
 
-        $params_field = (new \ReflectionClass(ApiClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(ApiClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $key = 'key';
@@ -111,10 +113,10 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new ApiClientMock();
 
-        $set_param_method = (new \ReflectionClass(ApiClient::class))->getMethod('setParam');
+        $set_param_method = (new ReflectionClass(ApiClient::class))->getMethod('setParam');
         $set_param_method->setAccessible(true);
 
-        $params_field = (new \ReflectionClass(ApiClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(ApiClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $key = 1234;
@@ -135,10 +137,10 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new ApiClientMock();
 
-        $set_param_method = (new \ReflectionClass(ApiClient::class))->getMethod('setParam');
+        $set_param_method = (new ReflectionClass(ApiClient::class))->getMethod('setParam');
         $set_param_method->setAccessible(true);
 
-        $params_field = (new \ReflectionClass(ApiClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(ApiClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $key = 'key';
@@ -179,9 +181,9 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
         $client = new ApiClientMock();
         $client->http_client = $http_client;
 
-        $fetch_resource_method = (new \ReflectionClass(ApiClient::class))->getMethod('fetchResource');
+        $fetch_resource_method = (new ReflectionClass(ApiClient::class))->getMethod('fetchResource');
         $fetch_resource_method->setAccessible(true);
-        $getLast_response_method = (new \ReflectionClass(ApiClient::class))->getMethod('getLastResponse');
+        $getLast_response_method = (new ReflectionClass(ApiClient::class))->getMethod('getLastResponse');
         $getLast_response_method->setAccessible(true);
 
         $fetch_resource_method->invoke($client, 'https://example.co.jp', $method);
@@ -222,10 +224,10 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
         $client = new ApiClientMock();
         $client->http_client = $http_client;
 
-        $fetch_resource_method = (new \ReflectionClass(ApiClient::class))->getMethod('fetchResource');
+        $fetch_resource_method = (new ReflectionClass(ApiClient::class))->getMethod('fetchResource');
         $fetch_resource_method->setAccessible(true);
 
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('unsupported http method');
 
         $fetch_resource_method->invoke($client, 'https://example.co.jp', 'UNDEFINED');
@@ -257,7 +259,7 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
         $client = new ApiClientMock();
         $client->http_client = $http_client;
 
-        $fetch_resource_method = (new \ReflectionClass(ApiClient::class))->getMethod('fetchResource');
+        $fetch_resource_method = (new ReflectionClass(ApiClient::class))->getMethod('fetchResource');
         $fetch_resource_method->setAccessible(true);
 
         $this->expectException(TokenException::class);
@@ -274,7 +276,8 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
     {
         $client = new ApiClientMock();
 
-        $check_authorization_error_method = (new \ReflectionClass(ApiClient::class))->getMethod('_checkAuthorizationError');
+        $check_authorization_error_method = (new ReflectionClass(ApiClient::class))
+            ->getMethod('checkAuthorizationError');
         $check_authorization_error_method->setAccessible(true);
 
         $this->assertNull($check_authorization_error_method->invoke($client, null));
@@ -290,7 +293,8 @@ class ApiClientTest extends \PHPUnit_Framework_TestCase
 
         $client = new ApiClientMock();
 
-        $check_authorization_error_method = (new \ReflectionClass(ApiClient::class))->getMethod('_checkAuthorizationError');
+        $check_authorization_error_method = (new ReflectionClass(ApiClient::class))
+            ->getMethod('checkAuthorizationError');
         $check_authorization_error_method->setAccessible(true);
 
         $this->expectException(TokenException::class);

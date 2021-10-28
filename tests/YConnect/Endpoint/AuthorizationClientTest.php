@@ -25,12 +25,13 @@
 
 namespace YConnect\Endpoint;
 
-
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use ReflectionException;
 use YConnect\Constant\ResponseType;
 use YConnect\Credential\ClientCredential;
 
-class AuthorizationClientTest extends \PHPUnit_Framework_TestCase
+class AuthorizationClientTest extends PHPUnit_Framework_TestCase
 {
     private $endpoint = "https://example.co.jp/";
     private $client_id = "sample~client~id";
@@ -95,7 +96,7 @@ class AuthorizationClientTest extends \PHPUnit_Framework_TestCase
 
         $client->setScopes(array("token", "address"));
 
-        $params_field = (new \ReflectionClass(AuthorizationClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(AuthorizationClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $this->assertSame("token address", $params_field->getValue($client)["scope"]);
@@ -115,7 +116,7 @@ class AuthorizationClientTest extends \PHPUnit_Framework_TestCase
 
         $client->setParam($key, $val);
 
-        $params_field = (new \ReflectionClass(AuthorizationClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(AuthorizationClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $this->assertSame($val, $params_field->getValue($client)[$key]);
@@ -138,7 +139,7 @@ class AuthorizationClientTest extends \PHPUnit_Framework_TestCase
         $client->setParam($key1, $val1);
         $client->setParams(array($key2 => $val2));
 
-        $params_field = (new \ReflectionClass(AuthorizationClient::class))->getProperty('params');
+        $params_field = (new ReflectionClass(AuthorizationClient::class))->getProperty('params');
         $params_field->setAccessible(true);
 
         $this->assertSame($val1, $params_field->getValue($client)[$key1]);
@@ -155,7 +156,7 @@ class AuthorizationClientMock extends AuthorizationClient
         parent::__construct($endpoint, $client_credential, $response_type);
     }
 
-    protected function _redirect($request_uri)
+    protected function redirect($request_uri)
     {
         $this->redirect_uri = $request_uri;
     }

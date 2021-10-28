@@ -25,7 +25,6 @@
 
 namespace YConnect\Credential;
 
-
 class PublicKeys
 {
     private $public_keys;
@@ -35,7 +34,8 @@ class PublicKeys
      *
      * @param string $json json文字列
      */
-    public function __construct($json) {
+    public function __construct($json)
+    {
         $this->public_keys = json_decode($json);
     }
 
@@ -45,8 +45,9 @@ class PublicKeys
      * @param string $kid kid
      * @return string|null 公開鍵
      */
-    public function getPublicKey($kid) {
-        if(!isset($this->public_keys->$kid)) {
+    public function getPublicKey($kid)
+    {
+        if (!isset($this->public_keys->$kid)) {
             return null;
         }
         return $this->public_keys->$kid;

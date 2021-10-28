@@ -67,7 +67,7 @@ class TokenException extends Exception
      */
     public function invalidRedirectUri()
     {
-        if( preg_match( "/invalid_redirect_uri/", $this->message ) ) {
+        if (preg_match("/invalid_redirect_uri/", $this->message)) {
             return true;
         } else {
             return false;
@@ -81,7 +81,7 @@ class TokenException extends Exception
      */
     public function invalidClient()
     {
-        if( preg_match( "/invalid_client/", $this->message ) ) {
+        if (preg_match("/invalid_client/", $this->message)) {
             return true;
         } else {
             return false;
@@ -95,7 +95,7 @@ class TokenException extends Exception
      */
     public function invalidScope()
     {
-        if( preg_match( "/invalid_scope/", $this->message ) ) {
+        if (preg_match("/invalid_scope/", $this->message)) {
             return true;
         } else {
             return false;
@@ -109,7 +109,7 @@ class TokenException extends Exception
      */
     public function invalidGrant()
     {
-        if( preg_match( "/invalid_grant/", $this->message ) ) {
+        if (preg_match("/invalid_grant/", $this->message)) {
             return true;
         } else {
             return false;
@@ -123,7 +123,7 @@ class TokenException extends Exception
      */
     public function tokenExpired()
     {
-        if( preg_match( "/invalid_token/", $this->message ) ) {
+        if (preg_match("/invalid_token/", $this->message)) {
             return true;
         } else {
             return false;
@@ -137,7 +137,7 @@ class TokenException extends Exception
      */
     public function invalidToken()
     {
-        if( preg_match( "/invalid_token/", $this->message ) ) {
+        if (preg_match("/invalid_token/", $this->message)) {
             return true;
         } else {
             return false;
@@ -151,7 +151,7 @@ class TokenException extends Exception
      */
     public function invalidRequest()
     {
-        if( preg_match( "/invalid_request/", $this->message ) ) {
+        if (preg_match("/invalid_request/", $this->message)) {
             return true;
         } else {
             return false;
@@ -165,7 +165,7 @@ class TokenException extends Exception
      */
     public function unsupportedGrantType()
     {
-        if( preg_match( "/unsupported_grant_type/", $this->message ) ) {
+        if (preg_match("/unsupported_grant_type/", $this->message)) {
             return true;
         } else {
             return false;
@@ -179,7 +179,7 @@ class TokenException extends Exception
      */
     public function accessDenied()
     {
-        if( preg_match( "/access_denied/", $this->message ) ) {
+        if (preg_match("/access_denied/", $this->message)) {
             return true;
         } else {
             return false;
@@ -193,7 +193,7 @@ class TokenException extends Exception
      */
     public function serverError()
     {
-        if( preg_match( "/server_error/", $this->message ) ) {
+        if (preg_match("/server_error/", $this->message)) {
             return true;
         } else {
             return false;
@@ -205,7 +205,6 @@ class TokenException extends Exception
      */
     public function __toString()
     {
-        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )[ $this->error_code ]";
-        return $str;
+        return __CLASS__ . ": " . $this->message . " ( $this->error_detail )[ $this->error_code ]";
     }
 }

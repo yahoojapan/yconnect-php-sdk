@@ -25,8 +25,9 @@
 
 namespace YConnect\Credential;
 
-use YConnect\Util\JWT;
+use UnexpectedValueException;
 use YConnect\Exception\IdTokenException;
+use YConnect\Util\JWT;
 use YConnect\Util\Logger;
 
 /**
@@ -44,7 +45,7 @@ class IdToken
     /**
      * @var object|null IDトークンのペイロード部のオブジェクト
      */
-    private $json = NULL;
+    private $json = null;
 
     /**
      * @var string JWT
@@ -65,12 +66,12 @@ class IdToken
      */
     public function __construct($data, $public_keys)
     {
-        if ( is_string($data) ) {
+        if (is_string($data)) {
             $this->json = JWT::getDecodedToken($data, $public_keys);
-            $this->_checkFormat($this->json);
+            $this->checkFormat($this->json);
             $this->jwt = $data;
         } else {
-            throw new \UnexpectedValueException('IdToken requires JWT String');
+            throw new UnexpectedValueException('IdToken requires JWT String');
         }
     }
 
@@ -113,7 +114,7 @@ class IdToken
      */
     public function isExpired()
     {
-        return ( $this->json->exp < time() );
+        return ($this->json->exp < time());
     }
 
     /**
@@ -138,36 +139,42 @@ class IdToken
     public static function verify($object, $auth_nonce, $client_id, $access_token, $acceptable_range = 600)
     {
         // Is iss equal to issuer ?
-        if ( self::$issuer !== $object->iss )
-            throw new IdTokenException( "Invalid issuer.", "The issuer did not match.({$object->iss})" );
+        if (self::$issuer !== $object->iss) {
+            throw new IdTokenException("Invalid issuer.", "The issuer did not match.($object->iss)");
+        }
 
         // Is nonce equal to this nonce (was issued at the request authorization) ?
-        if ( $auth_nonce !== $object->nonce )
-            throw new IdTokenException( "Not match nonce.", "The nonce did not match.({$auth_nonce}, {$object->nonce})" );
+        if ($auth_nonce !== $object->nonce) {
+            throw new IdTokenException("Not match nonce.", "The nonce did not match.($auth_nonce, $object->nonce)");
+        }
 
         // Is aud equal to the client_id (Application ID) ?  if ( $client_id != $object->aud )
-        if ( !in_array($client_id, $object->aud) )
-            throw new IdTokenException( "Invalid audience.", "No client id exists in aud.({$object->aud[0]})" );
+        if (!in_array($client_id, $object->aud)) {
+            throw new IdTokenException("Invalid audience.", "No client id exists in aud.({$object->aud[0]})");
+        }
 
         if (isset($object->at_hash)) {
             $hash = self::generateHash($access_token);
-            if ($hash !== $object->at_hash )
-                throw new IdTokenException( "Invalid at_hash.", "The at_hash did not match.({$object->at_hash})" );
+            if ($hash !== $object->at_hash) {
+                throw new IdTokenException("Invalid at_hash.", "The at_hash did not match.($object->at_hash)");
+            }
         }
 
-        // Is corrent time less than exp ?
-        if ( time() > $object->exp )
-            throw new IdTokenException( "Expired ID Token.", "Re-issue Id Token.({$object->exp})" );
+        // Is current time less than exp ?
+        if (time() > $object->exp) {
+            throw new IdTokenException("Expired ID Token.", "Re-issue Id Token.($object->exp)");
+        }
 
-        Logger::debug( "current time: " . time() . ", exp: {$object->exp}(" . get_class() . "::" . __FUNCTION__ . ")" );
+        Logger::debug("current time: " . time() . ", exp: $object->exp(" . get_class() . "::" . __FUNCTION__ . ")");
 
         // prevent attacks
         $time_diff = time() - $object->iat;
-        if ( $time_diff > $acceptable_range )
-            throw new IdTokenException( "Over acceptable range.", "This access has expired possible.({$time_diff} sec)" );
+        if ($time_diff > $acceptable_range) {
+            throw new IdTokenException("Over acceptable range.", "This access has expired possible.($time_diff sec)");
+        }
 
-        Logger::debug( "current time - iat = {$time_diff}, current time: " . time() .
-            ", iat: {$object->iat}(" . get_class() . "::" . __FUNCTION__ . ")" );
+        Logger::debug("current time - iat = $time_diff, current time: " . time() .
+            ", iat: $object->iat(" . get_class() . "::" . __FUNCTION__ . ")");
 
         return true;
     }
@@ -177,11 +184,12 @@ class IdToken
      *
      * @param object ペイロードのオブジェクト
      */
-    private function _checkFormat($obj)
+    private function checkFormat($obj)
     {
-        foreach ( $this->required_keys as $rkey ) {
-            if ( ! property_exists($obj, $rkey) )
-                throw new \UnexpectedValueException('Not a valid IdToken format');
+        foreach ($this->required_keys as $required_key) {
+            if (!property_exists($obj, $required_key)) {
+                throw new UnexpectedValueException('Not a valid IdToken format');
+            }
         }
     }
 
@@ -198,5 +206,4 @@ class IdToken
         $halfOfHash = substr($hash, 0, $length);
         return str_replace('=', '', strtr(base64_encode($halfOfHash), '+/', '-_'));
     }
-
 }

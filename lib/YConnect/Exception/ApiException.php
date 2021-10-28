@@ -60,7 +60,7 @@ class ApiException extends Exception
      */
     public function invalidToken()
     {
-        if( preg_match( "/invalid_token/", $this->message ) ) {
+        if (preg_match("/invalid_token/", $this->message)) {
             return true;
         } else {
             return false;
@@ -74,7 +74,7 @@ class ApiException extends Exception
      */
     public function invalidRequest()
     {
-        if( preg_match( "/invalid_request/", $this->message ) ) {
+        if (preg_match("/invalid_request/", $this->message)) {
             return true;
         } else {
             return false;
@@ -86,7 +86,6 @@ class ApiException extends Exception
      */
     public function __toString()
     {
-        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
-        return $str;
+        return __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
     }
 }

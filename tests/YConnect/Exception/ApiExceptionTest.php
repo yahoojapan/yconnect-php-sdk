@@ -25,8 +25,9 @@
 
 namespace YConnect\Exception;
 
+use PHPUnit_Framework_TestCase;
 
-class ApiExceptionTest extends \PHPUnit_Framework_TestCase
+class ApiExceptionTest extends PHPUnit_Framework_TestCase
 {
     private static $INVALID_TOKEN = "invalid_token";
     private static $INVALID_REQUEST = "invalid_request";
@@ -34,7 +35,8 @@ class ApiExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidTokenReturnsTrue() {
+    public function testInvalidTokenReturnsTrue()
+    {
         $exception = new ApiException(self::$INVALID_TOKEN);
 
         $this->assertTrue($exception->invalidToken());
@@ -43,7 +45,8 @@ class ApiExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidTokenReturnsFalse() {
+    public function testInvalidTokenReturnsFalse()
+    {
         $exception = new ApiException(self::$INVALID_REQUEST);
 
         $this->assertFalse($exception->invalidToken());
@@ -52,7 +55,8 @@ class ApiExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidRequestReturnsTrue() {
+    public function testInvalidRequestReturnsTrue()
+    {
         $exception = new ApiException(self::$INVALID_REQUEST);
 
         $this->assertTrue($exception->invalidRequest());
@@ -61,7 +65,8 @@ class ApiExceptionTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testInvalidRequestReturnsFalse() {
+    public function testInvalidRequestReturnsFalse()
+    {
         $exception = new ApiException(self::$INVALID_TOKEN);
 
         $this->assertFalse($exception->invalidRequest());
