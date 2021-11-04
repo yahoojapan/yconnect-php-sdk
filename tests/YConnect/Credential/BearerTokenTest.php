@@ -2,7 +2,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (C) 2015 Yahoo Japan Corporation. All Rights Reserved.
+ * Copyright (C) 2021 Yahoo Japan Corporation. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,49 @@
  * THE SOFTWARE.
  */
 
-namespace YConnect\Constant;
+namespace YConnect\Credential;
 
-/**
- * ResponseTypeクラス
- *
- * response_typeの列挙型クラスです.
- */
-class ResponseType
+use PHPUnit_Framework_TestCase;
+
+class BearerTokenTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * code
+     * @test
      */
-    const CODE = "code";
+    public function testToAuthorizationHeader()
+    {
+        $access_token = "sample_access_token";
+        $exp = 1635638400;
+
+        $token = new BearerToken($access_token, $exp);
+
+        $this->assertSame($access_token, $token->toAuthorizationHeader());
+    }
+
+    /**
+     * @test
+     */
+    public function testToQueryString()
+    {
+        $access_token = "sample~access~token";
+        $exp = 1635638400;
+
+        $token = new BearerToken($access_token, $exp);
+
+        $expect = "access_token=sample%7Eaccess%7Etoken";
+        $this->assertSame($expect, $token->toQueryString());
+    }
+
+    /**
+     * @test
+     */
+    public function testGetExpiration()
+    {
+        $access_token = "sample_access_token";
+        $exp = 1635638400;
+
+        $token = new BearerToken($access_token, $exp);
+
+        $this->assertSame($exp, $token->getExpiration());
+    }
 }

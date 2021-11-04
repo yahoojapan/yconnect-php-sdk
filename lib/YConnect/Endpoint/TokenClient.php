@@ -23,44 +23,46 @@
  * THE SOFTWARE.
  */
 
-/** \file TokenClient.php
- *
- * \brief OAuth2 Token処理クラスです.
- */
-
 namespace YConnect\Endpoint;
 
+use Exception;
+use YConnect\Credential\ClientCredential;
+use YConnect\Exception\TokenException;
 use YConnect\Util\HttpClient;
+use YConnect\Util\Logger;
 
 /**
- * \class TokenClientクラス
+ * TokenClientクラス
  *
- * \brief Tokenリクエストの機能を実装したクラスです.
+ * Tokenリクエストの機能を実装したクラスです.
  */
 class TokenClient
 {
     /**
-     * \private \brief エンドポイントURL
+     * @var string エンドポイントURL
      */
-    private $url = null;
+    private $url;
 
     /**
-     * \private \brief パラメータ
+     * @var array<string, string|int> パラメータ
      */
     private $params = array();
 
     /**
-     * \private \brief レスポンスボディ
+     * @var string|null レスポンスボディ
      */
     private $res_body = null;
 
     /**
-     * \private \brief クレデンシャルの文字列
+     * @var ClientCredential|null 認証情報
      */
     protected $cred = null;
 
     /**
-     * \brief TokenClientのインスタンス生成
+     * TokenClientのインスタンス生成
+     *
+     * @param string $endpoint_url エンドポイントURL
+     * @param ClientCredential $client_credential 認証情報
      */
     public function __construct($endpoint_url, $client_credential)
     {
@@ -69,26 +71,29 @@ class TokenClient
     }
 
     /**
-     * \brief Tokenエンドポイントリソース取得メソッド
+     * Tokenエンドポイントリソース取得メソッド
+     *
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function fetchToken()
     {
-        $httpClient = new HttpClient();
-        $httpClient->setHeader( array(
+        $httpClient = $this->getHttpClient();
+        $httpClient->setHeader(array(
             "Expect:", // POST HTTP 100-continue 無効
             "Authorization: Basic " . $this->cred->toAuthorizationHeader()
         ));
-        $httpClient->requestPost( $this->url, $this->params );
+        $httpClient->requestPost($this->url, $this->params);
         $this->res_body = $httpClient->getResponseBody();
     }
 
     /**
-     * \brief レスポンス取得メソッド
-     * @return	レスポンス
+     * レスポンス取得メソッド
+     *
+     * @return string|null レスポンス
      */
     public function getResponse()
     {
-        if( $this->res_body != null ) {
+        if ($this->res_body != null) {
             return $this->res_body;
         } else {
             return false;
@@ -96,24 +101,24 @@ class TokenClient
     }
 
     /**
-     * \brief 複数パラメータ設定メソッド
+     * 複数パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$keyval_array	パラメータ名と値の連想配列
+     * @param array<string, string|int> $key_val_array パラメータ名と値の連想配列
      */
-    public function setParams($keyval_array)
+    public function setParams($key_val_array)
     {
-        $this->params = array_merge( $this->params, $keyval_array );
+        $this->params = array_merge($this->params, $key_val_array);
     }
 
     /**
-     * \brief パラメータ設定メソッド
+     * パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$key	パラメータ名
-     * @param	$val	値
+     * @param string $key パラメータ名
+     * @param string|int $val 値
      */
     public function setParam($key, $val)
     {
@@ -121,10 +126,44 @@ class TokenClient
     }
 
     /**
-     * \brief エンドポイントURL設定メソッド
-     * @param	$endpoint_url	エンドポイントURL
+     * エンドポイントURL設定メソッド
+     *
+     * @param string $endpoint_url エンドポイントURL
      */
-    protected function _setEndpointUrl($endpoint_url)
+    protected function setEndpointUrl($endpoint_url)
     {
+        $this->url = $endpoint_url;
+    }
+
+    /**
+     * レスポンスにエラーが含まれていないか確認
+     *
+     * @param array<string, string|int> $response 検査するレスポンス配列
+     * @throws TokenException レスポンスにエラーが含まれているときに発生
+     */
+    protected function checkErrorResponse($response)
+    {
+        if (!$response) {
+            Logger::error("no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body");
+            throw new TokenException("no_response", "Failed to get the response body");
+        }
+
+        if (isset($response["error"])) {
+            $error      = $response["error"];
+            $error_desc = $response["error_description"];
+            $error_code = $response["error_code"];
+            Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
+            throw new TokenException($error, $error_desc, $error_code);
+        }
+    }
+
+    /**
+     * HTTPクライアント取得メソッド
+     *
+     * @return HttpClient
+     */
+    protected function getHttpClient()
+    {
+        return new HttpClient();
     }
 }

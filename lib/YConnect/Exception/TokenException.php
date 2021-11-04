@@ -23,48 +23,51 @@
  * THE SOFTWARE.
  */
 
-/** \file TokenException.php
- *
- * \brief Token サーバ例外処理クラスを定義しています.
- */
-
 namespace YConnect\Exception;
 
+use Exception;
+
 /**
- * \class TokenExceptionクラス
- *
- * \brief Token サーバ例外処理クラスです.
+ * TokenExceptionクラス
  *
  * Token サーバ例外処理クラスです.
  */
-class TokenException extends \Exception
+class TokenException extends Exception
 {
     /**
-     * \brief エラー詳細
+     * @var string|null エラー詳細
      */
     public $error_detail = null;
 
     /**
-     * \brief インスタンス生成
-     *
-     * @param	$error	エラー概要
-     * @param	$error_desc	エラー詳細
-     * @param	$code
+     * @var int エラーコード
      */
-    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
+    public $error_code;
+
+    /**
+     * インスタンス生成
+     *
+     * @param string $error エラー概要
+     * @param string $error_detail エラー詳細
+     * @param int $error_code エラーコード
+     * @param int $code
+     * @param Exception|null $previous
+     */
+    public function __construct($error, $error_detail = "", $error_code = 0, $code = 0, Exception $previous = null)
     {
         parent::__construct($error, $code, $previous);
         $this->error_detail = $error_detail;
+        $this->error_code = $error_code;
     }
 
     /**
-     * \brief リダイレクトURIエラー確認メソッド
+     * リダイレクトURIエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool リダイレクトURIエラーならtrue, そうでなければfalse
      */
     public function invalidRedirectUri()
     {
-        if( preg_match( "/invalid_redirect_uri/", $this->message ) ) {
+        if (preg_match("/invalid_redirect_uri/", $this->message)) {
             return true;
         } else {
             return false;
@@ -72,13 +75,13 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief クライアント認証URIエラー確認メソッド
+     * クライアント認証URIエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool クライアント認証URIエラーならtrue, そうでなければfalse
      */
     public function invalidClient()
     {
-        if( preg_match( "/invalid_client/", $this->message ) ) {
+        if (preg_match("/invalid_client/", $this->message)) {
             return true;
         } else {
             return false;
@@ -86,13 +89,13 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief scopeエラー確認メソッド
+     * スコープエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool スコープエラーならtrue, そうでなければfalse
      */
     public function invalidScope()
     {
-        if( preg_match( "/invalid_scope/", $this->message ) ) {
+        if (preg_match("/invalid_scope/", $this->message)) {
             return true;
         } else {
             return false;
@@ -100,13 +103,13 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief Refresh Token有効期限切れ確認メソッド
+     * リフレッシュトークン有効期限切れ確認メソッド
      *
-     * @return	true or false
+     * @return bool リフレッシュトークン有効期限切れならtrue, そうでなければfalse
      */
     public function invalidGrant()
     {
-        if( preg_match( "/invalid_grant/", $this->message ) ) {
+        if (preg_match("/invalid_grant/", $this->message)) {
             return true;
         } else {
             return false;
@@ -114,13 +117,13 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief Access Token有効期限切れ確認メソッド
+     * アクセストークン有効期限切れ確認メソッド
      *
-     * @return	true or false
+     * @return bool アクセストークン有効期限切れならtrue, そうでなければfalse
      */
     public function tokenExpired()
     {
-        if( preg_match( "/invalid_token/", $this->message ) ) {
+        if (preg_match("/invalid_token/", $this->message)) {
             return true;
         } else {
             return false;
@@ -128,13 +131,13 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief 無効なToken確認メソッド
+     * 無効なトークン確認メソッド
      *
-     * @return	true or false
+     * @return bool 無効なトークンならtrue, そうでなければfalse
      */
     public function invalidToken()
     {
-        if( preg_match( "/invalid_token/", $this->message ) ) {
+        if (preg_match("/invalid_token/", $this->message)) {
             return true;
         } else {
             return false;
@@ -142,13 +145,13 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief パラメータ関連エラー確認メソッド
+     * パラメータ関連エラー確認メソッド
      *
-     * @return	true or false
+     * @return bool パラメータ関連エラーならtrue, そうでなければfalse
      */
     public function invalidRequest()
     {
-        if( preg_match( "/invalid_request/", $this->message ) ) {
+        if (preg_match("/invalid_request/", $this->message)) {
             return true;
         } else {
             return false;
@@ -156,13 +159,13 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief 認可タイプエラー確認メソッド
+     * 認可タイプエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool 認可タイプエラーならtrue, そうでなければfalse
      */
     public function unsupportedGrantType()
     {
-        if( preg_match( "/unsupported_grant_type/", $this->message ) ) {
+        if (preg_match("/unsupported_grant_type/", $this->message)) {
             return true;
         } else {
             return false;
@@ -170,13 +173,13 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief HTTPSエラー確認メソッド
+     * HTTPSエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool HTTPSエラーならtrue, そうでなければfalse
      */
     public function accessDenied()
     {
-        if( preg_match( "/access_denied/", $this->message ) ) {
+        if (preg_match("/access_denied/", $this->message)) {
             return true;
         } else {
             return false;
@@ -184,22 +187,24 @@ class TokenException extends \Exception
     }
 
     /**
-     * \brief サーバーエラー確認メソッド
+     * サーバーエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool サーバーエラーならtrue, そうでなければfalse
      */
     public function serverError()
     {
-        if( preg_match( "/server_error/", $this->message ) ) {
+        if (preg_match("/server_error/", $this->message)) {
             return true;
         } else {
             return false;
         }
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
-        return $str;
+        return __CLASS__ . ": " . $this->message . " ( $this->error_detail )[ $this->error_code ]";
     }
 }

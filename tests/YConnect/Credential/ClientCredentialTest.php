@@ -2,7 +2,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (C) 2015 Yahoo Japan Corporation. All Rights Reserved.
+ * Copyright (C) 2021 Yahoo Japan Corporation. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,37 @@
  * THE SOFTWARE.
  */
 
-namespace YConnect\Constant;
+namespace YConnect\Credential;
 
-/**
- * ResponseTypeクラス
- *
- * response_typeの列挙型クラスです.
- */
-class ResponseType
+use PHPUnit_Framework_TestCase;
+
+class ClientCredentialTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * code
+     * @test
      */
-    const CODE = "code";
+    public function testToAuthorizationHeader()
+    {
+        $client_id = "sample_client_id";
+        $client_secret = "sample_client_secret";
+
+        $credential = new ClientCredential($client_id, $client_secret);
+
+        $expect = "c2FtcGxlX2NsaWVudF9pZDpzYW1wbGVfY2xpZW50X3NlY3JldA==";
+        $this->assertSame($expect, $credential->toAuthorizationHeader());
+    }
+
+    /**
+     * @test
+     */
+    public function testToQueryString()
+    {
+        $client_id = "sample~client~id";
+        $client_secret = "sample~client~secret";
+
+        $credential = new ClientCredential($client_id, $client_secret);
+
+        $expect = "client_id=sample%7Eclient%7Eid&client_secret=sample%7Eclient%7Esecret";
+        $this->assertSame($expect, $credential->toQueryString());
+    }
 }

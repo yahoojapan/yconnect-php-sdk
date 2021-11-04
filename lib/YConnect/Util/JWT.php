@@ -25,111 +25,115 @@
 
 namespace YConnect\Util;
 
-/** \file YConnectJWT.php
- *
- * \brief JSON Web Token (JWT) for YConnect
- */
+use UnexpectedValueException;
+use YConnect\Credential\PublicKeys;
 
+/**
+ * JWTクラス
+ *
+ * JSON Web Token (JWT)に関する操作を提供するクラスです.
+ */
 class JWT
 {
     /**
-     * @param string $jwt token
-     * @param string $key secret key
+     * IDトークンをデコード
      *
-     * @return object The JWT's payload
+     * @param string $jwt JWT形式のIDトークン
+     * @param PublicKeys $public_keys 公開鍵リスト
+     *
+     * @return object JWTのペイロード部のオブジェクト
      */
-    public static function getDecodedToken($jwt, $key)
+    public static function getDecodedToken($jwt, $public_keys)
     {
         $part = explode('.', $jwt);
-        if(!is_array($part) || empty($part) || count($part) !== 3 ){
-            throw new \UnexpectedValueException('invalid jwt format');
+        if (!is_array($part) || empty($part) || count($part) !== 3) {
+            throw new UnexpectedValueException('invalid jwt format');
         }
         list($b64header, $b64payload, $b64sig) = $part;
+        $header    = self::jsonDecode(self::urlDecode($b64header));
         $payload   = self::jsonDecode(self::urlDecode($b64payload));
         $signature = self::urlDecode($b64sig);
 
-        // verify sig
-        if ($signature != hash_hmac('sha256', "$b64header.$b64payload", $key, true)) {
-            throw new \UnexpectedValueException('invalid jwt signature');
+        if (!isset($header->kid)) {
+            throw new UnexpectedValueException('header does not have kid parameter');
         }
+        if (!$public_keys->getPublicKey($header->kid)) {
+            throw new UnexpectedValueException('public key for kid not found');
+        }
+
+        // verify sig
+        $public_key = $public_keys->getPublicKey($header->kid);
+        if (!self::verifySignature($b64header, $b64payload, $signature, $public_key)) {
+            throw new UnexpectedValueException('invalid jwt signature');
+        }
+
         return $payload;
     }
 
     /**
-     * @param object|array $payload
-     * @param string       $key     secret key
+     * 文字列をbase64URLデコード
      *
-     * @return string JWT
-     */
-    public static function getEncodedToken($payload, $key)
-    {
-        // support only JWT typ and HS256 algorithm
-        $header = array('typ' => 'JWT', 'alg' => 'HS256');
-
-        $token  = self::urlEncode(self::jsonEncode($header)).".";
-        $token .= self::urlEncode(self::jsonEncode($payload));
-        $signature = hash_hmac('sha256', $token, $key, true);
-        $token .= ".".self::urlEncode($signature);
-
-        return $token;
-    }
-
-    /**
-     * @param string base64 encoded
-     *
-     * @return decoded string
+     * @param string base64URLエンコードされた文字列
+     * @return string base64URLデコードされた文字列
      */
     public static function urlDecode($str)
     {
-        $dstr = strtr($str, '-_', '+/');
+        $decoded_str = strtr($str, '-_', '+/');
         // padding =
-        $paddinglen = (4 - (strlen($dstr) % 4));
-        if ($paddinglen) {
-            $dstr .= str_repeat('=', $paddinglen);
+        $padding_length = (4 - (strlen($decoded_str) % 4));
+        if ($padding_length) {
+            $decoded_str .= str_repeat('=', $padding_length);
         }
-        return base64_decode($dstr);
-
+        return base64_decode($decoded_str);
     }
 
     /**
-     * @param string
+     * JSON文字列をオブジェクトに変換
      *
-     * @return string base64 encoded
-     */
-    public static function urlEncode($str)
-    {
-        return str_replace('=', '', strtr(base64_encode($str), '+/', '-_'));
-    }
-
-    /**
-     * @param string $data JSON
-     *
-     * @return object Object representation of JSON string
+     * @param string $data JSON文字列
+     * @return object JSON文字列からデコードしたオブジェクト
      */
     public static function jsonDecode($data)
     {
         $obj = json_decode($data);
         if (function_exists('json_last_error') && $errno = json_last_error()) {
-            throw new \UnexpectedValueException("JSON decode error: $errno");
+            throw new UnexpectedValueException("JSON decode error: $errno");
         } elseif ($obj === 'null') {
-            throw new \UnexpectedValueException('Failed to json_decode');
+            throw new UnexpectedValueException('Failed to json_decode');
         }
         return $obj;
     }
 
     /**
-     * @param object|array $data
+     * JWTのシグネチャを検証
      *
-     * @return string JSON representation of the PHP object or array
+     * @param string $b64header JWTのヘッダ部(base64URLエンコード)
+     * @param string $b64payload JWTのペイロード部(base64URLエンコード)
+     * @param string $signature JWTのシグネチャ部(base64URLデコード済)
+     * @param string $publicKey 公開鍵
+     *
+     * @return bool 検証が成功すればtrue, そうでなければfalse
      */
-    public static function jsonEncode($data)
+    private static function verifySignature($b64header, $b64payload, $signature, $publicKey)
     {
-        $json = json_encode($data);
-        if (function_exists('json_last_error') && $errno = json_last_error()) {
-            throw new \UnexpectedValueException("JSON encode error: $errno");
-        } elseif ($json === 'null') {
-            throw new \UnexpectedValueException('Failed to json_encode');
+        $data = $b64header . '.' . $b64payload;
+        $publicKeyId = openssl_pkey_get_public($publicKey);
+        if (!$publicKeyId) {
+            // failed to get public key resource
+            return false;
         }
-        return $json;
+        $result = openssl_verify($data, $signature, $publicKeyId, 'RSA-SHA256');
+
+        // PHP 8.0.0 以降は自動でリソースが開放されるため非推奨になった
+        // PHP 8.0.0 未満は開放が必要なため呼び出す
+        if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+            openssl_free_key($publicKeyId);
+        }
+
+        if ($result !== 1) {
+            // invalid signature
+            return false;
+        }
+        return true;
     }
 }

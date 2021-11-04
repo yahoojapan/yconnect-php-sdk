@@ -25,46 +25,47 @@
 
 namespace YConnect\Endpoint;
 
-use YConnect\Endpoint\TokenClient;
+use Exception;
 use YConnect\Constant\GrantType;
-use YConnect\Util\Logger;
 use YConnect\Credential\BearerToken;
+use YConnect\Credential\ClientCredential;
 use YConnect\Exception\TokenException;
-
-/** \file RefreshTokenClient.php
- *
- * \brief Refresh Token フローの機能を実装しています.
- */
+use YConnect\Util\Logger;
 
 /**
- * \class RefreshTokenClientクラス
+ * RefreshTokenClientクラス
  *
- * \brief Refresh Token フローの機能を実装したクラスです.
+ * Refresh Token フローの機能を実装したクラスです.
  */
 class RefreshTokenClient extends TokenClient
 {
     /**
-     * \private \brief Refresh Token
+     * @var string リフレッシュトークン
      */
-    private $refresh_token = null;
+    private $refresh_token;
 
     /**
-     * \private \brief Access Token
+     * @var BearerToken|null アクセストークン
      */
     private $access_token = null;
 
     /**
-     * \brief RefreshTokenClientのインスタンス生成
+     * RefreshTokenClientのインスタンス生成
+     *
+     * @param string $endpoint_uri エンドポイントURI
+     * @param ClientCredential $client_credential 認証情報
+     * @param string $refresh_token リフレッシュトークン
      */
     public function __construct($endpoint_uri, $client_credential, $refresh_token)
     {
-        parent::__construct( $endpoint_uri, $client_credential );
+        parent::__construct($endpoint_uri, $client_credential);
         $this->refresh_token = $refresh_token;
     }
 
     /**
-     * \brief Refresh Token設定メソッド
-     * @param	$refresh_token	Refresh Token
+     * Refresh Token設定メソッド
+     *
+     * @param string $refresh_token リフレッシュトークン
      */
     public function setRefreshToken($refresh_token)
     {
@@ -72,11 +73,13 @@ class RefreshTokenClient extends TokenClient
     }
 
     /**
-     * \brief Access Token取得メソッド
+     * アクセストークン取得メソッド
+     *
+     * @return BearerToken|false アクセストークン
      */
     public function getAccessToken()
     {
-        if( $this->access_token != null ) {
+        if ($this->access_token != null) {
             return $this->access_token;
         } else {
             return false;
@@ -84,50 +87,56 @@ class RefreshTokenClient extends TokenClient
     }
 
     /**
-     * \brief Tokenエンドポイントリソース取得メソッド
+     * Tokenエンドポイントリソース取得メソッド
+     *
+     * @throws TokenException レスポンスにエラーを含むときに発生
+     * @throws Exception HTTPリクエストに失敗したときに発生
      */
     public function fetchToken()
     {
-        parent::setParam( "grant_type", GrantType::REFRESH_TOKEN );
-        parent::setParam( "refresh_token", $this->refresh_token );
+        parent::setParam("grant_type", GrantType::REFRESH_TOKEN);
+        parent::setParam("refresh_token", $this->refresh_token);
 
         parent::fetchToken();
 
         $res_body = parent::getResponse();
 
-        // JSONパラメータ抽出処理
-        $json_response = json_decode( $res_body, true );
-        Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
-        if( $json_response != null ) {
-            if( empty( $json_response["error"] ) ) {
-                $access_token  = $json_response["access_token"];
-                $exp           = $json_response["expires_in"];
-                $this->access_token = new BearerToken( $access_token, $exp );
-            } else {
-                $error      = $json_response["error"];
-                $error_desc = $json_response["error_description"];
-                Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
-                throw new TokenException( $error, $error_desc );
-            }
-        } else {
-            Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
-            throw new TokenException( "no_response", "Failed to get the response body" );
-        }
+        $this->parseJson($res_body);
 
-        Logger::debug( "refresh token response(" . get_class() . "::" . __FUNCTION__ . ")",
+        Logger::debug(
+            "refresh token response(" . get_class() . "::" . __FUNCTION__ . ")",
             array(
                 $this->access_token,
             )
         );
-        Logger::info( "got access and refresh token(" . get_class() . "::" . __FUNCTION__ . ")" );
+        Logger::info("got access and refresh token(" . get_class() . "::" . __FUNCTION__ . ")");
     }
 
     /**
-     * \brief エンドポイントURL設定メソッド
-     * @param	$endpoint_url	エンドポイントURL
+     * エンドポイントURL設定メソッド
+     *
+     * @param string $endpoint_url エンドポイントURL
      */
-    protected function _setEndpointUrl($endpoint_url)
+    protected function setEndpointUrl($endpoint_url)
     {
-        $this->url = $endpoint_url;
+        parent::setEndpointUrl($endpoint_url);
+    }
+
+    /**
+     * JSONパラメータ抽出処理
+     *
+     * @param string $json パースするJSON
+     * @throws TokenException レスポンスにエラーを含むときに発生
+     */
+    private function parseJson($json)
+    {
+        $json_response = json_decode($json, true);
+        Logger::debug("json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response);
+
+        $this->checkErrorResponse($json_response);
+
+        $access_token = $json_response["access_token"];
+        $exp = $json_response["expires_in"];
+        $this->access_token = new BearerToken($access_token, $exp);
     }
 }

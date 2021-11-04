@@ -23,44 +23,41 @@
  * THE SOFTWARE.
  */
 
-/** \file IdTokenException.php
- *
- * \brief IDトークン例外処理クラスを定義しています.
- */
-
 namespace YConnect\Exception;
 
+use Exception;
+
 /**
- * \class IdTokenExceptionクラス
- *
- * \brief IDトークン例外処理クラスです.
+ * IdTokenExceptionクラス
  *
  * IDトークン例外処理クラスです.
  */
-class IdTokenException extends \Exception
+class IdTokenException extends Exception
 {
     /**
-     * \brief エラー詳細
+     * @var string|null エラー詳細
      */
     public $error_detail = null;
 
     /**
-     * \brief インスタンス生成
+     * インスタンス生成
      *
-     * @param	$error	        エラー概要
-     * @param	$error_detail	エラー詳細
-     * @param	$code
-     * @param   $previous
+     * @param string $error エラー概要
+     * @param string $error_detail エラー詳細
+     * @param int $code エラーコード
+     * @param Exception|null $previous
      */
-    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
+    public function __construct($error, $error_detail = "", $code = 0, Exception $previous = null)
     {
         parent::__construct($error, $code, $previous);
         $this->error_detail = $error_detail;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        $str = __CLASS__ . ": " . $this->message . "( $this->error_detail )";
-        return $str;
+        return __CLASS__ . ": " . $this->message . "( $this->error_detail )";
     }
 }

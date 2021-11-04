@@ -23,37 +23,31 @@
  * THE SOFTWARE.
  */
 
-/** \file BearerToken.php
- *
- * \brief Bearer Tokenを保持するクラスを定義しています.
- */
-
 namespace YConnect\Credential;
 
 /**
- * \class BearerTokenクラス
+ * BearerTokenクラス
  *
- * \brief Bearer Tokenを保持するクラスです.
- *
- * APIアクセスで用いられるBearer Tokenのクラスです.
+ * APIアクセスで用いられるBearer Tokenを保持するクラスです.
  */
 class BearerToken
 {
+
     /**
-     * \private \brief access_token
+     * @var string|null アクセストークン
      */
     public $token = null;
 
     /**
-     * \private \brief expiration
+     * @var int|null アクセストークンの有効期間
      */
     public $exp = null;
 
     /**
-     * \brief BearerTokenインスタンス生成
+     * BearerTokenインスタンス生成
      *
-     * @param	$access_token	Access Token
-     * @param	$expiration	expiration
+     * @param string $access_token アクセストークン
+     * @param int $expiration アクセストークンの有効期間
      */
     public function __construct($access_token, $expiration)
     {
@@ -62,7 +56,9 @@ class BearerToken
     }
 
     /**
-     * \brief toString
+     * toString
+     *
+     * @return string
      */
     public function __toString()
     {
@@ -70,7 +66,9 @@ class BearerToken
     }
 
     /**
-     * \brief Authorization Header形式トークン取得メソッド
+     * Authorization Header形式トークン取得メソッド
+     *
+     * @return string Authorization Header形式のアクセストークン
      */
     public function toAuthorizationHeader()
     {
@@ -78,21 +76,23 @@ class BearerToken
     }
 
     /**
-     * \brief クエリ形式トークン取得メソッド
+     * クエリ形式トークン取得メソッド
+     *
+     * @return string クエリ形式のアクセストークン
      */
     public function toQueryString()
     {
-        $query = http_build_query(
+        return http_build_query(
             array(
                 "access_token" => $this->token
             )
         );
-
-        return $query;
     }
 
     /**
-     * \brief Access Token有効期限取得メソッド
+     * アクセストークンの有効期限取得メソッド
+     *
+     * @return int アクセストークンの有効期限
      */
     public function getExpiration()
     {

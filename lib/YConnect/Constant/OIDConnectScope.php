@@ -23,36 +23,32 @@
  * THE SOFTWARE.
  */
 
-/** \file OIDConnectScope.php
- *
- * \brief scopeの列挙型クラスです.
- */
 namespace YConnect\Constant;
 
 /**
- * \class OIDConnectScopeクラス
+ * OIDConnectScopeクラス
  *
- * \brief scopeの列挙型クラスです.
+ * scopeの列挙型クラスです.
  */
 class OIDConnectScope
 {
     /**
-     * \public \brief openid: ユーザ識別子を取得するための定数です
+     * openid: ユーザ識別子を取得するための定数です
      */
     const OPENID = "openid";
 
     /**
-     * \public \brief profile: 姓名・生年・性別を取得するための定数です
+     * profile: 姓名・生年・性別を取得するための定数です
      */
     const PROFILE = "profile";
 
     /**
-     * \public \brief email: メールアドレスと確認済みフラグを取得するための定数です
+     * email: メールアドレスと確認済みフラグを取得するための定数です
      */
     const EMAIL = "email";
 
     /**
-     * \public \brief address: ユーザ登録住所情報を取得するための定数です
+     * address: ユーザ登録住所情報を取得するための定数です
      */
     const ADDRESS = "address";
 }

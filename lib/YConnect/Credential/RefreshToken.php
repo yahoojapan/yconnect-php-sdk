@@ -23,31 +23,24 @@
  * THE SOFTWARE.
  */
 
-/** \file RefreshToken.php
- *
- * \brief Refresh Tokenを保持するクラスを定義しています.
- */
-
 namespace YConnect\Credential;
 
 /**
- * \class RefreshTokenクラス
+ * RefreshTokenクラス
  *
- * \brief Refresh Tokenを保持するクラスです.
- *
- * Access Tokenの更新で用いられるRefresh Tokenのクラスです.
+ * Access Tokenの更新で用いられるRefresh Tokenを保持するクラスです.
  */
 class RefreshToken
 {
     /**
-     * \private \brief refresh_token
+     * @var string リフレッシュトークン
      */
     public $token = null;
 
     /**
-     * \brief RefreshTokenのインスタンス生成
+     * RefreshTokenのインスタンス生成
      *
-     * @param	$refresh_token	Refresh Token
+     * @param string $refresh_token リフレッシュトークン文字列
      */
     public function __construct($refresh_token)
     {
@@ -55,7 +48,9 @@ class RefreshToken
     }
 
     /**
-     * \brief toString
+     * toString
+     *
+     * @return string
      */
     public function __toString()
     {
@@ -63,7 +58,9 @@ class RefreshToken
     }
 
     /**
-     * \brief Authorization Header形式トークン取得メソッド
+     * Authorization Header形式トークン取得メソッド
+     *
+     * @return string Authorization Header形式のトークン
      */
     public function toAuthorizationHeader()
     {
@@ -71,16 +68,16 @@ class RefreshToken
     }
 
     /**
-     * \brief クエリ形式トークン取得メソッド
+     * クエリ形式トークン取得メソッド
+     *
+     * @return string クエリ形式のトークン
      */
     public function toQueryString()
     {
-        $query = http_build_query(
+        return http_build_query(
             array(
                 "refresh_token" => $this->token
             )
         );
-
-        return $query;
     }
 }

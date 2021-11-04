@@ -23,48 +23,44 @@
  * THE SOFTWARE.
  */
 
-/** \file ApiException.php
- *
- * \brief Web API例外処理クラスを定義しています.
- */
-
 namespace YConnect\Exception;
 
+use Exception;
+
 /**
- * \class ApiExceptionクラス
- *
- * \brief Web API例外処理クラスです.
+ * ApiExceptionクラス
  *
  * Web API例外処理クラスです.
  */
-class ApiException extends \Exception
+class ApiException extends Exception
 {
     /**
-     * \brief エラー詳細
+     * @var string|null エラー詳細
      */
     public $error_detail = null;
 
     /**
-     * \brief インスタンス生成
+     * インスタンス生成
      *
-     * @param	$error	エラー概要
-     * @param	$error_detail	エラー詳細
-     * @param	$code
+     * @param string $error エラー概要
+     * @param string $error_detail エラー詳細
+     * @param int $code エラーコード
+     * @param Exception|null $previous
      */
-    public function __construct($error, $error_detail = "", $code = 0, \Exception $previous = null)
+    public function __construct($error, $error_detail = "", $code = 0, Exception $previous = null)
     {
         parent::__construct($error, $code, $previous);
         $this->error_detail = $error_detail;
     }
 
     /**
-     * \brief 無効なアクセストークンエラー確認メソッド
+     * 無効なアクセストークンエラー確認メソッド
      *
-     * @return	true or false
+     * @return bool 無効なアクセストークンエラーならtrue, そうでなければfalse
      */
     public function invalidToken()
     {
-        if( preg_match( "/invalid_token/", $this->message ) ) {
+        if (preg_match("/invalid_token/", $this->message)) {
             return true;
         } else {
             return false;
@@ -72,22 +68,24 @@ class ApiException extends \Exception
     }
 
     /**
-     * \brief パラメータ関連エラー確認メソッド
+     * パラメータ関連エラー確認メソッド
      *
-     * @return	true or false
+     * @return bool 無効なリクエストパラメータエラーならtrue, そうでなければfalse
      */
     public function invalidRequest()
     {
-        if( preg_match( "/invalid_request/", $this->message ) ) {
+        if (preg_match("/invalid_request/", $this->message)) {
             return true;
         } else {
             return false;
         }
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        $str = __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
-        return $str;
+        return __CLASS__ . ": " . $this->message . " ( $this->error_detail )";
     }
 }

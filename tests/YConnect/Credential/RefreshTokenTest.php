@@ -2,7 +2,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (C) 2015 Yahoo Japan Corporation. All Rights Reserved.
+ * Copyright (C) 2021 Yahoo Japan Corporation. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,34 @@
  * THE SOFTWARE.
  */
 
-namespace YConnect\Constant;
+namespace YConnect\Credential;
 
-/**
- * ResponseTypeクラス
- *
- * response_typeの列挙型クラスです.
- */
-class ResponseType
+use PHPUnit_Framework_TestCase;
+
+class RefreshTokenTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * code
+     * @test
      */
-    const CODE = "code";
+    public function testToAuthorizationHeader()
+    {
+        $refresh_token = "sample_refresh_token";
+
+        $token = new RefreshToken($refresh_token);
+
+        $this->assertSame($refresh_token, $token->toAuthorizationHeader());
+    }
+
+    /**
+     * @test
+     */
+    public function testToQueryString()
+    {
+        $refresh_token = "sample~refresh~token";
+
+        $token = new RefreshToken($refresh_token);
+
+        $expect = "refresh_token=sample%7Erefresh%7Etoken";
+        $this->assertSame($expect, $token->toQueryString());
+    }
 }

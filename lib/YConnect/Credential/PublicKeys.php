@@ -2,7 +2,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (C) 2015 Yahoo Japan Corporation. All Rights Reserved.
+ * Copyright (C) 2021 Yahoo Japan Corporation. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,33 @@
  * THE SOFTWARE.
  */
 
-namespace YConnect\Constant;
+namespace YConnect\Credential;
 
-/**
- * ResponseTypeクラス
- *
- * response_typeの列挙型クラスです.
- */
-class ResponseType
+class PublicKeys
 {
+    private $public_keys;
+
     /**
-     * code
+     * コンストラクタ
+     *
+     * @param string $json json文字列
      */
-    const CODE = "code";
+    public function __construct($json)
+    {
+        $this->public_keys = json_decode($json);
+    }
+
+    /**
+     * kidから公開鍵を取得
+     *
+     * @param string $kid kid
+     * @return string|null 公開鍵
+     */
+    public function getPublicKey($kid)
+    {
+        if (!isset($this->public_keys->$kid)) {
+            return null;
+        }
+        return $this->public_keys->$kid;
+    }
 }

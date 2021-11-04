@@ -23,37 +23,30 @@
  * THE SOFTWARE.
  */
 
-/** \file ClientCredential.php
- *
- * \brief クレデンシャルを保持するクラスを定義しています.
- */
-
 namespace YConnect\Credential;
 
 /**
- * \class ClientCredentialクラス
+ * ClientCredentialクラス
  *
- * \brief クレデンシャルを保持するクラスです.
- *
- * 認可サーバ、Tokenサーバのリクエストで用いられるクレデンシャルのクラスです.
+ * 認可サーバ、Tokenサーバのリクエストで用いられるクレデンシャルを保持するクラスです.
  */
 class ClientCredential
 {
     /**
-     * \private \brief client_id
+     * @var string|null client_id
      */
     public $id = null;
 
     /**
-     * \private \brief client_secret
+     * @var string|null client_secret
      */
     public $secret = null;
 
     /**
-     * \brief ClientCredentialのインスタンス生成
+     * ClientCredentialのインスタンス生成
      *
-     * @param	$client_id	Client ID
-     * @param	$client_secret	Client Secret
+     * @param string $client_id クライアントID
+     * @param string $client_secret クライアントシークレット
      */
     public function __construct($client_id, $client_secret)
     {
@@ -62,7 +55,9 @@ class ClientCredential
     }
 
     /**
-     * \brief toString
+     * toString
+     *
+     * @return string
      */
     public function __toString()
     {
@@ -70,25 +65,27 @@ class ClientCredential
     }
 
     /**
-     * \brief Authorization Header形式クレデンシャル取得メソッド
+     * Authorization Header形式クレデンシャル取得メソッド
+     *
+     * @return string Authorization Header形式のクレデンシャル
      */
     public function toAuthorizationHeader()
     {
-        return base64_encode( $this->id . ":" . $this->secret );
+        return base64_encode($this->id . ":" . $this->secret);
     }
 
     /**
-     * \brief クエリ形式取得メソッド
+     * クエリ形式クレデンシャル取得メソッド
+     *
+     * @return string クエリ形式のクレデンシャル
      */
     public function toQueryString()
     {
-        $query = http_build_query(
+        return http_build_query(
             array(
                 "client_id"     => $this->id,
                 "client_secret" => $this->secret
             )
         );
-
-        return $query;
     }
 }

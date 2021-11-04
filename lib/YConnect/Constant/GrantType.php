@@ -25,25 +25,20 @@
 
 namespace YConnect\Constant;
 
-/** \file GrantType.php
- *
- * \brief grant_typeの列挙型クラスです.
- */
-
 /**
- * \class GrantTypeクラス
+ * GrantTypeクラス
  *
- * \brief grant_typeの列挙型クラスです.
+ * grant_typeの列挙型クラスです.
  */
 class GrantType
 {
     /**
-     * \public \brief authorization_code
+     * authorization_code
      */
     const AUTHORIZATION_CODE = "authorization_code";
 
     /**
-     * \public \brief refresh_token
+     * refresh_token
      */
     const REFRESH_TOKEN = "refresh_token";
 }

@@ -23,105 +23,97 @@
  * THE SOFTWARE.
  */
 
-/** \file AuthorizationClient.php
- *
- * \brief OAuth2 Authorization処理クラスです.
- */
-
 namespace YConnect\Endpoint;
 
 use YConnect\Constant\ResponseType;
+use YConnect\Credential\ClientCredential;
 use YConnect\Util\Logger;
 
 /**
- * \class AuthorizationClientクラス
+ * AuthorizationClientクラス
  *
- * \brief Authorizationの機能を実装したクラスです.
+ * Authorizationの機能を実装したクラスです.
  */
 class AuthorizationClient
 {
     /**
-     * \private \brief 認可サーバエンドポイントURL
+     * @var string 認可サーバエンドポイントURL
      */
-    private $url = null;
+    private $url;
 
     /**
-     * \private \brief クレデンシャル
+     * @var ClientCredential 認証情報
      */
-    private $cred = null;
+    private $cred;
 
     /**
-     * \private \brief レスポンスタイプ
+     * @var string レスポンスタイプ
      */
     private $response_type = ResponseType::CODE;
 
     /**
-     * \private \brief パラメータ
+     * @var array<string, string|int> パラメータ
      */
     private $params = array();
 
     /**
-     * \brief AuthorizationClientのインスタンス生成
+     * AuthorizationClientのインスタンス生成
      *
-     * @param	$endpoint_url	エンドポイントURL
-     * @param	$client_credential	クライアントクレデンシャル
-     * @param	$response_type	response_type
+     * @param string $endpoint_url エンドポイントURL
+     * @param ClientCredential $client_credential クライアントクレデンシャル
+     * @param string|null $response_type レスポンスタイプ
      */
-    public function __construct($endpoint_url, $client_credential, $response_type=null)
+    public function __construct($endpoint_url, $client_credential, $response_type = null)
     {
         $this->url  = $endpoint_url;
         $this->cred = $client_credential;
 
-        if( $response_type != null ) {
+        if ($response_type != null) {
             $this->response_type = $response_type;
         }
     }
 
     /**
-     * \brief 認可リクエストメソッド
+     * 認可リクエストメソッド
      *
-     * 認可サーバへAuthorozation Codeをリクエストします.
+     * 認可サーバへAuthorization Codeリクエストします.
      *
-     * @param	$redirect_uri	リダイレクトURI
-     * @param	$state	state
+     * @param string $redirect_uri リダイレクトURI
+     * @param string $state state
      */
-    public function requestAuthorizationGrant($redirect_uri=null, $state=null)
+    public function requestAuthorizationGrant($redirect_uri, $state = null)
     {
-        self::setParam( "response_type", $this->response_type );
-        self::setParam( "client_id", $this->cred->id );
+        self::setParam("response_type", $this->response_type);
+        self::setParam("client_id", $this->cred->id);
+        self::setParam("redirect_uri", $redirect_uri);
 
-        // RECOMMENEDED
-        if( $state != null ) {
-            self::setParam( "state", $state );
+        // RECOMMENDED
+        if ($state != null) {
+            self::setParam("state", $state);
         }
 
-        // OPTIONAL
-        if( $redirect_uri != null ) {
-            $encoded_redirect_uri = urlencode( $redirect_uri );
-            self::setParam( "redirect_uri", $redirect_uri );
-        }
-
-        $query = http_build_query( $this->params );
+        $query = http_build_query($this->params);
         $request_uri = $this->url . "?" .  $query;
 
-        Logger::info( "authorization request(" . get_class() . "::" . __FUNCTION__ . ")", $request_uri );
+        Logger::info("authorization request(" . get_class() . "::" . __FUNCTION__ . ")", $request_uri);
 
-        header( "Location: " . $request_uri );
-        exit();
+        $this->redirect($request_uri);
     }
 
     /**
-     * \brief scope設定メソッド
-     * @param	$scope_array	scope名の配列
+     * scope設定メソッド
+     *
+     * @param string[] $scope_array scope名の配列
      */
     public function setScopes($scope_array)
     {
-        $this->params[ "scope" ] = implode( " ", $scope_array );
+        $this->params[ "scope" ] = implode(" ", $scope_array);
     }
 
     /**
-     * \brief レスポンスタイプ設定メソッド
-     * @param	$response_type	response_type
+     * レスポンスタイプ設定メソッド
+     *
+     * @param string $response_type レスポンスタイプ
      */
     public function setResponseType($response_type)
     {
@@ -129,12 +121,12 @@ class AuthorizationClient
     }
 
     /**
-     * \brief パラメータ設定メソッド
+     * パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$key	パラメータ名
-     * @param	$val	値
+     * @param string $key パラメータ名
+     * @param string|int $val 値
      */
     public function setParam($key, $val)
     {
@@ -142,24 +134,35 @@ class AuthorizationClient
     }
 
     /**
-     * \brief 複数パラメータ設定メソッド
+     * 複数パラメータ設定メソッド
      *
      * パラメータ名が重複している場合、後から追加された値を上書きします.
      *
-     * @param	$keyval_array	パラメータ名と値の連想配列
+     * @param array<string, string|int> $key_val_array パラメータ名と値の連想配列
      */
-    public function setParams($keyval_array)
+    public function setParams($key_val_array)
     {
-        $this->params = array_merge( $this->params, $keyval_array );
+        $this->params = array_merge($this->params, $key_val_array);
     }
 
     /**
-     * \brief 認可サーバエンドポイントURL設定メソッド
-     * @param	$endpoint_url	エンドポイントURL
+     * 認可サーバエンドポイントURL設定メソッド
+     *
+     * @param string $endpoint_url エンドポイントURL
      */
-    protected function _setEndpointUrl($endpoint_url)
+    protected function setEndpointUrl($endpoint_url)
     {
         $this->url = $endpoint_url;
     }
 
+    /**
+     * リダイレクト実行
+     *
+     * @param string $request_uri リダイレクト先のURL
+     */
+    protected function redirect($request_uri)
+    {
+        header("Location: " . $request_uri);
+        exit();
+    }
 }

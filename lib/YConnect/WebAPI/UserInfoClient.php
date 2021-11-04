@@ -23,100 +23,100 @@
  * THE SOFTWARE.
  */
 
-/** \file UserInfoClient.php
- *
- * \brief OAuth2 Authorization処理クラスです.
- */
-
 namespace YConnect\WebAPI;
 
 use YConnect\Endpoint\ApiClient;
 use YConnect\Credential\BearerToken;
+use YConnect\Exception\TokenException;
 use YConnect\Util\Logger;
 use YConnect\Exception\ApiException;
 
 /**
- * \class UserInfoClientクラス
+ * UserInfoClientクラス
  *
- * \brief Authorizationの機能を実装したクラスです.
+ * UserInfoにアクセスする機能を実装したクラスです.
  */
 class UserInfoClient extends ApiClient
 {
     /**
-     * \private \brief UserInfoエンドポイントURL
+     * @var string|null UserInfoエンドポイントURL
      */
-    private $url = null;
+    private $url;
 
     /**
-     * \private \brief レスポンスタイプ
-     */
-    private $schema = "openid";
-
-    /**
-     * \private \brief UserInfo配列
+     * @var object|null UserInfo配列
      */
     private $user_info = array();
 
     /**
-     * \brief UserInfoClientのインスタンス生成
+     * UserInfoClientのインスタンス生成
      *
-     * @param	$endpoint_url	エンドポイントURL
-     * @param	$schema	schema
+     * @param string $endpoint_url エンドポイントURL
+     * @param string|BearerToken $access_token アクセストークン
      */
-    public function __construct($endpoint_url, $access_token, $schema=null)
+    public function __construct($endpoint_url, $access_token)
     {
-        if( is_string($access_token) )
-            $access_token = new BearerToken( $access_token, null );
+        if (is_string($access_token)) {
+            $access_token = new BearerToken($access_token, null);
+        }
 
-        parent::__construct( $access_token );
+        parent::__construct($access_token);
 
         $this->url  = $endpoint_url;
-        $this->access_token = $access_token;
-
-        if( $schema != null ) {
-            $this->schema = $schema;
-        }
     }
 
     /**
-     * \brief UserInfoエンドポイントリソース取得メソッド
+     * UserInfoエンドポイントリソース取得メソッド
      *
+     * @throws TokenException レスポンスヘッダーにエラーが含まれているときに発生
+     * @throws ApiException レスポンスボディにエラーが含まれているときに発生
      */
     public function fetchUserInfo()
     {
-        parent::setParam( "schema", $this->schema );
-
-        parent::fetchResource( $this->url, "GET" );
+        parent::fetchResource($this->url, "GET");
 
         $res_body = parent::getLastResponse();
 
-        $json_response = json_decode( $res_body, true );
-        Logger::debug( "json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response );
-        if( $json_response != null ) {
-            if( empty( $json_response["error"] ) ) {
-                $this->user_info = $json_response;
-            } else {
-                $error      = $json_response["error"];
-                $error_desc = $json_response["error_description"];
-                Logger::error( $error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc );
-                throw new ApiException( $error, $error_desc );
-            }
-        } else {
-            Logger::error( "no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body" );
-            throw new ApiException( "no_response", "Failed to get the response body" );
-        }
+        $this->parseJson($res_body);
     }
 
     /**
-     * \brief UserInfo配列取得メソッド
+     * UserInfo配列取得メソッド
      *
+     * @return object|false UserInfoObject
      */
     public function getUserInfo()
     {
-        if( $this->user_info != null ) {
+        if ($this->user_info != null) {
             return $this->user_info;
         } else {
             return false;
         }
+    }
+
+    /**
+     * JSONパラメータ抽出処理
+     *
+     * @param string $json パースするJSON
+     * @throws ApiException レスポンスにエラーが含まれているときに発生
+     */
+    private function parseJson($json)
+    {
+        $json_response = json_decode($json, true);
+        Logger::debug("json response(" . get_class() . "::" . __FUNCTION__ . ")", $json_response);
+
+        if (!$json_response) {
+            Logger::error("no_response(" . get_class() . "::" . __FUNCTION__ . ")", "Failed to get the response body");
+            throw new ApiException("no_response", "Failed to get the response body");
+        }
+
+        if (isset($json_response["error"])) {
+            $error      = $json_response["error"];
+            $error_desc = $json_response["error_description"];
+            Logger::error($error . "(" . get_class() . "::" . __FUNCTION__ . ")", $error_desc);
+            throw new ApiException($error, $error_desc);
+        }
+
+        $this->user_info = $json_response;
     }
 }

@@ -2,7 +2,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (C) 2015 Yahoo Japan Corporation. All Rights Reserved.
+ * Copyright (C) 2021 Yahoo Japan Corporation. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,52 @@
  * THE SOFTWARE.
  */
 
-namespace YConnect\Constant;
+namespace YConnect\Exception;
 
-/**
- * ResponseTypeクラス
- *
- * response_typeの列挙型クラスです.
- */
-class ResponseType
+use PHPUnit_Framework_TestCase;
+
+class ApiExceptionTest extends PHPUnit_Framework_TestCase
 {
+    private static $INVALID_TOKEN = "invalid_token";
+    private static $INVALID_REQUEST = "invalid_request";
+
     /**
-     * code
+     * @test
      */
-    const CODE = "code";
+    public function testInvalidTokenReturnsTrue()
+    {
+        $exception = new ApiException(self::$INVALID_TOKEN);
+
+        $this->assertTrue($exception->invalidToken());
+    }
+
+    /**
+     * @test
+     */
+    public function testInvalidTokenReturnsFalse()
+    {
+        $exception = new ApiException(self::$INVALID_REQUEST);
+
+        $this->assertFalse($exception->invalidToken());
+    }
+
+    /**
+     * @test
+     */
+    public function testInvalidRequestReturnsTrue()
+    {
+        $exception = new ApiException(self::$INVALID_REQUEST);
+
+        $this->assertTrue($exception->invalidRequest());
+    }
+
+    /**
+     * @test
+     */
+    public function testInvalidRequestReturnsFalse()
+    {
+        $exception = new ApiException(self::$INVALID_TOKEN);
+
+        $this->assertFalse($exception->invalidRequest());
+    }
 }

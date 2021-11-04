@@ -23,36 +23,37 @@
  * THE SOFTWARE.
  */
 
-/** \file OIDConnectPrompt.php
- *
- * \brief promptの列挙型クラスです.
- */
 namespace YConnect\Constant;
 
 /**
- * \class OIDConnectPromptクラス
+ * OIDConnectPromptクラス
  *
- * \brief promptの列挙型クラスです.
+ * promptの列挙型クラスです.
  */
 class OIDConnectPrompt
 {
     /**
-     * \public \brief login: ログイン
+     * login: ログイン
      */
     const LOGIN = "login";
 
     /**
-     * \public \brief consent: ユーザの認可
+     * select_account: ID切替
+     */
+    const SELECT_ACCOUNT = "select_account";
+
+    /**
+     * consent: ユーザの認可
      */
     const CONSENT = "consent";
 
     /**
-     * \public \brief none: 非表示
+     * none: 非表示
      */
     const NONE = "none";
 
     /**
-     * \public \brief 空文字列: 未指定
+     * 空文字列: 未指定
      */
     const DEFAULT_PROMPT = "";
 }
