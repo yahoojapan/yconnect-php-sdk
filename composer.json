@@ -2,7 +2,7 @@
     "name": "yahoojapan/yconnect-php-sdk",
     "description": "YConnect PHP SDK",
     "keywords": [
-        "Yahoo! JAPAN",
+        "LY Corporation",
         "PHP",
         "YConnect",
         "OpenID Connect",
@@ -13,7 +13,7 @@
     "homepage": "https://github.com/yahoojapan/yconnect-php-sdk",
     "authors": [
       {
-        "name": "Yahoo Japan Corporation"
+        "name": "LY Corporation"
       }
     ],
     "autoload": {
