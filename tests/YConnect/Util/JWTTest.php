@@ -160,7 +160,7 @@ class JWTTest extends PHPUnit_Framework_TestCase
         $json = json_encode(array(
             "key1" => "value1",
             "key2" => "value2"
-        )) . "}";
+        )) . ",}";
 
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage("JSON decode error: " . JSON_ERROR_SYNTAX);
