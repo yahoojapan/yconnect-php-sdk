@@ -88,7 +88,7 @@ https://developer.yahoo.co.jp/yconnect/v2/php_sdk/
 詳しくは LICENSE をご覧ください。
 
 ### Version
-3.0.0
+3.0.1
 
 ### Pull request に関して
 現在 Contributor License Agreement（CLA）を準備しています。  
